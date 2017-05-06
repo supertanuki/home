@@ -1,0 +1,19 @@
+{
+  "name": "SupertanukiHome",
+  "version": "1.0.0",
+  "description": "I'm Richard Hanna, a developer and this is my home page",
+  "main": "index.js",
+  "repository": {
+    "url": "https://github.com/supertanuki/home",
+    "type": "git"
+  },
+  "author": "Richard HANNA <supertanuki@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "spectre.css": "^0.2.14"
+  },
+  "devDependencies": {
+    "laravel-mix": "^0.11.4",
+    "webpack": "^2.5.0"
+  }
+}
