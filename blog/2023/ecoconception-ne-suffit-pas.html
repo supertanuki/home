@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Écoconception des services numériques, et si ça ne suffisait pas ? -
+      Richard Hanna
+    </title>
+    <link rel="stylesheet" type="text/css" href="/assets/css/styles.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>
+        Écoconception des services numériques, et si ça ne suffisait pas ?
+      </h1>
+    </header>
+
+    <p>Publié le 02/10/2023 par <a href="/">Richard Hanna</a></p>
+
+    <hr />
+
+    <p>
+      <em
+        >Cet article est un support à la
+        <a
+          href="https://www.paris-web.fr/2023/conferences/ecoconception-web-et-si-ca-ne-suffisait-pas.php"
+          >conférence que j’ai donné</a
+        >
+        à Paris Web 2023. Je tiens à remercier les organisateurs, l’équipe de
+        traduction en langue des signes et la bienveillance de l’audience. Le
+        temps d’échanges informels pour donner suite aux conférences est une
+        chouette idée que j’ai beaucoup appréciée en tant que conférencier tout
+        comme en tant que participant.</em
+      >
+    </p>
+
+    <img src="/assets/img/nuages.jpg" />
+
+    <p>
+      Durant la colonisation européenne des Antilles et la période de
+      l’esclavage qui a duré du XVIIè au XIXè siècle, 1 million d’esclaves ont
+      été déportés d’Afrique vers les Antilles dans la triste célèbre traite
+      négrière. Certains esclaves ont pu <strong>fuir</strong> les plantations,
+      l’habitation coloniale et les mauvais traitements en se réfugiant dans la
+      forêt. Dès lors, certains sont entrés en <strong>résistance</strong> et
+      ont tenté de libérer leurs frères et sœurs du joug du maitre colon. On les
+      appelle les « <em><strong>neg-mawon</strong></em
+      > », les nègres marrons. Le <strong>marronage</strong> désigne leur fuite
+      et leur résistance.
+    </p>
+
+    <p>
+      Aujourd’hui, la
+      <a
+        href="https://www.lemonde.fr/societe/article/2020/06/24/la-statue-de-colbert-vandalisee-devant-l-assemblee-nationale_6043986_3224.html"
+        target="_blank"
+        ><strong>statue de Colbert</strong></a
+      ><strong>,</strong> ministre de Louis XIV et auteur du
+      <strong>Code Noir</strong>
+      régissant les conditions de vie et les châtiments des esclaves, trône
+      encore devant notre Assemblée Nationale. Aujourd’hui, le paysage agricole
+      de la Guadeloupe, de la Martinique n’a pas beaucoup changé en 3 siècles :
+      des champs de cannes à sucre et des bananerais destinées à l’exportation,
+      la nourriture locale étant à plus de 80% importée. Aujourd’hui, les
+      Antilles sont toujours victimes des conséquences de la colonisation :
+      pauvreté, chômage, drogue. Aujourd’hui, les Antilles sont les premières
+      victimes des catastrophes écologiques : des ouragans nombreux et puissants
+      du fait du réchauffement des océans, pas d’eau dans le robinet à cause du
+      désinvestissement de l’État dans les infrastructures, sur les côtes des
+      échouages de sargasses cet algue toxique pour les humains, la faune et la
+      flore et qui prolifère à cause du réchauffement des océans et les
+      fertilisants utilisés dans l’agriculture intensive notamment en Amérique
+      du Sud. Aujourd’hui, les guadeloupéens et martiniquais doivent vivre avec
+      un sol, une eau et leur propre sang pollués par un insecticide contre le
+      charançon du bananier, la chlordécone, interdit aux États-Unis dès 1975,
+      interdit en métropole en 1990, interdit en 1993 aux Antilles mais suite à
+      la découverte de stocks et de contaminations dans les plantations de
+      bananes, a été utilisé probablement jusqu’au début des années 2000 par les
+      gros propriétaires terriens notamment les békés, les descendants des
+      colons.
+    </p>
+
+    <h2>D’où je parle ?</h2>
+
+    <p>
+      Je suis originaire de la Guadeloupe. Développeur, je sors d’une période de
+      8 ans où j’ai enchainé une création d’une coopérative avec
+      <a href="https://fairness.coop/" target="_blank">Fairness</a> puis une
+      mission passionnante à la Direction interministérielle du numérique, où
+      j’étais chargé de
+      <a href="https://ecoresponsable.numerique.gouv.fr/" target="_blank"
+        >réduire l’empreinte du numérique de l’administration publique</a
+      >. À mes heures gagnées, et non perdues, j’anime le
+      <a href="https://techologie.net/" target="_blank">podcast Techologie</a>,
+      où je m’entretiens avec des personnalités sur la place des technologies
+      dans nos sociétés, et par conséquent les enjeux sociaux et
+      environnementaux. Actuellement, je suis en jachère professionnelle et en
+      <a
+        href="https://www.placedeslibraires.fr/livre/9782757890592-le-chomage-createur-postface-a-la-convivialite-ivan-illich/"
+        >chômage créateur</a
+      >
+      à la recherche de là où je peux être utile.
+    </p>
+
+    <p>
+      Il y a 5 ans, en 2018, je me suis retrouvé comme Néo dans le
+      <a href="https://fr.wikipedia.org/wiki/Matrix_(film)" target="_blank"
+        >film Matrix</a
+      >, à choisir entre la pilule bleue et rouge. Je n’ai pas vraiment choisi,
+      le réveil était inévitable. Il a été brutal. J’ai compris soudainement
+      l’état du monde : la
+      <strong>6ème extinction de masse des espèces</strong>, le
+      <strong>dérèglement climatique</strong> et le
+      <strong>dépassement des limites planétaires</strong>, tout cela à cause
+      <strong>des activités humaines</strong>. On parle d’<a
+        href="https://fr.wikipedia.org/wiki/Anthropoc%C3%A8ne"
+        target="_blank"
+        ><strong>Anthropocène</strong></a
+      >, « nouvelle époque géologique qui se caractérise par l'avènement des
+      hommes comme principale force de changement sur Terre, surpassant les
+      forces géophysiques ». Il vaut mieux sans doute parler de
+      <a href="https://fr.wikipedia.org/wiki/Capitaloc%C3%A8ne" target="_blank"
+        ><strong>Capitalocène</strong></a
+      >
+      car c'est « le capitalisme qui est principalement responsable des
+      dérèglements environnementaux actuels, et non l'humanité dans son
+      ensemble ».
+    </p>
+
+    <p>
+      D’abord m’est venue la <strong>colère</strong> de ne pas avoir compris
+      plus tôt l’état du monde, colère contre les semeurs de doutes, colère
+      contre les médias qui n’en parlaient que très peu il y a quelques années.
+      Mais tout de suite est venue l’envie irrépressible de sortir de cette
+      matrice qui nous envoie dans le mur et d’<strong>agir</strong>.
+    </p>
+
+    <h2>Impacts environnementaux du numérique</h2>
+
+    <p>
+      À ce moment-là j’étais développeur. Je me demandais ce que je pouvais
+      faire en tant que développeur pour que cela soit moins la merde. J’ai
+      commencé comme tout bon technicien à voir si on pouvait évaluer les
+      impacts environnementaux d’un service numérique. Je pensais consommation
+      d’électricité et impact carbone. J’ai contribué au think thank le Shift
+      Project en développant en open source la webextension
+      <a
+        href="https://theshiftproject.org/carbonalyser-extension-navigateur/"
+        target="_blank"
+        ><strong>Carbonalyser</strong></a
+      >. Ce qui, après coup, s’est avéré complètement une fausse route.
+    </p>
+
+    <p>
+      <strong
+        >Prenons ce point de vue : en considérant les logiques coloniales sur
+        lesquelles reposent aujourd’hui le numérique, quels sont les différents
+        impacts ?</strong
+      >
+    </p>
+
+    <p>
+      Le numérique c’est d’abord une infrastructure loin d’être immatérielle.
+      Cela repose sur des équipements serveurs, réseaux et utilisateurs reliés
+      entre eux par des câbles sur Terre et même au fond des océans, mais aussi
+      par des antennes des réseaux mobiles.
+    </p>
+
+    <p>
+      <strong
+        >Digital ne rime pas avec végétal : le numérique ne pousse pas dans les
+        arbres. </strong
+      >Pour fabriquer toute cette infrastructure, cela repose sur l’<strong
+        >extraction de matières du sol</strong
+      >. L’industrie minière est l’<strong
+        >industrie la plus polluante au monde</strong
+      >. Comme elle est pratiquée dans le tiers-monde, les contraintes
+      environnementales et sociales sont inexistantes. Sans compter que certains
+      gisements sont tenus par des milices qui esclavagisent des hommes, des
+      femmes, des enfants et qui violent des femmes, pour subvenir aux besoins
+      mondiaux des industriels, constructeurs et au bout de la chaine, nous
+      autres consommateurs en proie à la surconsommation d’usages numériques, à
+      la multiplication des équipements et à leur obsolescence prématurée.
+    </p>
+
+    <p>
+      La
+      <strong
+        >fabrication des composants et l’assemblage des équipements
+        numériques</strong
+      >
+      dans les usines du monde en Asie reposent également sur des logiques
+      coloniales où l’asservissement des ouvriers est la règle.
+    </p>
+
+    <p>
+      Concernant la <strong>fin de vie des équipements</strong>, même si au
+      niveau français on parait exemplaire avec plus de 70% des équipements qui
+      sont traités, recyclés, valorisés et enfouis dans le sol en France, de par
+      le monde, ce n’est pas du tout le cas. Une grande majorité des équipements
+      des pays riches partent vers des décharges sauvages en Afrique ou en Asie,
+      où le démantèlement est très artisanal avec des conséquences
+      environnementales et sanitaires catastrophiques sur les populations
+      locales. De plus, des entreprises mafieuses profitent de la manne que
+      représentent la récupération des métaux précieux présents dans le
+      numérique pour détourner les déchets du recyclage.
+    </p>
+
+    <p>
+      Le numérique, l’Internet sont des formidables outils d’émancipation. Ce
+      sont aussi des outils d’aliénation. L’<strong
+        >accaparement de notre temps de cerveaux</strong
+      >
+      par les réseaux sociaux et autres applications ludiques par les GAFAM et
+      autres big tech représente également une
+      <strong>forme de colonialisme</strong> de notre temps, de notre attention
+      et de nos données personnelles. 2 heures par jour passée sur Instagram
+      représentent sur une année, un mois complet sans sommeil. C’est énorme.
+      Avec le numérique, nous vivons une forme de
+      <a
+        href="https://fr.wikipedia.org/wiki/Syndrome_de_Stockholm"
+        target="_blank"
+        ><strong>syndrome de Stockholm</strong></a
+      > : otages consentants, nous connaissons ce qui ne va pas avec le
+      numérique mais nous ne pouvons plus nous en passer.
+    </p>
+
+    <h2>Écoconception</h2>
+
+    <p>
+      Face au gaspillage numérique, un des leviers pour nous, professionnels du
+      numérique et du web, c’est de
+      <strong>réduire l’empreinte de nos services numériques</strong>. Les sites
+      web et applications sont de plus en plus lourds, de plus en plus gourmands
+      en ressources informatiques. Les utilisateurs ont une expérience dégradée
+      avec des services plus lents ou qui ne se chargent pas, notamment dans les
+      zones à faible débit réseau. Cela peut contribuer ainsi à l’obsolescence
+      des équipements.
+    </p>
+
+    <p>
+      L’écoconception de services numériques est une démarche
+      <strong>pour réduire la consommation de ressources informatiques</strong>.
+      Il ne s’agit donc pas seulement une simple réduction de la consommation
+      d’énergie ou d’électricité, d’autant plus dans le cas d’un smartphone dont
+      les recharges quotidiennes ne pèsent pas plus de quelques euros sur la
+      facture annuelle d’électricité. L’impact carbone d’un service numérique ne
+      veut donc pas dire grand-chose. Il faut parler des impacts
+      environnementaux multi indicateurs et les émissions de gaz à effet de
+      serre, l’impact carbone est très mauvais indicateur. Il faut tenir compte
+      aussi de la consommation de ressources abiotiques par exemple : matières,
+      eau, etc.
+    </p>
+
+    <p>
+      Ne pas envisager l’écoconception sous l’angle
+      <strong>techniciste ou techno-solutionniste</strong>. Ce n’est pas un
+      sujet d’optimisation technique, ni de rendre les outils plus efficients
+      mais une démarche demandant de repenser globalement un service numérique.
+    </p>
+
+    <p>
+      Au-delà des aspects environnementaux,
+      <strong>l’écoconception est un enjeu social</strong> : faire en sorte que
+      le service numérique fonctionne sur les équipements les plus anciens ou
+      les moins performants, <strong>ceux qui ne coûtent pas un SMIC</strong>.
+      Il est important alors pour nous professionnels du web de
+      <strong>tester le bon fonctionnement</strong> du service numérique sur un
+      <strong>vieil équipement</strong> ou un
+      <strong>matériel beaucoup moins performant</strong> que les appareils haut
+      de gamme.
+    </p>
+
+    <p>
+      <strong>Quels profils, quels métiers sont concernés ?</strong>
+      Tous ! Toutes les personnes concernées par la conception du service
+      numérique et non pas seulement designers et développeurs. Il faut pouvoir
+      embarquer le commanditaire du produit, le métier, mais aussi les devops,
+      les pros de l’hébergement. Il ne faut pas oublier les contributeurs,
+      rédacteurs web, etc. Ces personnes ont également un rôle à jouer.
+    </p>
+
+    <p>
+      De plus, pour être cohérent, il vaut mieux démarrer une démarche
+      d’écoconception après s’être engagé à améliorer l’<strong
+        >accessibilité numérique</strong
+      >
+      dans une démarche globale d’amélioration de la qualité d’un service
+      numérique.
+    </p>
+
+    <p>
+      De grâce, arrêtons de qualifier les sites web éco-conçus de sites
+      écologiques, qui préservent ou sauvent la planète. C’est ridicule et cela
+      discrédite la démarche. Aucun site web ne sera jamais écologique, même
+      celui qui affiche que 2 mots.
+    </p>
+
+    <h2>Comment faire les premiers pas en écoconception ?</h2>
+
+    <p>Proposition tout à fait adaptable et à parfaire :</p>
+
+    <ol>
+      <li>
+        Cela peut commencer par un exercice collectif d’<strong
+          >identification des améliorations potentielles</strong
+        >
+        sur un service numérique (site web, application au périmètre bien
+        défini) sans regarder aucun référentiel d’écoconception. L’important est
+        de travailler sur ce qui a le plus d’impact (<a
+          href="https://fr.wikipedia.org/wiki/Loi_de_Pareto"
+          target="_blank"
+          >loi de Pareto ou méthode des 80-20</a
+        > : 20% d’effort pour 80% d’impact).
+      </li>
+      <li>
+        Construire son propre
+        <strong>manifeste d’écoconception </strong>co-écrit par tous les membres
+        de l’équipe.
+      </li>
+      <li>
+        <strong>Suivre des indicateurs techniques</strong> : poids des pages,
+        nombre de requêtes, temps passé à réaliser un parcours utilisateurs,
+        etc. Il est inutile à ce stade d’installer ou d’utiliser des tas
+        d’outils parfois complexes.
+      </li>
+      <li>
+        Réaliser un premier <strong>diagnostic </strong
+        ><a
+          href="https://ecoresponsable.numerique.gouv.fr/publications/referentiel-general-ecoconception/"
+          target="_blank"
+          ><strong>RGESN</strong></a
+        >
+        – Référentiel Général d’écoconception de services numériques d’un
+        service numérique (ou une partie du service), avec
+        <a
+          href="https://ecoresponsable.numerique.gouv.fr/publications/referentiel-general-ecoconception/numecodiag/"
+          target="_blank"
+          >NumEcoDiag</a
+        >. Cet atelier peut être collectif ou par domaine de compétence.
+      </li>
+      <li>
+        Pour documenter la démarche, être transparent sur les efforts, éviter
+        une forme de greenwashing et que cela puisse servir à d’autres,
+        <strong>rédiger une déclaration d’écoconception</strong> toujours en
+        mode collectif.
+      </li>
+    </ol>
+
+    <h2>Pourquoi l’écoconception ne suffit pas ?</h2>
+
+    <p>
+      Les services numériques sont de plus en plus complexes, mobilisent de plus
+      en plus de métiers. On vit dans une forme
+      <strong>d’accélérationnisme</strong>, symptomatique de notre époque (la
+      <a
+        href="https://fr.wikipedia.org/wiki/Grande_acc%C3%A9l%C3%A9ration"
+        target="_blank"
+        >Grande Accélération</a
+      >
+      est la période la plus récente de l’Anthropocène). Selon
+      <strong>Ivan Illich</strong> dans son essai
+      <a
+        href="https://www.babelio.com/livres/Illich-La-Convivialite/2485"
+        target="_blank"
+        >La convivialité</a
+      >
+      paru en 1973,
+      <em
+        ><strong
+          >L'outil simple, pauvre, transparent est un humble serviteur ; l'outil
+          élaboré, complexe, secret est un maître arrogant</strong
+        ></em
+      >.
+    </p>
+
+    <p>
+      L’écoconception ne suffit pas car il y a d’abord les risques d’<strong
+        >effet rebond</strong
+      > : l’écoconception pourrait rendre les services numériques plus
+      efficaces, et donc potentiellement beaucoup plus utilisés ce qui augmente
+      les impacts du service au lieu de les diminuer.
+    </p>
+
+    <p>
+      Attention également à ne pas s’enfermer dans une forme de
+      <strong>solutionnisme technologique</strong> : les technologies pour
+      corriger les méfaits des technologies. Avant de concevoir ou
+      d’écoconcevoir, il faut d’abord
+      <strong>apprendre à renoncer à numériser</strong>,
+      <strong>dénumériser</strong> et <strong>démanteler</strong> des
+      infrastructures inutiles.
+    </p>
+
+    <p>
+      En réalité, l’écoconception, en plus de réduire l’empreinte
+      environnementale des services numériques, est
+      <strong>un prétexte pour questionner nos pratiques</strong>, la
+      consommation des ressources et surtout les modèles business dépendant du
+      numérique.
+    </p>
+
+    <p>
+      Le <strong>système d’exploitation</strong> le plus installé dans le monde
+      n’est ni Windows, ni MacOS, ni Android, mais bien le
+      <strong>capitalisme colonial</strong>.
+    </p>
+
+    <p>
+      Trier les déchets, entamer une démarche zéro-déchet, acheter local,
+      prendre des douches courtes, réduire ou ne plus manger de viande, réduire
+      ou ne plus prendre l’avion, réparer son smartphone ou son PC, écoconcevoir
+      ses services numériques.
+      <strong
+        >Ces éco-gestes individuels ou même collectifs sont indolores </strong
+      >pour le système capitaliste colonial<strong>.</strong> Le système et les
+      entreprises ont complètement <strong>intégré</strong> les concepts du
+      développement durable.
+    </p>
+
+    <p>
+      Par exemple, lorsque <strong>Coca-Cola</strong> fait des affichages pubs
+      qui déclarent « <em
+        >N’achète pas Coca-Cola si tu nous aides pas à recycler</em
+      > ». Bien sûr, il n’est pas question de remettre en cause le modèle
+      d’activité ayant amené à vendre essentiellement de l’eau et du sucre dans
+      des bouteilles plastiques jetables.
+    </p>
+
+    <p>
+      Dans le secteur du numérique, les <em>cloud provider</em> sont très armés
+      pour montrer patte verte sans qu’au final rien ne bouge (à part sans doute
+      l’accroissement de leur chiffre d’affaires et les impacts environnementaux
+      associés) : ils sont <em>green</em>, neutres en carbone même de manière
+      rétroactive alors que l’installation de nouveaux data centers avec
+      l’artificialisation des sols nécessaires pour cela, la consommation
+      d’énergie, d’eau et de matériels ne fait qu’augmenter. Les calculs ne sont
+      pas bons, Kévin. Ne soyons pas dupes.
+    </p>
+
+    <p>
+      À l’heure où
+      <a
+        href="https://gauthierroussilhe.com/articles/les-emissions-evitees-de-la-numerisation"
+        target="_blank"
+        >l’industrie du numérique vante les émissions de gaz à effet de serre
+        évitées</a
+      >, considérons non pas seulement les externalités positives, mais aussi
+      celles négatives. À l’heure où se pose la question de la place des
+      Intelligences Artificielles, demandons-nous plutôt à qui ou à quoi
+      profitent ces nouvelles technologies. À l’heure où le numérique accroit
+      les gains de productivité, pourquoi ces gains ne sont pas partagés ou bien
+      que le temps de travail ne diminue pas ?
+    </p>
+
+    <p>
+      Plus de 30 ans de <strong>développement durable</strong> et de
+      <strong>numérisation</strong> n’ont pas empêché l'effondrement de la
+      biodiversité et la croissance exponentielles des émissions de gaz à effet
+      de serre. Les 17 objectifs de développement durable définis par l’ONU en
+      2015 ont largement été détournés, galvaudés, au service des entreprises,
+      et du <em><strong>business as usual</strong></em
+      >, le business comme d’habitude, autrement dit le <em>statu quo</em>.
+    </p>
+
+    <p>
+      J’ai cru en la <strong>Convention Citoyenne pour le Climat</strong>. Le
+      résultat a été jeté à la poubelle. Je n’attends rien mais je suis quand
+      même déçu de la
+      <em><strong>planification écologique à la française</strong></em> qui se
+      résume essentiellement à
+      <strong>subventionner le modèle tout-bagnole individuelle</strong>, à
+      développer encore et toujours des
+      <strong>méga-infrastructures énergétiques </strong>sensibles au
+      réchauffement climatique, et en omettant complètement l’indispensable
+      <strong>sobriété</strong> qui devrait être au cœur de la transformation de
+      notre société.
+    </p>
+
+    <p>
+      Après des années d’échanges, de rencontres, à travers ma vie
+      professionnelle et par les entretiens réalisés sur le podcast Techologie,
+      j’ai compris une chose :
+      <strong>on ne peut pas changer le système actuel. </strong>Comme le dit
+      Hélène Grosbois dans un article<strong>, </strong
+      ><a
+        href="https://www.linkedin.com/pulse/changer-le-syst%C3%A8me-ou-de-h%C3%A9l%C3%A8ne-grosbois/"
+        target="_blank"
+        ><strong>il faut changer DE système</strong></a
+      ><strong>. Cela parait impossible </strong>mais lorsqu’on regarde en
+      arrière, dans l’Histoire, de système nous en avons changé pleins de fois !
+    </p>
+
+    <p>
+      En tant que <strong>travailleurs de la tech</strong>, très souvent,
+      <strong
+        >nous faisons partie du système, nous participons au problème, </strong
+      >nous sommes un maillon de la chaine productiviste :
+      <strong
+        >par notre travail, nous contribuons à des modèles
+        capitalistiques</strong
+      >
+      coloniaux, le profit de certains au détriment de tous, l’accaparement des
+      ressources de la planète, l’asservissement des êtres humains les plus
+      pauvres et la destruction du vivant.
+    </p>
+
+    <p>
+      <strong>Faut-il déserter nos entreprises ?</strong> Selon l’Institut
+      Transitions, il y a
+      <a
+        href="https://www.instituttransitions.org/transition_ecologique_4_questions/"
+        target="_blank"
+        >4 questions à se poser</a
+      >
+      :
+    </p>
+
+    <ol>
+      <li>Ma structure a-t-elle sa place dans la société de demain ?</li>
+      <li>Mon entreprise peut-elle réellement changer ?</li>
+      <li>
+        Est-ce que, moi, je peux faire bouger les lignes dans mon entreprise ?
+      </li>
+      <li>Que désirez-vous vivre dans votre vie professionnelle ?</li>
+    </ol>
+
+    <p>
+      <strong
+        >Dès lors, si nous pouvons, si nous avons le privilège pour le faire,
+        bifurquons, désertons. </strong
+      >Ne croyons pas qu’il sera facile d’être remplacé. Nos métiers sont en
+      « tension ». De plus, les freins à la désertion sont parfois plus
+      psychologiques que matériels ou financiers. Des associations accompagnent
+      la désertion, par exemple
+      <a href="https://desertheureuses.noblogs.org/" target="_blank"
+        >Les Désert’Heureuses</a
+      >
+      ou bien
+      <a href="https://vous-netes-pas-seuls.org/" target="_blank"
+        >Vous n’êtes pas seuls</a
+      >.
+    </p>
+
+    <p>
+      Si vous avez une idée entrepreneuriale à développer, un projet sincère,
+      social, environnemental, il y a beaucoup de financement public pour la
+      création d’entreprise notamment de « <em
+        ><strong>startups green tech »</strong></em
+      >. De plus, envisagez le statut de coopératif (SCOP ou SCIC) pour la
+      gouvernance et les bénéfices partagés.
+    </p>
+
+    <p>
+      Nous pouvons aussi<strong>
+        rejoindre des emplois, des employeurs et des clients dont les activités
+        ne sont pas destructrices du vivant</strong
+      >
+      : économie sociale et solidaire, associations, coopératives, dans les
+      domaines de la santé, de l'économie du réemploi, l'économie de
+      fonctionnalité (location vs logique de propriété), le service public… Dans
+      tous ces secteurs, même le secteur public, toujours
+      <strong>se méfier des logiques techno-solutionnistes</strong> ou des
+      <strong>pratiques non-éthiques</strong> (capitalisme de la surveillance de
+      masse par exemple) qui ont corrompus ces secteurs et se répandent partout.
+    </p>
+
+    <h3>Quelles stratégies plus offensives ?</h3>
+
+    <p>
+      On peut également adopter des<strong> stratégies plus offensives, </strong
+      >des stratégies pour<strong> nuire au système, </strong>adopter une
+      démarche d’« <a
+        href="https://www.babelio.com/livres/Ouassak-Pour-une-ecologie-pirate/1492801"
+        target="_blank"
+        ><strong>écologie pirate</strong></a
+      > » selon le titre d’un essai de Fatima Ouassak.
+    </p>
+
+    <p>
+      <strong>Saboter le système (en toute légalité)</strong>
+    </p>
+
+    <p>
+      Un premier pas de côté c’est de<strong>
+        réduire le temps travaillé</strong
+      >
+      qui permet de libérer du temps pour des activités non-marchandes : donner
+      du temps bénévole à des associations, s’occuper de ses proches, de ses
+      enfants, de ses parents, d’avoir le temps de cuisiner, de s’occuper d’un
+      potager, de lire, etc., bref, de vivre. Par exemple, avec le temps que je
+      libère, je donne des coups de main dans une
+      <a href="https://www.sauvages-cultivees.fr/" target="_blank"
+        >ferme agro-écologique</a
+      >
+      près de chez moi.
+    </p>
+
+    <p>
+      Il s’agit aussi de<strong> nuire au système</strong> en le rendant
+      inefficace de l’intérieur, ralentir,<strong> </strong>lever le pied au
+      travail,<strong> </strong>alourdir les sites e-commerce inutiles (donc
+      n’entamez surtout pas de démarche d’écoconception dans ce cas,
+      ralentissez-le, sabotez-le !).
+    </p>
+
+    <p>
+      Si vous voyez des usages irresponsables dans votre entreprise,
+      <strong>soyez un lanceur ou une lanceuse d’alerte</strong> en divulguant
+      les informations à la presse si c’est répréhensible moralement ou à la
+      police, c’est si un délit.
+    </p>
+
+    <h3>Entrer en résistance</h3>
+
+    <p>
+      <strong>Diffuser la bonne parole</strong> par exemple en sensibilisant les
+      professionnels du numérique mais aussi les futurs professionnels, les
+      étudiants. Il y a quelques mois, à la suite d’une réunion sur les impacts
+      environnementaux du numérique, un jeune en stage dans une administration
+      m’a fait part que c’est une de mes conférences il y a 4 ans lorsqu’il
+      était encore étudiant qui l’a poussé à s’engager dans cette voie. Cela m’a
+      évidemment fait chaud au cœur.
+    </p>
+
+    <p>
+      <strong>Rejoindre des collectifs </strong>car « seul on va plus vite,
+      ensemble on va plus loin »<strong> </strong>: collectifs informels,
+      associations, coopératives, les organisations de luttes telles que
+      Alternatiba, Les soulèvements de la Terre, Vous n’êtes pas seuls, les
+      Desert’heureuses…
+    </p>
+
+    <p>
+      <strong>Si votre dissonance est trop forte </strong>en continuant dans le
+      secteur du numérique<strong
+        >, il n’est jamais trop tard pour se reconvertir</strong
+      >
+      vers un autre emploi plus en phase avec vos valeurs.
+    </p>
+
+    <h3>Gagner moins d’argent, plus de bonheur</h3>
+
+    <p>
+      Mieux on gagne sa vie, plus on a des chances par notre consommation, notre
+      mode de vie, nos placements financiers et nos remboursements de crédits à
+      des banques qui financent les énergies fossiles, de contribuer
+      involontairement et indirectement à la destruction du vivant.
+    </p>
+
+    <p>
+      Dès lors, il faut se rendre à l’évidence que la solution est de
+      <strong>réduire volontairement ses revenus</strong>
+      : avoir une vie et une consommation plus sobre, moins d’impact sur les
+      ressources de la planète et possibilité d’accéder à des activités moins
+      rémunératrices mais tellement plus épanouissantes.
+    </p>
+
+    <p>
+      <strong>Refuser de parvenir</strong> est une éthique théorisée par
+      l’intellectuel anarchiste Albert Thierry qui est un refus volontaire des
+      privilèges, des distinctions et de la promotion individuelle. Le refus de
+      parvenir est d'abord un refus de vivre et d'agir uniquement pour soi, «
+      pour mettre son savoir-faire comme ses compétences au profit de la
+      solidarité ».
+    </p>
+
+    <p>
+      Je n’oublierai jamais ce que m’a dit il y a quelques semaines un ami qui
+      s’est engagé dans une démarche familiale de sobriété heureuse : il n’a
+      jamais été
+      <strong
+        >aussi riche et heureux que depuis qu’il est passé sous le seuil de
+        pauvreté</strong
+      >.
+    </p>
+
+    <p>
+      Je pense qu’il faut trouver un juste milieu entre personnes privilégiées
+      qui doivent voir leur revenu baisser et les personnes défavorisées qui
+      doivent voir leur revenu augmenter. Je ne peux pas développer le sujet
+      dans cet article mais sans doute, une rééquilibrage des salaires, le
+      plafonnage des revenus et le revenu de base et inconditionnel sont des
+      réponses possibles qui selon moi ne peuvent malheureusement pas réellement
+      émerger dans le système économique actuel.
+    </p>
+
+    <h3>
+      Vous êtes décidé à déserter. Comment subvenir à ses besoins essentiels
+      (avoir un peu d’argent) ?
+    </h3>
+
+    <p>
+      Si vous êtes salariés et que vous souhaitez partir, essayez de négocier
+      une rupture conventionnelle avec votre employeur (il n'est pas obligé de
+      vous l'accorder). À la fin d’un CDD (Contrat à Durée Déterminée), cela
+      ouvre droit à vos allocations chômage (dont le nom officiel est l’ARE,
+      l’allocation d’aide au retour à l’emploi). Si vous avez démissionné, faire
+      un CDD d'au moins 65 jours permet d’ouvrir les droits à cette allocation.
+      On peut aussi démissionner pour se rapprocher du conjoint ayant trouvé un
+      emploi à un autre endroit, cela fait partie des causes de « démission
+      légitime » qui ouvrent les droits aux allocations.
+    </p>
+
+    <p>
+      Si vous souhaitez créer ou reprendre une entreprise, vous pouvez si vous
+      ne vous rémunérez pas, garder vos allocations chômage ou choisir de
+      recevoir la totalité de vos allocations pour vous aidez à démarrer
+      l’entreprise.
+    </p>
+
+    <p>
+      Si votre condition physique le permet,<strong> </strong>donnez un coup de
+      main aux maraichers et fermes des environs qui manquent de saisonniers.
+    </p>
+
+    <p>
+      Donnez des cours<strong> </strong>à des étudiants, à des élèves et
+      transmettre vos compétences.
+    </p>
+
+    <h2>Pour conclure</h2>
+
+    <p>
+      Le dérèglement du climat, l’effondrement de la biodiversité et le manque
+      d’eau douce sont dus à deux choses :
+      <strong>les activités humaines</strong> et paradoxalement, l’<strong
+        >inaction humaine</strong
+      >.
+    </p>
+
+    <p>
+      Pour ne pas s’enfermer dans l’inaction et la
+      <strong>dissonance cognitive</strong> entre ses valeurs, ses actions
+      personnelles et sa vie professionnelle, questionner nos métiers dans la
+      tech, dans le web,
+      <strong
+        >entamer une démarche d’écoconception est une première étape</strong
+      >. Cette étape est insuffisante car relativement indolore pour le
+      <em><strong>business as usual</strong></em
+      >. Il faut également questionner nos revenus, les activités de nos
+      entreprises et pointer ce qui ne va pas.
+    </p>
+
+    <p>
+      L’écologie sans <strong>lutte des classes</strong> c’est du jardinage. Le
+      combat écologique c’est d’abord une lutte sociale, une lutte contre les
+      dominants, un combat pour les opprimés.
+      <strong>Soyons radicaux</strong> face au radicalisme idéologique de la
+      croissance infinie ou de la croissance verte qui nous emmènent droit dans
+      le mur.
+    </p>
+
+    <p>
+      <strong
+        >Rejoignons des collectifs et comme les esclaves aux Antilles </strong
+      >il y a moins de 2 siècles<strong>, entrons en « </strong
+      ><em><strong>marronage</strong></em
+      ><strong> »</strong> : bifurquons, divergeons mais surtout faisons tout
+      notre possible pour
+      <strong>nuire au système capitaliste colonial </strong>pour laisser place
+      à un nouveau monde respectueux du vivant et du non vivant, non soumis aux
+      injonctions d’une croissance infinie dans un monde aux ressources finies,
+      mais <strong>guidé par la recherche du bonheur</strong>.
+    </p>
+  </body>
+</html>

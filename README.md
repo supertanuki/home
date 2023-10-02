@@ -1,5 +1,5 @@
 # My home page
 
-## Installation
+## Run
 
-    $ make install
+    $ npx http-server
