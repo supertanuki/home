@@ -1,23 +1,30 @@
-
 body {
-    line-height: 1.5;
-    font-size: 18px;
-    color: #444;
-    padding: 0 10px;
-    font-family: sans-serif;
-    background-color: white;
-    margin: 40px auto;
-    max-width: 750px;
-  }
-  img {
-    max-width: 100%;
-  }
-  h1,
-  h2,
-  h3 {
-    line-height: 1.2;
-    font-family: serif;
-  }
-  h2, h3 {
-    margin-top: 2rem;
-  }
+  line-height: 1.5;
+  font-size: 18px;
+  color: #444;
+  padding: 0 10px;
+  font-family: sans-serif;
+  background-color: white;
+  margin: 40px auto;
+  max-width: 750px;
+}
+img {
+  max-width: 100%;
+}
+h1,
+h2 {
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+}
+h2,
+h3 {
+  margin-top: 2rem;
+}
+a[target="_blank"]:after {
+  content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+  margin: 0 3px 0 5px;
+}
