@@ -24,7 +24,8 @@ h2,
 h3 {
   margin-top: 2rem;
 }
-header {
+hr {
+  border: none;
   border-bottom: 1px solid #444;
   margin-bottom: 3rem;
 }
