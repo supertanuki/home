@@ -24,9 +24,9 @@ h2,
 h3 {
   margin-top: 2rem;
 }
-hr {
-  border: none;
-  border-bottom: 1px solid #444;
+.publication {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ccc;
   margin-bottom: 3rem;
 }
 a[target="_blank"]:after {
