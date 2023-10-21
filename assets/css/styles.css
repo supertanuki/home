@@ -24,6 +24,9 @@ h2,
 h3 {
   margin-top: 2rem;
 }
+h2 {
+  color: #333c82;
+}
 .publication {
   padding-bottom: 1rem;
   border-bottom: 1px solid #ccc;
