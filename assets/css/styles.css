@@ -27,6 +27,10 @@ h3 {
 h2 {
   color: #333c82;
 }
+hr {
+  border: 1px solid #ccc;
+  margin: 2rem 0;
+}
 .publication {
   padding-bottom: 1rem;
   border-bottom: 1px solid #ccc;
@@ -35,4 +39,20 @@ h2 {
 a[target="_blank"]:after {
   content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
   margin: 0 3px 0 5px;
+}
+.about {
+  background: #dfefef;
+  padding: 0.1rem 1rem;
+  border-radius: 6px;
+}
+.articles {
+  background: #dfefdf;
+  padding: 0.1rem 1rem;
+  border-radius: 6px;
+}
+.articles h3 {
+  margin-bottom: 0;
+}
+.articles p {
+  margin: 0;
 }
