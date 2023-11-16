@@ -41,12 +41,12 @@ a[target="_blank"]:after {
   margin: 0 3px 0 5px;
 }
 .about {
-  background: #dfefef;
+  background: #e6f6f6;
   padding: 0.1rem 1rem;
   border-radius: 6px;
 }
 .articles {
-  background: #dfefdf;
+  background: #f1f8f1;
   padding: 0.1rem 1rem;
   border-radius: 6px;
 }
