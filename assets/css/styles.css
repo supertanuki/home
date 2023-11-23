@@ -66,3 +66,13 @@ figcaption {
   color: white;
   padding: 0.4rem 1rem;
 }
+
+nav.sommaire li a {
+  background: #333c82;
+  color: white;
+  padding: 0.6rem;
+}
+nav.sommaire li {
+  margin: inherit;
+  list-style-type: none;
+}
