@@ -65,12 +65,20 @@ figcaption {
   background: darkcyan;
   color: white;
   padding: 0.4rem 1rem;
+  box-shadow: 0.3rem 0.3rem #000;
+}
+.menu a:focus {
+  box-shadow: none;
 }
 
 nav.sommaire li a {
   background: #333c82;
   color: white;
   padding: 0.6rem;
+  box-shadow: 0.3rem 0.3rem #000;
+}
+nav.sommaire li a:focus {
+  box-shadow: none;
 }
 nav.sommaire li {
   margin: inherit;
