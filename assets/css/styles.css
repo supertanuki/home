@@ -33,7 +33,7 @@ hr {
 }
 .publication {
   padding: 1rem;
-  margin-bottom: 3rem;
+  margin: 3rem 0;
   background-color: #e6f6f6;
   border-radius: 0.6rem;
   font-size: 90%;
@@ -42,11 +42,17 @@ a[target="_blank"]:after {
   content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
   margin: 0 3px 0 5px;
 }
-.about {
+
+.services-head {
+  padding: 1rem 2rem;
+  margin: 0 0 3rem;
+}
+
+.about, .services-head {
   background: #e6f6f6;
 }
 .about p {
-  padding: 0 1rem 1rem 1rem;
+  padding: 0 2rem 2rem 2rem;
 }
 .articles h2 {
   margin-bottom: 0;
@@ -71,17 +77,21 @@ figcaption {
   box-shadow: none;
 }
 
-nav.sommaire li a {
+nav.sommaire li a, .button {
   background: #333c82;
   color: white;
   padding: 0.6rem;
   box-shadow: 0.3rem 0.3rem #000;
 }
-nav.sommaire li a:focus {
+nav.sommaire li a:focus, .button:focus {
   box-shadow: none;
 }
 nav.sommaire li {
   margin: inherit;
   list-style-type: none;
   line-height: 2;
+}
+
+.focus-services {
+  margin: 5rem 0 7rem;
 }
