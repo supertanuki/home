@@ -20,13 +20,18 @@ h2,
 h3 {
   line-height: 1.2;
 }
+h2 {
+  color: #333c82;
+}
 h2,
 h3 {
   margin-top: 2rem;
 }
-h2 {
-  color: #333c82;
+
+li {
+  margin-bottom: 1rem;
 }
+
 hr {
   border: 1px solid #ccc;
   margin: 2rem 0;
