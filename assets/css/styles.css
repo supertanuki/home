@@ -100,3 +100,9 @@ nav.sommaire li {
 .focus-services {
   margin: 5rem 0 7rem;
 }
+
+.photo {
+  float: right;
+  padding-left: 1rem;
+  border-radius: 100%;
+}
