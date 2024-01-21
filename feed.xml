@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Richard Hanna</title>
+    <subtitle>Changer de logiciel pour un monde soutenable et joyeux</subtitle>
+
+    <link href="https://richardhanna.dev/feed.xml" rel="self"/>
+    <link href="https://richardhanna.dev/"/>
+
+    <updated>2024-01-21T00:00:00Z</updated>
+    
+    <id>https://richardhanna.dev/</id>
+
+    <author>
+        <name>Richard Hanna</name>
+        <email>contact@richardhanna.dev</email>
+    </author>
+
+    <entry>
+        <title>Notes du 17 janvier 2024</title>
+        <content>Dans cette note, en vrac : Open source expérience, grève des sardinières, 5 ans de Techologie, du vélo, du vélo, du vélo et de la décroissance.</content>
+        <id>https://richardhanna.dev/notes/2024/2024-01-17.html</id>
+        <link href="https://richardhanna.dev/notes/2024/2024-01-17.html"/>
+        <updated>2024-01-17T00:00:00Z</updated>
+    </entry>
+
+    <entry>
+        <title>24 jours de web 2023 : Et si on faisait du web comme en 1999, ou presque ?</title>
+        <content>Il est 22h. Dans la nuit guadeloupéenne bruyante des chants des insectes et autres crapauds – et pour combien de temps encore ? – je sors de ma chambre en tirant un fil de téléphone pour aller le brancher dans le salon. Je fais ça presque tous les soirs, à cet horaire précis, car c’est à moitié prix. Un nouveau chant retentit dans la nuit tropicale, celui-ci plutôt robotique : « Rrrrrrr Sccccrrrrr Tan ! Tan ! Rrrrrrrr Sccccrrrr ». La connexion se fait après quelques secondes interminables et c’est parti, à la vitesse supersonique de 33,6 kilobits par seconde !</content>
+        <id>https://www.24joursdeweb.fr/2023/et-si-on-faisait-du-web-comme-en-1999-ou-presque/</id>
+        <link href="https://www.24joursdeweb.fr/2023/et-si-on-faisait-du-web-comme-en-1999-ou-presque/"/>
+        <updated>2023-12-20T00:00:00Z</updated>
+    </entry>
+
+    <entry>
+        <title>Notes du 24 novembre 2023</title>
+        <content>Dans cette note, en vrac : Coopaname, Green Tech Forum, géo-ingénierie, Jeu de l'écoconception, escape-game, lectures, Sex Education, Zelda, Courir et se prendre dans les bras.</content>
+        <id>https://richardhanna.dev/notes/2023/2023-11-24.html</id>
+        <link href="https://richardhanna.dev/notes/2023/2023-11-24.html"/>
+        <updated>2023-11-24T00:00:00Z</updated>
+    </entry>
+
+    <entry>
+        <title>Notes du 17 novembre 2023</title>
+        <content>Dans cette note, en vrac : Gaza, marche du temps profond, BYOD, démanteler le numérique, Swann Périssé, Le Garçon et le Héron, Zelda...</content>
+        <id>https://richardhanna.dev/notes/2023/2023-11-17.html</id>
+        <link href="https://richardhanna.dev/notes/2023/2023-11-17.html"/>
+        <updated>2023-11-17T00:00:00Z</updated>
+    </entry>
+
+    <entry>
+        <title>Écoconception des services numériques, et si ça ne suffisait pas ?</title>
+        <content>Cet article est un support à la conférence que j’ai donné à Paris Web 2023.</content>
+        <id>https://richardhanna.dev/blog/2023/ecoconception-ne-suffit-pas.html</id>
+        <link href="https://richardhanna.dev/blog/2023/ecoconception-ne-suffit-pas.html"/>
+        <updated>2023-10-01T00:00:00Z</updated>
+    </entry>
+</feed>
