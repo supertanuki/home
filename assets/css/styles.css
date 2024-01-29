@@ -11,6 +11,17 @@ body {
 img {
   max-width: 100%;
 }
+
+h1 {
+  font-size: 3rem;
+  margin-bottom: 3rem;
+}
+
+h2 {
+  font-size: 2rem;
+  margin-top: 2rem;
+}
+
 h1,
 h2 {
   font-family: Georgia, "Times New Roman", Times, serif;
@@ -33,8 +44,9 @@ li {
 }
 
 hr {
-  border: 1px solid #ccc;
-  margin: 2rem 0;
+  border: 1px solid #ddd;
+  margin: 2rem auto;
+  width: 50%;
 }
 .publication {
   padding: 1rem;
@@ -77,6 +89,7 @@ figcaption {
   color: white;
   padding: 0.4rem 1rem;
   box-shadow: 0.3rem 0.3rem #000;
+  text-decoration: none;
 }
 .menu a:focus {
   box-shadow: none;
@@ -87,6 +100,7 @@ nav.sommaire li a, .button {
   color: white;
   padding: 0.6rem;
   box-shadow: 0.3rem 0.3rem #000;
+  text-decoration: none;
 }
 nav.sommaire li a:focus, .button:focus {
   box-shadow: none;
@@ -105,4 +119,9 @@ nav.sommaire li {
   float: right;
   padding-left: 1rem;
   border-radius: 100%;
+}
+
+.home-baseline {
+  font-size: 3.8rem;
+  margin: 6rem 0;
 }
