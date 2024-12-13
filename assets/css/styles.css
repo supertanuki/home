@@ -45,7 +45,7 @@ li {
 
 hr {
   border: 1px solid #ddd;
-  margin: 2rem auto;
+  margin: 3rem auto;
   width: 50%;
 }
 .publication {
@@ -113,6 +113,10 @@ nav.sommaire li {
 
 .focus-services {
   margin: 5rem 0 7rem;
+}
+
+.text-centered {
+  text-align: center;
 }
 
 .photo {
