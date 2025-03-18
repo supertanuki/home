@@ -1,0 +1,250 @@
+{
+	"textures": [
+		{
+			"image": "ui",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1404,
+				"h": 68
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "scorewarning",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 6,
+						"h": 5
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 6,
+						"h": 5
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 6,
+						"h": 5
+					}
+				},
+				{
+					"filename": "scoreko",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 19,
+						"h": 18
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 19,
+						"h": 18
+					},
+					"frame": {
+						"x": 6,
+						"y": 0,
+						"w": 19,
+						"h": 18
+					}
+				},
+				{
+					"filename": "scoreok",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 19,
+						"h": 18
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 19,
+						"h": 18
+					},
+					"frame": {
+						"x": 25,
+						"y": 0,
+						"w": 19,
+						"h": 18
+					}
+				},
+				{
+					"filename": "card",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 46,
+						"h": 44
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 46,
+						"h": 44
+					},
+					"frame": {
+						"x": 44,
+						"y": 0,
+						"w": 46,
+						"h": 44
+					}
+				},
+				{
+					"filename": "dialog-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 256,
+						"h": 48
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 256,
+						"h": 48
+					},
+					"frame": {
+						"x": 90,
+						"y": 0,
+						"w": 256,
+						"h": 48
+					}
+				},
+				{
+					"filename": "scoreboard",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 91,
+						"h": 49
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 91,
+						"h": 49
+					},
+					"frame": {
+						"x": 346,
+						"y": 0,
+						"w": 91,
+						"h": 49
+					}
+				},
+				{
+					"filename": "speaker-off",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 80,
+						"h": 64
+					},
+					"spriteSourceSize": {
+						"x": 11,
+						"y": 0,
+						"w": 69,
+						"h": 54
+					},
+					"frame": {
+						"x": 437,
+						"y": 0,
+						"w": 69,
+						"h": 54
+					}
+				},
+				{
+					"filename": "speaker-on",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 80,
+						"h": 64
+					},
+					"spriteSourceSize": {
+						"x": 6,
+						"y": 0,
+						"w": 74,
+						"h": 59
+					},
+					"frame": {
+						"x": 506,
+						"y": 0,
+						"w": 74,
+						"h": 59
+					}
+				},
+				{
+					"filename": "dialog-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 276,
+						"h": 66
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 276,
+						"h": 66
+					},
+					"frame": {
+						"x": 580,
+						"y": 0,
+						"w": 276,
+						"h": 66
+					}
+				},
+				{
+					"filename": "dialog-shout-1",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 276,
+						"h": 66
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 276,
+						"h": 66
+					},
+					"frame": {
+						"x": 856,
+						"y": 0,
+						"w": 276,
+						"h": 66
+					}
+				},
+				{
+					"filename": "dialog-shout-2",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 272,
+						"h": 68
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 272,
+						"h": 68
+					},
+					"frame": {
+						"x": 1132,
+						"y": 0,
+						"w": 272,
+						"h": 68
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "http://free-tex-packer.com",
+		"version": "0.6.7"
+	}
+}
