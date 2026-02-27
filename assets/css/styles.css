@@ -129,3 +129,32 @@ nav.sommaire li {
   font-size: 3.8rem;
   margin: 6rem 0;
 }
+
+.featured-items {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.featured-items li {
+  flex: 1 1 calc(33.333% - 1rem);
+  min-width: 200px;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.featured-items a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.featured-items img {
+  max-height: 150px;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
