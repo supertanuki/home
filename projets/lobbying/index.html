@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LobbyQuest</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="game-data.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN : WELCOME
+═══════════════════════════════════════════════ -->
+<div id="screen-welcome" class="screen active">
+  <div class="welcome-box">
+    <span class="big-icon">🏛</span>
+    <h2>LobbyQuest</h2>
+    <p class="tagline">
+      Un jeu interactif pour comprendre les déséquilibres de pouvoir entre les lobbies industriels et les associations environnementales.
+    </p>
+
+    <div class="welcome-card">
+      <h3>🎯 Votre mission</h3>
+      <p>
+        Vous incarnez un·e chargé·e de plaidoyer de <strong>Zéro Waste France</strong>.
+        Une proposition de loi déposée à l'Assemblée nationale vise à interdire les bouteilles plastiques de petits formats.
+        Vous avez 8 phases pour convaincre le public, les décideurs, et rassembler les ressources nécessaires
+        face aux contre-offensives des lobbies industriels.
+      </p>
+    </div>
+
+    <div class="welcome-card">
+      <h3>📊 Vos indicateurs de départ</h3>
+      <div class="indicators-preview">
+        <div class="indicator-chip">
+          <span class="chip-icon">🌍</span>
+          <div class="chip-name">Soutien du Public</div>
+          <div class="chip-val">3 pts</div>
+        </div>
+        <div class="indicator-chip">
+          <span class="chip-icon">🏛️</span>
+          <div class="chip-name">Influence Politique</div>
+          <div class="chip-val">2 pts</div>
+        </div>
+        <div class="indicator-chip">
+          <span class="chip-icon">💰</span>
+          <div class="chip-name">Ressources</div>
+          <div class="chip-val">3 pts</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="welcome-card">
+      <h3>⚠️ Règles</h3>
+      <p>
+        Si l'un des trois indicateurs atteint <strong>zéro</strong>, la partie s'arrête immédiatement.
+        À chaque phase, choisissez une action parmi trois. L'industrie ripostera toujours —
+        vos choix détermineront l'issue du vote final.
+      </p>
+    </div>
+
+    <button class="btn btn-primary" onclick="startGame()" style="font-size:1.1rem; padding:16px 40px; margin-top:8px;">
+      Commencer la campagne
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN : GAME
+═══════════════════════════════════════════════ -->
+<div id="screen-game" class="screen">
+  <!-- Header -->
+  <header>
+    <span class="logo">🏛</span>
+    <div>
+      <h1>LobbyQuest : Campagne pour l'interdiction des petites bouteilles en plastique</h1>
+      <div class="subtitle">Proposition de loi – Assemblée nationale, octobre 2024</div>
+    </div>
+  </header>
+
+  <!-- Scoreboard -->
+  <div class="scoreboard">
+    <div class="score-item">
+      <div class="score-label">🌍 Soutien du Public</div>
+      <div class="score-value" id="score-public">3</div>
+      <div class="score-bar-bg"><div class="score-bar" id="bar-public" style="width:60%"></div></div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">🏛️ Influence Politique</div>
+      <div class="score-value" id="score-political">2</div>
+      <div class="score-bar-bg"><div class="score-bar" id="bar-political" style="width:40%"></div></div>
+    </div>
+    <div class="score-item">
+      <div class="score-label">💰 Ressources</div>
+      <div class="score-value" id="score-resources">3</div>
+      <div class="score-bar-bg"><div class="score-bar" id="bar-resources" style="width:60%"></div></div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <main>
+    <!-- Progress -->
+    <div class="progress-steps" id="progress-steps"></div>
+    <div class="progress-label" id="progress-label"></div>
+
+    <!-- Phase card -->
+    <div class="card" id="phase-card">
+      <div class="phase-header">
+        <span class="phase-badge" id="phase-badge">Phase 1 / 8</span>
+        <h2 class="phase-title" id="phase-title"></h2>
+      </div>
+      <p class="phase-desc" id="phase-desc"></p>
+
+      <div class="actions-list" id="actions-list"></div>
+    </div>
+
+    <!-- Result card -->
+    <div class="card result-card" id="result-card">
+      <!-- Action scenario -->
+      <div class="result-section positive" id="result-positive">
+        <h4>✅ Résultat de votre action</h4>
+        <p id="result-scenario"></p>
+        <div class="delta-row" id="delta-effects"></div>
+      </div>
+
+      <!-- Counter-attack -->
+      <div class="counter-banner" id="counter-banner">
+        <span class="counter-icon">⚠️</span>
+        <div class="counter-text">
+          <h4>🏭 Contre-offensive industrielle</h4>
+          <p id="counter-text"></p>
+          <div class="delta-row" id="delta-counter"></div>
+        </div>
+      </div>
+
+      <!-- Next button -->
+      <div class="next-wrap" id="next-wrap">
+        <button class="btn btn-primary" id="btn-next" onclick="nextPhase()">
+          Phase suivante →
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer>LobbyQuest</footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN : EARLY END (indicateur à 0)
+═══════════════════════════════════════════════ -->
+<div id="screen-end" class="screen">
+  <div class="end-box">
+    <span class="end-icon" id="end-icon">❌</span>
+    <h2 id="end-title"></h2>
+    <p class="end-subtitle" id="end-subtitle"></p>
+
+    <div class="end-card">
+      <p id="end-description"></p>
+    </div>
+
+    <div class="end-card">
+      <h3>📊 Résumé de la Partie</h3>
+      <div class="scores-summary" id="end-scores"></div>
+    </div>
+
+    <div class="end-card">
+      <p id="end-conclusion"></p>
+      <p class="cta-text" id="end-cta"></p>
+    </div>
+
+    <div style="text-align:center; margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="restartGame()">Rejouer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN : FINAL RESULT
+═══════════════════════════════════════════════ -->
+<div id="screen-result" class="screen">
+  <div class="end-box">
+    <span class="end-icon" id="result-icon">🏆</span>
+    <div class="result-type-badge"><span id="result-badge-span">Résultat</span></div>
+    <h2 id="result-title"></h2>
+    <p class="end-subtitle">Phase finale – Résultat du Vote</p>
+
+    <div class="end-card">
+      <p id="result-description"></p>
+    </div>
+
+    <div class="end-card">
+      <h3>📊 Résumé de la Partie</h3>
+      <div class="scores-summary" id="result-scores"></div>
+    </div>
+
+    <div class="end-card">
+      <p id="result-conclusion"></p>
+      <p class="cta-text" id="result-cta"></p>
+    </div>
+
+    <div style="text-align:center; margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="restartGame()">Rejouer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="game.js"></script>
+</body>
+</html>
