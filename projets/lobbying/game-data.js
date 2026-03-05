@@ -67,7 +67,7 @@ const GAME_DATA = {
   phases: [
     {
       id: 1,
-      title: "Phase 1 : Préparer la Campagne",
+      title: "Préparer la campagne",
       description: "Dans cette première phase, Zéro Waste France met en place sa stratégie pour lancer une campagne percutante contre les bouteilles en plastique. L'association doit choisir comment attirer l'attention du public et obtenir les ressources nécessaires pour se préparer à un combat acharné contre les lobbies industriels.",
       actions: [
         {
@@ -98,7 +98,7 @@ const GAME_DATA = {
     },
     {
       id: 2,
-      title: "Phase 2 : La Bataille des Médias",
+      title: "La Bataille des Médias",
       description: "Alors que la campagne prend de l'ampleur, les lobbies industriels contre-attaquent avec une forte campagne de désinformation. Zéro Waste France doit choisir la meilleure façon de faire passer son message au grand public et de maintenir une image positive face aux critiques et aux fausses informations diffusées par l'industrie.",
       actions: [
         {
@@ -129,7 +129,7 @@ const GAME_DATA = {
     },
     {
       id: 3,
-      title: "Phase 3 : Influencer les Décideurs",
+      title: "Influencer les Décideurs",
       description: "Zéro Waste France intensifie ses efforts pour convaincre les députés de soutenir une proposition de loi visant à interdire les petites bouteilles en plastique. Cette phase implique des actions de lobbying auprès des législateurs pour contrer l'influence des industriels et renforcer la portée de la campagne au niveau politique.",
       actions: [
         {
@@ -160,7 +160,7 @@ const GAME_DATA = {
     },
     {
       id: 4,
-      title: "Phase 4 : Mobilisation de la Jeunesse",
+      title: "Mobilisation de la Jeunesse",
       description: "Pour renforcer l'impact de la campagne, Zéro Waste France se tourne vers la jeunesse, souvent plus réceptive aux questions environnementales. En choisissant les bonnes actions pour sensibiliser et mobiliser les jeunes, l'association espère gagner un soutien public massif et rallier des voix influentes pour la cause.",
       actions: [
         {
@@ -191,7 +191,7 @@ const GAME_DATA = {
     },
     {
       id: 5,
-      title: "Phase 5 : Collaboration avec des Entreprises Écoresponsables",
+      title: "Collaboration avec des Entreprises Écoresponsables",
       description: "Des entreprises cherchant à promouvoir leur image « verte » voient une opportunité de partenariat avec Zéro Waste France. Cette phase consiste à établir des alliances avec des entreprises écoresponsables pour soutenir la campagne. Zéro Waste France doit cependant veiller à ne pas nuire à sa crédibilité en s'associant avec des intérêts commerciaux.",
       actions: [
         {
@@ -222,7 +222,7 @@ const GAME_DATA = {
     },
     {
       id: 6,
-      title: "Phase 6 : Influence à l'International",
+      title: "Influence à l'International",
       description: "Face aux défis nationaux, Zéro Waste France envisage de s'allier avec des ONG et réseaux européens pour accroître son impact et faire pression sur les législateurs français par des canaux internationaux. Cette phase vise à développer une influence transnationale, attirant une attention européenne pour soutenir l'interdiction des petites bouteilles plastiques.",
       actions: [
         {
@@ -253,7 +253,7 @@ const GAME_DATA = {
     },
     {
       id: 7,
-      title: "Phase 7 : Contre-Offensive Législative",
+      title: "Contre-Offensive Législative",
       description: "Alors que la campagne progresse, l'industrie redouble d'efforts pour influencer les législateurs et bloquer toute tentative de réglementation. Zéro Waste France doit intensifier son lobbying direct auprès des députés et développer des stratégies pour maintenir le soutien politique en faveur de l'interdiction.",
       actions: [
         {
@@ -284,7 +284,7 @@ const GAME_DATA = {
     },
     {
       id: 8,
-      title: "Phase 8 : Offensive Finale en Justice",
+      title: "Offensive Finale en Justice",
       description: "Face à une probable impasse législative, Zéro Waste France décide de porter l'affaire devant les tribunaux, espérant obtenir une décision de justice favorable à l'interdiction du plastique. Bien que cette option soit coûteuse et risquée, elle représente une ultime tentative pour contrer l'influence des lobbies industriels et instaurer un changement durable.",
       actions: [
         {

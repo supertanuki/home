@@ -1,18 +1,34 @@
 /* ── State ── */
 let scores = {};
-let currentPhaseIndex = 0;
+let currentPhaseIndex = -1;
 let actionChosen = false;
 let selectedActionIndex = null;
+let playedPhases = []; // tableau ordonné des index de phases jouées
+let phaseOrder   = []; // ordre d'affichage aléatoire des phases dans le picker
 const MAX_SCORE = 10;
+
+/* ── Fisher-Yates shuffle ── */
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 /* ── Init ── */
 function startGame() {
   scores = { ...GAME_DATA.initialScores };
-  currentPhaseIndex = 0;
+  currentPhaseIndex = -1; // aucune phase sélectionnée au départ
   actionChosen = false;
   selectedActionIndex = null;
+  playedPhases = [];
+  phaseOrder = shuffle(GAME_DATA.phases.map((_, i) => i)); // ordre aléatoire
   showScreen('screen-game');
-  renderPhase();
+  renderPhasePicker();
+  renderProgress();
+  showPhasePlaceholder();
 }
 
 function restartGame() {
@@ -49,18 +65,81 @@ function updateScoreboard(animateIds) {
   });
 }
 
-/* ── Progress bar ── */
+/* ── Phase picker ── */
+function renderPhasePicker() {
+  const picker = document.getElementById('phase-picker');
+  picker.innerHTML = '';
+  // Phases jouées en premier (ordre de sélection), puis les non-jouées (ordre aléatoire)
+  const unplayed = phaseOrder.filter(i => !playedPhases.includes(i));
+  const displayOrder = [...playedPhases, ...unplayed];
+
+  displayOrder.forEach(i => {
+    const phase     = GAME_DATA.phases[i];
+    const isPlayed  = playedPhases.includes(i);
+    const isActive  = i === currentPhaseIndex;
+    const playOrder = isPlayed ? playedPhases.indexOf(i) + 1 : null;
+
+    const btn = document.createElement('button');
+    btn.className = 'phase-pick-btn' +
+      (isActive ? ' active' : '') +
+      (isPlayed ? ' played' : '');
+    btn.disabled = isPlayed;
+    btn.title = phase.title;
+
+    // Cercle : vide si pas encore jouée, numéro d'ordre si jouée
+    const numContent = isPlayed ? playOrder : '';
+
+    btn.innerHTML = `
+      <span class="ppb-num">${numContent}</span>
+      <span class="ppb-title">${phase.title}</span>
+    `;
+    if (!isPlayed) {
+      btn.onclick = () => goToPhase(i);
+    }
+    picker.appendChild(btn);
+  });
+}
+
+function goToPhase(i) {
+  if (playedPhases.includes(i)) return;
+  currentPhaseIndex = i;
+  renderPhase();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── Phase placeholder (aucune phase sélectionnée) ── */
+function showPhasePlaceholder() {
+  document.getElementById('phase-badge').textContent = '';
+  document.getElementById('phase-title').textContent = 'Choisissez votre première phase';
+  document.getElementById('phase-desc').textContent  = 'Sélectionnez une phase ci-dessus pour commencer la campagne.';
+  document.getElementById('actions-list').innerHTML  = '';
+  const rc = document.getElementById('result-card');
+  rc.classList.remove('visible');
+  rc.style.display = 'none';
+  updateScoreboard();
+}
+
+/* ── Progress bar (séquentiel : N joués + 1 en cours + reste vide) ── */
 function renderProgress() {
   const steps = document.getElementById('progress-steps');
   const label = document.getElementById('progress-label');
+  const total  = GAME_DATA.phases.length;
+  const played = playedPhases.length;
+  const hasActive = currentPhaseIndex >= 0;
+
   steps.innerHTML = '';
-  GAME_DATA.phases.forEach((_, i) => {
+  for (let i = 0; i < total; i++) {
     const dot = document.createElement('div');
-    dot.className = 'step-dot' +
-      (i < currentPhaseIndex ? ' done' : i === currentPhaseIndex ? ' current' : '');
+    if (i < played) {
+      dot.className = 'step-dot done';
+    } else if (i === played && hasActive) {
+      dot.className = 'step-dot current';
+    } else {
+      dot.className = 'step-dot';
+    }
     steps.appendChild(dot);
-  });
-  label.textContent = `Phase ${currentPhaseIndex + 1} sur ${GAME_DATA.phases.length}`;
+  }
+  label.textContent = `${played} / ${total} phases jouées`;
 }
 
 /* ── Render current phase ── */
@@ -70,26 +149,32 @@ function renderPhase() {
   const phase = GAME_DATA.phases[currentPhaseIndex];
 
   renderProgress();
+  renderPhasePicker();
 
-  document.getElementById('phase-badge').textContent = `Phase ${phase.id} / ${GAME_DATA.phases.length}`;
+  const currentRank = playedPhases.length + 1; // rang dans l'ordre de jeu
+  document.getElementById('phase-badge').textContent = `Phase ${currentRank} / ${GAME_DATA.phases.length}`;
   document.getElementById('phase-title').textContent = phase.title;
-  document.getElementById('phase-desc').textContent = phase.description;
+  document.getElementById('phase-desc').textContent  = phase.description;
 
   const list = document.getElementById('actions-list');
   list.innerHTML = '';
 
-  phase.actions.forEach((action, i) => {
+  // Mélange aléatoire des options de la phase
+  const actionOrder = shuffle(phase.actions.map((_, i) => i));
+
+  actionOrder.forEach((originalIdx, visualIdx) => {
+    const action = phase.actions[originalIdx];
     const wrapper = document.createElement('div');
     wrapper.className = 'action-wrapper';
 
     const btn = document.createElement('button');
     btn.className = 'action-btn';
-    btn.dataset.index = i;
+    btn.dataset.index = originalIdx;
     btn.innerHTML = `
-      <span class="action-num">${i + 1}</span>
+      <span class="action-num">${visualIdx + 1}</span>
       <span class="action-label-text">${action.label}</span>
     `;
-    btn.onclick = () => selectAction(i);
+    btn.onclick = () => selectAction(visualIdx, originalIdx);
 
     const desc = document.createElement('div');
     desc.className = 'action-description';
@@ -123,21 +208,19 @@ function renderPhase() {
 }
 
 /* ── Select an action (no execution yet) ── */
-function selectAction(actionIndex) {
+function selectAction(visualIdx, originalIdx) {
   if (actionChosen) return;
-  selectedActionIndex = actionIndex;
+  selectedActionIndex = originalIdx; // on stocke l'index original pour confirmAction
 
-  // Update button visual states
+  // Highlight basé sur la position visuelle
   document.querySelectorAll('.action-btn').forEach((btn, i) => {
-    btn.classList.toggle('selected', i === actionIndex);
+    btn.classList.toggle('selected', i === visualIdx);
   });
 
-  // Show description only for selected
   document.querySelectorAll('.action-description').forEach((desc, i) => {
-    desc.classList.toggle('open', i === actionIndex);
+    desc.classList.toggle('open', i === visualIdx);
   });
 
-  // Enable validate button
   const validateBtn = document.getElementById('btn-validate');
   if (validateBtn) validateBtn.disabled = false;
 }
@@ -147,7 +230,6 @@ function confirmAction() {
   if (selectedActionIndex === null || actionChosen) return;
   actionChosen = true;
 
-  // Lock all buttons
   document.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
   const validateBtn = document.getElementById('btn-validate');
   if (validateBtn) validateBtn.disabled = true;
@@ -155,17 +237,14 @@ function confirmAction() {
   const phase  = GAME_DATA.phases[currentPhaseIndex];
   const action = phase.actions[selectedActionIndex];
 
-  // Apply effects
   applyEffects(action.effects);
   const effectKeys = changedKeys(action.effects);
   updateScoreboard(effectKeys);
 
-  // Show result card
   const rc = document.getElementById('result-card');
   rc.style.display = 'block';
   rc.classList.add('visible');
 
-  // Scroll to result
   setTimeout(() => rc.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
 
   document.getElementById('result-scenario').textContent = action.scenario;
@@ -177,7 +256,8 @@ function confirmAction() {
   nextWrap.classList.remove('visible');
 
   setTimeout(() => {
-    document.getElementById('counter-text').textContent = action.counterAttack;
+    const counterText = document.getElementById('counter-text')
+    counterText.textContent = action.counterAttack;
     document.getElementById('delta-counter').innerHTML  = buildDeltaChips(action.counterEffects);
     banner.classList.add('visible');
 
@@ -185,17 +265,30 @@ function confirmAction() {
     const counterKeys = changedKeys(action.counterEffects);
     updateScoreboard(counterKeys);
 
+    // Mark phase as played (order matters)
+    playedPhases.push(currentPhaseIndex);
+    renderPhasePicker();
+    renderProgress();
+
     const zeroKey = checkZero();
-    if (zeroKey !== null) {
-      setTimeout(() => showEarlyEnd(zeroKey), 900);
-      return;
-    }
+
+    counterText.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
     setTimeout(() => {
       nextWrap.classList.add('visible');
-      const isLast = currentPhaseIndex === GAME_DATA.phases.length - 1;
-      document.getElementById('btn-next').textContent = isLast ? '🗳️ Voir le résultat final' : 'Phase suivante →';
-    }, 600);
+      const btnNext = document.getElementById('btn-next');
+      if (zeroKey !== null) {
+        // Un score est à 0 : afficher "Voir le résultat" avant de passer à l'écran de fin
+        btnNext.textContent = 'Voir le résultat';
+        btnNext.onclick = () => showEarlyEnd(zeroKey);
+      } else if (playedPhases.length >= GAME_DATA.phases.length) {
+        btnNext.textContent = 'Voir le résultat final';
+        btnNext.onclick = nextPhase;
+      } else {
+        btnNext.textContent = 'Choisir la prochaine phase →';
+        btnNext.onclick = nextPhase;
+      }
+    }, 1000);
 
   }, 2000);
 }
@@ -232,13 +325,24 @@ function checkZero() {
 
 /* ── Next phase or final result ── */
 function nextPhase() {
-  currentPhaseIndex++;
-  if (currentPhaseIndex >= GAME_DATA.phases.length) {
+  if (playedPhases.length >= GAME_DATA.phases.length) {
     showFinalResult();
-  } else {
-    renderPhase();
-    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+    return;
   }
+  // Scroll to top so the user can pick the next phase from the picker
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Hide result card
+  const rc = document.getElementById('result-card');
+  rc.classList.remove('visible');
+  rc.style.display = 'none';
+  // Show placeholder in phase card
+  currentPhaseIndex = -1;
+  document.getElementById('phase-badge').textContent = '';
+  document.getElementById('phase-title').textContent = 'Choisissez votre prochaine phase';
+  document.getElementById('phase-desc').textContent  = 'Sélectionnez une phase ci-dessus pour continuer la campagne.';
+  document.getElementById('actions-list').innerHTML  = '';
+  renderPhasePicker();
+  renderProgress();
 }
 
 /* ── Early end screen ── */
