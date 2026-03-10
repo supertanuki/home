@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LobbyQuest</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="game-data.js"></script>
+  <title>ANTIDOTE - Bataille contre le lobby des pesticides</title>
+  <link rel="stylesheet" href="style.css?1" />
+  <script src="game-data.js?1"></script>
 </head>
 <body>
 
@@ -14,20 +14,26 @@
 ═══════════════════════════════════════════════ -->
 <div id="screen-welcome" class="screen active">
   <div class="welcome-box">
-    <span class="big-icon">🏛</span>
-    <h2>LobbyQuest</h2>
+    <span class="big-icon">☣️</span>
+    <h2>ANTIDOTE</h2>
     <p class="tagline">
-      Un jeu interactif pour comprendre les déséquilibres de pouvoir entre les lobbies industriels et les associations environnementales.
+      Bataille contre le lobby des pesticides
     </p>
 
-    <div class="welcome-card">
-      <h3>Votre mission</h3>
-      <p>
-        Vous incarnez un·e chargé·e de plaidoyer de <strong>Zéro Waste France</strong>.
-        Une proposition de loi déposée à l'Assemblée nationale vise à interdire les bouteilles plastiques de petits formats.
-        Vous avez 8 phases pour convaincre le public, les décideurs, et rassembler les ressources nécessaires
-        face aux contre-offensives des lobbies industriels.
-      </p>
+    <div class="welcome-card avatar-card">
+      <span class="wc-avatar">👩🏽‍💼</span>
+      <div class="wc-content">
+        <h3>Votre mission</h3>
+        <p>
+          Tu viens de rejoindre l'équipe de plaidoyer de l'association <strong>ANTIDOTE</strong>.
+          Une proposition de loi vient d'être déposée à l'Assemblée nationale - son objectif : réautoriser plusieurs pesticides dangereux aujourd'hui interdits.
+          Officieusement, le lobby des pesticides est déjà à l'œuvre.
+        </p>
+        <p style="margin-top:10px;">
+          Ton rôle : construire une stratégie pour <strong>empêcher l'adoption de cette loi</strong>.
+          Tu disposes de <strong>10 tours</strong> avant le vote final.
+        </p>
+      </div>
     </div>
 
     <div class="welcome-card">
@@ -36,32 +42,35 @@
         <div class="indicator-chip">
           <span class="chip-icon">🌍</span>
           <div class="chip-name">Soutien du Public</div>
-          <div class="chip-val">3 pts</div>
+          <div class="chip-val">4</div>
         </div>
         <div class="indicator-chip">
           <span class="chip-icon">🏛️</span>
           <div class="chip-name">Influence Politique</div>
-          <div class="chip-val">2 pts</div>
+          <div class="chip-val">3</div>
         </div>
         <div class="indicator-chip">
           <span class="chip-icon">💰</span>
           <div class="chip-name">Ressources</div>
-          <div class="chip-val">3 pts</div>
+          <div class="chip-val">4</div>
         </div>
       </div>
     </div>
 
-    <div class="welcome-card">
-      <h3>Règles</h3>
-      <p>
-        À chaque phase, choisissez une action parmi trois. L'industrie ripostera toujours —
-        vos choix détermineront l'issue du vote final.
-        Si l'un des trois indicateurs (Soutien du Public, Influence Politique ou Ressources) atteint <strong>zéro</strong>, la partie s'arrête immédiatement.
-      </p>
+    <div class="welcome-card avatar-card">
+      <span class="wc-avatar">👨🏻‍💼</span>
+      <div class="wc-content">
+        <h3>Règles</h3>
+        <p>
+          À chaque tour, choisissez un champ d'action parmi dix, puis sélectionnez votre stratégie.
+          Le <b>lobby des pesticides</b> ripostera systématiquement.
+          Si l'un de vos trois indicateurs atteint <strong>zéro</strong>, la partie s'arrête immédiatement.
+        </p>
+      </div>
     </div>
 
     <button class="btn btn-primary" onclick="startGame()" style="font-size:1.1rem; padding:16px 40px; margin-top:8px;">
-      Commencer la campagne
+      Lancer la campagne
     </button>
   </div>
 </div>
@@ -72,31 +81,31 @@
 <div id="screen-game" class="screen">
   <!-- Header -->
   <header>
-    <span class="logo">🏛</span>
+    <span class="logo">☣️</span>
     <div>
-      <h1>LobbyQuest : Campagne pour l'interdiction des petites bouteilles en plastique</h1>
+      <h1>ANTIDOTE - Bataille contre le lobby des pesticides</h1>
     </div>
   </header>
 
   <!-- Scoreboard -->
   <div class="scoreboard">
-  <div class="scoreboard-inner">
-    <div class="score-item">
-      <div class="score-label">🌍 Soutien du Public</div>
-      <div class="score-value" id="score-public">3</div>
-      <div class="score-bar-bg"><div class="score-bar" id="bar-public" style="width:60%"></div></div>
+    <div class="scoreboard-inner">
+      <div class="score-item">
+        <div class="score-label">🌍 Soutien du Public</div>
+        <div class="score-value" id="score-public">4</div>
+        <div class="score-bar-bg"><div class="score-bar" id="bar-public" style="width:40%"></div></div>
+      </div>
+      <div class="score-item">
+        <div class="score-label">🏛️ Influence Politique</div>
+        <div class="score-value" id="score-political">3</div>
+        <div class="score-bar-bg"><div class="score-bar" id="bar-political" style="width:30%"></div></div>
+      </div>
+      <div class="score-item">
+        <div class="score-label">💰 Ressources</div>
+        <div class="score-value" id="score-resources">4</div>
+        <div class="score-bar-bg"><div class="score-bar" id="bar-resources" style="width:40%"></div></div>
+      </div>
     </div>
-    <div class="score-item">
-      <div class="score-label">🏛️ Influence Politique</div>
-      <div class="score-value" id="score-political">2</div>
-      <div class="score-bar-bg"><div class="score-bar" id="bar-political" style="width:40%"></div></div>
-    </div>
-    <div class="score-item">
-      <div class="score-label">💰 Ressources</div>
-      <div class="score-value" id="score-resources">3</div>
-      <div class="score-bar-bg"><div class="score-bar" id="bar-resources" style="width:60%"></div></div>
-    </div>
-  </div>
   </div>
 
   <!-- Main -->
@@ -111,7 +120,7 @@
     <!-- Phase card -->
     <div class="card" id="phase-card">
       <div class="phase-header">
-        <span class="phase-badge" id="phase-badge">Phase 1 / 8</span>
+        <span class="phase-badge" id="phase-badge">Tour 1 / 10</span>
         <h2 class="phase-title" id="phase-title"></h2>
       </div>
       <p class="phase-desc" id="phase-desc"></p>
@@ -119,20 +128,67 @@
       <div class="actions-list" id="actions-list"></div>
     </div>
 
+    <!-- Event card (tous les 2 tours) -->
+    <div class="card event-card-section" id="event-card-section">
+      <div class="event-header">
+        <span class="event-type-badge">⚡ Évènement</span>
+      </div>
+      <div class="event-body">
+        <span class="event-icon-big" id="event-icon-big">📰</span>
+        <div class="event-main">
+          <h2 class="event-title" id="event-title"></h2>
+          <p class="event-description" id="event-description"></p>
+          <p class="event-outcome" id="event-outcome"></p>
+          <div class="delta-row" id="event-effects-row"></div>
+        </div>
+      </div>
+      <div class="next-wrap visible" style="margin-top:20px;">
+        <button class="btn btn-primary" onclick="continueAfterEvent()">
+          Choisir le prochain champ d'action →
+        </button>
+      </div>
+    </div>
+
+    <!-- Unlock card (Bataille juridique disponible au tour 5) -->
+    <div class="card unlock-card-section" id="unlock-card-section">
+      <div class="unlock-header">
+        <span class="unlock-type-badge">🔓 Nouvelle action débloquée</span>
+      </div>
+      <div class="unlock-body">
+        <span class="unlock-icon-big">⚖️</span>
+        <div class="unlock-main">
+          <h2 class="unlock-title">La Bataille juridique est maintenant disponible</h2>
+          <p class="unlock-description">
+            Vous avez atteint le tour 6. Le débat parlementaire commence — la voie judiciaire s'ouvre. Vous pouvez désormais déposer des recours, porter plainte et mobiliser des avocats pour faire pression par un autre canal.
+          </p>
+        </div>
+      </div>
+      <div class="next-wrap visible" style="margin-top:20px;">
+        <button class="btn btn-primary" onclick="continueAfterUnlock()">
+          Choisir le prochain champ d'action →
+        </button>
+      </div>
+    </div>
+
     <!-- Result card -->
     <div class="card result-card" id="result-card">
       <!-- Action scenario -->
       <div class="result-section positive" id="result-positive">
-        <h4>✅ Résultat de votre action</h4>
-        <p id="result-scenario"></p>
-        <div class="delta-row" id="delta-effects"></div>
+        <div class="result-actor-row">
+          <span class="result-actor-icon">👩🏽‍💼</span>
+          <div class="result-actor-content">
+            <h4>Votre action</h4>
+            <p id="result-scenario"></p>
+            <div class="delta-row" id="delta-effects"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Counter-attack -->
       <div class="counter-banner" id="counter-banner">
-        <span class="counter-icon">⚠️</span>
+        <span class="counter-icon">👨🏻‍💼</span>
         <div class="counter-text">
-          <h4>🏭 Contre-offensive industrielle</h4>
+          <h4>Contre-offensive du lobby des pesticides</h4>
           <p id="counter-text"></p>
           <div class="delta-row" id="delta-counter"></div>
         </div>
@@ -141,13 +197,13 @@
       <!-- Next button -->
       <div class="next-wrap" id="next-wrap">
         <button class="btn btn-primary" id="btn-next" onclick="nextPhase()">
-          Phase suivante →
+          Choisir le prochain champ d'action →
         </button>
       </div>
     </div>
   </main>
 
-  <footer>LobbyQuest</footer>
+  <footer>ANTIDOTE - Bataille contre le lobby des pesticides</footer>
 </div>
 
 <!-- ═══════════════════════════════════════════════
@@ -169,6 +225,11 @@
     </div>
 
     <div class="end-card">
+      <h3>👩🏽‍💼 Vos actions</h3>
+      <div id="end-actions"></div>
+    </div>
+
+    <div class="end-card">
       <p id="end-conclusion"></p>
       <p class="cta-text" id="end-cta"></p>
     </div>
@@ -187,7 +248,7 @@
     <span class="end-icon" id="result-icon">🏆</span>
     <div class="result-type-badge"><span id="result-badge-span">Résultat</span></div>
     <h2 id="result-title"></h2>
-    <p class="end-subtitle">Phase finale – Résultat du Vote</p>
+    <p class="end-subtitle">Tour 10 - Résultat du Vote Final</p>
 
     <div class="end-card">
       <p id="result-description"></p>
@@ -196,6 +257,11 @@
     <div class="end-card">
       <h3>📊 Résumé de la Partie</h3>
       <div class="scores-summary" id="result-scores"></div>
+    </div>
+
+    <div class="end-card">
+      <h3>👩🏽‍💼 Vos actions</h3>
+      <div id="result-actions"></div>
     </div>
 
     <div class="end-card">

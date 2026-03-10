@@ -1,314 +1,418 @@
 const GAME_DATA = {
   initialScores: {
-    public: 3,
-    political: 2,
-    resources: 3
+    public: 4,
+    political: 3,
+    resources: 4
   },
 
   endConditions: {
     publicZero: {
-      title: "Fin de Partie en Cours de Route – Soutien du Public à 0",
-      subtitle: "Échec de la Campagne : Manque de Soutien Public",
-      description: "Votre campagne s'arrête ici. Le soutien du public n'a pas été suffisant pour maintenir l'élan nécessaire, et sans une base citoyenne solide, les décideurs ne voient pas de pression suffisante pour avancer avec la loi. En dépit de vos efforts, les industriels ont réussi à convaincre l'opinion que l'interdiction des petites bouteilles plastiques n'est pas prioritaire.",
-      conclusion: "Ce résultat montre à quel point le soutien du public est essentiel pour les campagnes environnementales. Rejouez et essayez de faire de nouveaux choix pour maximiser le soutien populaire et contrer les campagnes de désinformation des industriels.",
-      cta: "Découvrez les efforts de Zéro Waste France et comment vous pouvez aider à mobiliser le public pour des campagnes contre la pollution plastique."
+      title: "Fin de Partie - Soutien du Public à 0",
+      subtitle: "La mobilisation citoyenne s'est effondrée",
+      description: "Sans soutien populaire, ANTIDOTE n'a plus de poids dans le débat. Les médias ont tourné le dos à la cause, les élus ne voient plus de pression citoyenne suffisante pour résister aux industriels. Le lobby des pesticides a réussi à décrédibiliser la mobilisation et à isoler l'association. La proposition de loi avance sans opposition effective.",
+      conclusion: "Ce résultat montre à quel point le soutien du public est le carburant des campagnes de plaidoyer. Rejouez en privilégiant les actions qui renforcent la mobilisation citoyenne et en contrant les offensives médiatiques du lobby.",
+      cta: "La bataille contre les pesticides est réelle. Informez-vous sur les actions des associations environnementales et comment vous pouvez les soutenir."
     },
     politicalZero: {
-      title: "Fin de Partie en Cours de Route – Influence Politique à 0",
-      subtitle: "Échec de la Campagne : Perte d'Influence Politique",
-      description: "La campagne se termine ici, car votre influence politique a été réduite à néant. Malgré vos efforts pour sensibiliser les députés, les pressions industrielles ont pris le dessus, et les décideurs ont cessé de considérer la proposition de loi. Sans soutien politique, il est impossible de faire avancer l'interdiction des petites bouteilles plastiques.",
-      conclusion: "Cet échec souligne l'importance du lobbying et des relations avec les décideurs dans les campagnes environnementales. Tentez de rejouer pour explorer des choix stratégiques et ainsi renforcer votre influence auprès des députés.",
-      cta: "Découvrez comment vous pouvez vous impliquer dans les actions de plaidoyer en faveur de l'environnement et soutenir Zéro Waste France dans sa mission."
+      title: "Fin de Partie - Influence Politique à 0",
+      subtitle: "ANTIDOTE n'a plus aucun relais dans les institutions",
+      description: "La pression du lobby a fini par isoler ANTIDOTE de toute la sphère politique. Les parlementaires qui soutenaient la cause ont reculé sous la pression des industriels. Sans alliés au sein des institutions, il est impossible de peser sur le vote. La proposition de loi est sur le point d'être adoptée sans opposition.",
+      conclusion: "Cet échec illustre l'importance du plaidoyer institutionnel. Les associations doivent cultiver des relais politiques solides pour faire contrepoids aux lobbies industriels qui ont un accès privilégié aux décideurs.",
+      cta: "Pour peser sur les décisions politiques, il est essentiel de connaître les mécanismes du lobbying. Explorez comment les associations environnementales travaillent avec les institutions."
     },
     resourcesZero: {
-      title: "Fin de Partie en Cours de Route – Ressources à 0",
-      subtitle: "Échec de la Campagne : Manque de Ressources",
-      description: "La campagne est interrompue ici, car les ressources de Zéro Waste France sont épuisées. Sans fonds suffisants, il devient impossible de mener des actions significatives pour soutenir la proposition de loi. La lutte contre les petites bouteilles plastiques nécessite des moyens pour contrer les campagnes industrielles, et les ressources manquantes ont freiné votre progression.",
-      conclusion: "Cet échec rappelle les contraintes financières auxquelles font face les associations environnementales. Rejouez pour tester une stratégie différente qui permettra de maintenir vos ressources et de prolonger l'impact de vos actions.",
-      cta: "Même si la campagne s'arrête ici, votre engagement reste essentiel. Explorez des moyens de contribuer au financement des initiatives écologiques et soutenez Zéro Waste France dans ses efforts contre le plastique."
+      title: "Fin de Partie - Ressources à 0",
+      subtitle: "ANTIDOTE n'a plus les moyens de continuer",
+      description: "Les ressources d'ANTIDOTE sont épuisées. Sans financement, impossible de mener des expertises scientifiques, de financer des actions juridiques ou de maintenir la campagne médiatique. L'asymétrie des moyens entre une association et un lobby industriel milliardaire a eu raison de la campagne. La loi avancera sans opposition organisée.",
+      conclusion: "Cette situation reflète une réalité que vivent de nombreuses associations : la guerre des ressources. Les industriels peuvent mobiliser des moyens considérables quand les ONG doivent compter chaque euro. Rejouez en gérant plus soigneusement vos ressources.",
+      cta: "Soutenir financièrement les associations environnementales est un acte politique. Chaque don permet de maintenir une veille et une capacité de plaidoyer face aux lobbies industriels."
     }
   },
 
   finalResults: [
     {
-      id: "failure",
-      title: "Echec de la campagne",
-      condition: "Un ou plusieurs indicateurs ont atteint zéro à la fin.",
-      description: "Malheureusement, votre campagne pour interdire les petites bouteilles en plastique n'a pas abouti. Bien que vous ayez mobilisé des efforts considérables, les pressions industrielles et le manque de ressources ont empêché l'adoption de la loi. Les industriels ont conservé leur position dominante, et le projet de loi a été écarté.",
-      conclusion: "Cet échec montre la difficulté d'obtenir un changement structurel face à des lobbies puissants et bien financés. Chaque décision et contre-offensive a un impact direct, et cet échec souligne les défis quotidiens auxquels se heurtent les défenseurs de l'environnement.",
-      cta: "Même si la campagne n'a pas atteint son but, des actions restent possibles ! Explorez les ressources ci-dessous pour découvrir comment vous pouvez vous impliquer dans la lutte contre le plastique et soutenir les initiatives de Zéro Waste France."
+      id: "lobby_win",
+      icon: "❌",
+      badgeClass: "badge-lobby-win",
+      title: "Victoire du lobby",
+      description: "La loi est adoptée. Plusieurs pesticides dangereux sont réautorisés. Les industriels ont réussi à convaincre les décideurs politiques grâce à leur accès privilégié aux institutions et à leurs ressources considérables. ANTIDOTE n'a pas réussi à construire un rapport de force suffisant pour faire reculer les parlementaires.",
+      conclusion: "Ce résultat illustre la difficulté réelle des batailles contre des lobbies puissants et bien financés. La mobilisation d'ANTIDOTE n'est pas terminée pour autant - la bataille continue dans d'autres arènes.",
+      cta: "Même après une défaite, les associations ne s'arrêtent pas. Les recours juridiques, les mobilisations européennes et la pression citoyenne continuent de peser sur les décisions."
     },
     {
-      id: "symbolic",
-      title: "Victoire Symbolique",
-      condition: "Tous les indicateurs entre 1 et 2.",
-      description: "Félicitations, vous avez atteint la fin de la campagne ! Bien que la loi ait été partiellement adoptée, elle est limitée aux petites bouteilles en plastique de moins de 25 cl. Les industriels ont réussi à maintenir la majorité des bouteilles plastiques sur le marché, mais votre mobilisation a créé une prise de conscience. C'est une victoire symbolique qui marque un premier pas vers un changement.",
-      conclusion: "Vous avez réussi à naviguer dans les pressions industrielles et les défis politiques, obtenant une avancée pour la cause environnementale. Cette victoire symbolique reflète le parcours semé d'embûches des défenseurs de l'environnement. La prochaine étape consistera à renforcer cette législation pour un impact plus global.",
-      cta: "Explorez nos ressources pour en savoir plus sur les actions possibles contre la pollution plastique et comment participer à la sensibilisation."
+      id: "statu_quo",
+      icon: "⚖️",
+      badgeClass: "badge-statu-quo",
+      title: "Statu quo",
+      description: "La loi est adoptée, mais fortement limitée. La mobilisation d'ANTIDOTE a suffi à réduire la portée du texte, mais n'a pas permis de le bloquer totalement. Quelques pesticides sont réautorisés, mais les plus dangereux ont été écartés grâce à la pression combinée des scientifiques, des parlementaires alliés et de l'opinion publique.",
+      conclusion: "Un statu quo peut ressembler à un échec, mais c'est souvent le résultat réel des batailles politiques. Les associations ont réussi à limiter les dégâts et posé les bases pour les prochains combats.",
+      cta: "Les batailles politiques se gagnent rarement d'un coup. Chaque avancée partielle construit la pression pour les réformes suivantes. Restez mobilisés."
     },
     {
-      id: "national",
-      title: "Petite Victoire Nationale",
-      condition: "Tous les indicateurs entre 2 et 3.",
-      description: "Bravo ! Grâce à vos choix stratégiques et votre détermination, vous avez obtenu une petite victoire. La loi a été adoptée et interdit les petites bouteilles en plastique dans certains lieux publics comme les écoles et les bâtiments administratifs. Bien que la mesure ne soit pas généralisée, elle marque une avancée importante pour la cause écologique et sensibilise de nombreux citoyens.",
-      conclusion: "Votre campagne a eu un impact positif et a réussi à passer des mesures concrètes pour limiter la pollution plastique, mais des efforts supplémentaires seront nécessaires pour élargir cette interdiction à d'autres contextes.",
-      cta: "Découvrez comment vous pouvez continuer à soutenir la cause, contribuer aux campagnes de Zéro Waste France, et en savoir plus sur la législation environnementale."
+      id: "partial_win",
+      icon: "🏅",
+      badgeClass: "badge-partial-win",
+      title: "Victoire partielle d'ANTIDOTE",
+      description: "La mobilisation a porté ses fruits. La majorité des pesticides dangereux reste interdite. La loi a été fortement amendée grâce à la coalition que vous avez construite : scientifiques, parlementaires, citoyens et médias ont exercé une pression suffisante pour faire reculer les industriels sur l'essentiel. Une victoire significative.",
+      conclusion: "Cette victoire partielle montre qu'une association bien organisée peut peser face à des intérêts industriels puissants. La clé : construire des coalitions larges, mobiliser l'expertise, et maintenir la pression citoyenne.",
+      cta: "Ce résultat est possible dans la réalité. Des associations comme celle-ci remportent régulièrement des victoires partielles qui protègent notre santé et notre environnement."
     },
     {
-      id: "partial",
-      title: "Victoire Partielle mais Précaire",
-      condition: "Tous les indicateurs à 3 ou plus.",
-      description: "Félicitations, vous avez réussi à faire adopter une interdiction étendue des petites bouteilles en plastique ! Cependant, cette loi comporte plusieurs exceptions, et les industriels conservent une certaine influence pour limiter son application. Votre campagne a permis de mobiliser de nombreux acteurs et de changer les mentalités, mais le chemin est encore long pour assurer un impact durable.",
-      conclusion: "Cette victoire partielle montre le potentiel des campagnes environnementales à créer de véritables changements, malgré les pressions économiques et politiques. Votre parcours illustre bien la persévérance nécessaire dans la lutte pour la planète.",
-      cta: "Retrouvez des informations sur la loi et comment vous impliquer davantage dans les actions pour réduire l'usage du plastique et soutenir la transition écologique."
+      id: "complete_win",
+      icon: "🏆",
+      badgeClass: "badge-complete-win",
+      title: "Victoire complète d'ANTIDOTE",
+      description: "La loi est rejetée. La mobilisation citoyenne et scientifique coordonnée par ANTIDOTE a réussi à faire reculer les décideurs politiques. La coalition construite au fil des tours a rendu politiquement coûteux le soutien à la réautorisation. Les parlementaires n'ont pas pu ignorer la pression populaire, scientifique et médiatique combinée.",
+      conclusion: "Mais le lobby des pesticides reste puissant. La bataille continue. Cette victoire démontre qu'une stratégie de plaidoyer bien construite peut contrebalancer des moyens financiers considérables. C'est une leçon précieuse pour toutes les campagnes à venir.",
+      cta: "Cette victoire est possible. Elle se construit dans la réalité grâce à des milliers de bénévoles, de scientifiques engagés et de citoyens mobilisés. Rejoignez-les."
+    }
+  ],
+
+  events: [
+    {
+      id: "health_data",
+      icon: "🔬",
+      title: "Publication de nouvelles données sanitaires",
+      description: "Une agence publique publie de nouvelles données sur l'exposition aux pesticides dans les zones agricoles. Le débat prend une dimension sanitaire inattendue.",
+      outcome: "Les données appuient les arguments d'ANTIDOTE. Les médias s'emparent du sujet, plusieurs parlementaires demandent un moratoire.",
+      effects: { public: 2, political: 1, resources: 0 }
+    },
+    {
+      id: "journalism",
+      icon: "📰",
+      title: "Enquête journalistique",
+      description: "Un grand média publie une enquête révélant les liens étroits entre plusieurs responsables de l'industrie des pesticides et des décideurs politiques.",
+      outcome: "L'enquête fragilise publiquement la position du lobby. Les parlementaires les plus proches des industriels sont sur la défensive.",
+      effects: { public: 2, political: 1, resources: 0 }
+    },
+    {
+      id: "farm_mobilization",
+      icon: "🚜",
+      title: "Mobilisation agricole nationale",
+      description: "Un grand syndicat agricole appelle à soutenir la réautorisation des pesticides et organise une journée nationale de mobilisation.",
+      outcome: "La mobilisation met les parlementaires ruraux sous forte pression. Le rapport de force se durcit en faveur du lobby.",
+      effects: { public: -1, political: -2, resources: 0 }
+    },
+    {
+      id: "gov_arbitration",
+      icon: "🏛️",
+      title: "Arbitrage du gouvernement",
+      description: "La ministre de l'Agriculture prend position publiquement dans le débat sur la réautorisation des pesticides, invoquant l'intérêt économique du monde agricole.",
+      outcome: "La prise de position ministérielle fragilise la coalition parlementaire opposée à la loi. ANTIDOTE doit redoubler d'efforts pour maintenir ses alliés.",
+      effects: { public: 0, political: -1, resources: 1 }
     }
   ],
 
   phases: [
     {
       id: 1,
-      title: "Préparer la campagne",
-      description: "Dans cette première phase, Zéro Waste France met en place sa stratégie pour lancer une campagne percutante contre les bouteilles en plastique. L'association doit choisir comment attirer l'attention du public et obtenir les ressources nécessaires pour se préparer à un combat acharné contre les lobbies industriels.",
+      title: "Coalition d'organisations",
+      description: "Construire une coalition d'associations est souvent la première étape d'une stratégie de plaidoyer. En unissant leurs forces, les organisations multiplient leur visibilité et leur crédibilité. Mais chaque alliance a ses fragilités - et le lobby s'empressera de les exploiter.",
       actions: [
         {
-          label: "Publier une étude sur les effets environnementaux des petites bouteilles",
-          description: "Cette étude apportera des données concrètes pour sensibiliser l'opinion publique et attirer l'attention des médias, mais elle nécessite une partie importante de vos ressources.",
-          scenario: "L'étude sensibilise le public, attirant l'attention médiatique, mais elle consomme une partie importante du budget.",
-          effects: { public: 2, political: 0, resources: -1 },
-          counterAttack: "L'industrie finance une campagne de dénigrement de l'étude, réduisant son impact.",
-          counterEffects: { public: 0, political: 0, resources: 0 }
+          label: "Rassembler des associations environnementales",
+          description: "Coordonner plusieurs ONG environnementales pour dénoncer publiquement la réautorisation. Un communiqué commun, une prise de parole unitaire - la coalition envoie un signal fort aux médias et aux élus.",
+          scenario: "ANTIDOTE rassemble plusieurs associations environnementales pour dénoncer publiquement la réautorisation de pesticides dangereux. La coalition publie un communiqué commun et alerte les médias.",
+          effects: { public: 2, political: 0, resources: 0 },
+          counterAttack: "Les industriels dénoncent une campagne idéologique menée par des ONG déconnectées de la réalité agricole. Ils multiplient les interventions dans les médias pour défendre les pesticides.",
+          counterEffects: { public: -1, political: 0, resources: 0 }
         },
         {
-          label: "Mobiliser des associations partenaires",
-          description: "S'associer avec d'autres organisations pourrait augmenter votre visibilité et apporter du soutien logistique, mais les résultats dépendront de la fiabilité et de l'engagement de ces partenaires.",
-          scenario: "La visibilité et le soutien logistique augmentent, mais l'impact politique reste faible.",
-          effects: { public: 1, political: 0, resources: 1 },
-          counterAttack: "Certaines associations, influencées par l'industrie, se retirent, limitant le gain de ressources.",
-          counterEffects: { public: 0, political: 0, resources: 0 }
+          label: "Alliance avec des associations de santé",
+          description: "Nouer une alliance avec des associations de médecins et de patients permet de faire sortir le débat du seul cadre environnemental. Les arguments sanitaires touchent un public plus large et sont plus difficiles à contester politiquement.",
+          scenario: "ANTIDOTE travaille avec des associations de médecins et de patients pour mettre en lumière les risques sanitaires des pesticides. Le débat commence à dépasser le cadre strictement environnemental.",
+          effects: { public: 1, political: 1, resources: 0 },
+          counterAttack: "L'industrie conteste les données scientifiques et affirme que les pesticides sont utilisés en toute sécurité. Elle finance ses propres experts pour contre-attaquer.",
+          counterEffects: { public: 0, political: -1, resources: 0 }
         },
         {
-          label: "Lancer une pétition citoyenne",
-          description: "Une pétition peut être un moyen efficace pour attirer le soutien populaire sans investir de grandes ressources, mais son impact dépendra de votre capacité à la rendre visible.",
-          scenario: "La pétition attire quelques signatures et sensibilise le public, mais manque de portée.",
-          effects: { public: 1, political: 0, resources: 0 },
-          counterAttack: "Le lobby industriel publie un sondage montrant que les consommateurs préfèrent les petites bouteilles.",
-          counterEffects: { public: 0, political: 0, resources: 0 }
+          label: "Mobiliser des scientifiques et chercheurs",
+          description: "Mobiliser des chercheurs pour soutenir publiquement la position d'ANTIDOTE renforce la légitimité scientifique de la campagne. Une communauté scientifique unie est difficile à ignorer pour les décideurs.",
+          scenario: "Des chercheurs et experts scientifiques apportent leur soutien public à ANTIDOTE. La prise de position de la communauté scientifique renforce le poids de l'association dans le débat.",
+          effects: { public: 0, political: 1, resources: -1 },
+          counterAttack: "Le lobby finance rapidement une contre-expertise pour semer le doute sur les conclusions scientifiques. Il s'appuie sur quelques chercheurs dissidents pour brouiller le message.",
+          counterEffects: { public: 0, political: -1, resources: 0 }
         }
       ]
     },
     {
       id: 2,
-      title: "La Bataille des Médias",
-      description: "Alors que la campagne prend de l'ampleur, les lobbies industriels contre-attaquent avec une forte campagne de désinformation. Zéro Waste France doit choisir la meilleure façon de faire passer son message au grand public et de maintenir une image positive face aux critiques et aux fausses informations diffusées par l'industrie.",
+      title: "Coalition parlementaire",
+      description: "Sans relais au sein des institutions, une association ne peut peser sur les votes. Construire une coalition parlementaire est l'un des leviers les plus puissants - mais aussi l'un des plus difficiles à maintenir face aux pressions des lobbies industriels.",
       actions: [
         {
-          label: "Organiser un événement de nettoyage",
-          description: "Cet événement mobilisera des bénévoles et créera une image positive pour la campagne, mais sa portée médiatique dépendra de votre capacité à attirer journalistes et relais d'opinion.",
-          scenario: "Impact positif auprès du public, mais l'événement reçoit peu de couverture médiatique.",
-          effects: { public: 1, political: 0, resources: 0 },
-          counterAttack: "L'industrie publie une campagne affirmant que les bouteilles sont recyclables, réduisant l'impact de l'événement.",
-          counterEffects: { public: 0, political: 0, resources: 0 }
+          label: "Convaincre des députés écologistes et de gauche",
+          description: "Les groupes écologistes et de gauche sont souvent les alliés naturels des associations environnementales. Les convaincre d'entrer dans la bataille permet d'organiser une opposition structurée à la proposition de loi.",
+          scenario: "Des députés écologistes et de gauche s'engagent publiquement contre la proposition de loi. Une opposition parlementaire organisée commence à se structurer autour d'ANTIDOTE.",
+          effects: { public: 0, political: 2, resources: 0 },
+          counterAttack: "Le lobby riposte en finançant une campagne accusant ces parlementaires de s'attaquer au monde agricole et à l'emploi rural.",
+          counterEffects: { public: 0, political: -2, resources: 0 }
         },
         {
-          label: "Partenariat avec des influenceurs environnementaux",
-          description: "Les influenceurs peuvent toucher un large public en peu de temps et amplifier le message de la campagne, mais leur crédibilité et leur engagement pour la cause sont déterminants.",
-          scenario: "Gain de visibilité, mais l'influence politique reste limitée.",
-          effects: { public: 2, political: 0, resources: 0 },
-          counterAttack: "L'industrie soutient des influenceurs pro-recyclage pour contrer le message.",
-          counterEffects: { public: 0, political: 0, resources: 0 }
+          label: "Construire une coalition transpartisane",
+          description: "Une coalition qui dépasse les clivages partisans a beaucoup plus de poids politique. Convaincre des parlementaires de droite, de centre et de gauche de s'unir contre la réautorisation envoie un signal fort - mais cela demande des compromis.",
+          scenario: "ANTIDOTE parvient à convaincre des parlementaires de différents bords politiques. Une coalition transpartisane se forme pour bloquer la réautorisation des pesticides.",
+          effects: { public: 1, political: 3, resources: 0 },
+          counterAttack: "Le lobby exerce une pression intense sur les parlementaires du centre et de la droite pour les faire sortir de la coalition. Plusieurs hésitent.",
+          counterEffects: { public: 0, political: -2, resources: 0 }
         },
         {
-          label: "Publier un article d'opinion dans un grand journal",
-          description: "Un article dans un grand journal national permettra de toucher à la fois le grand public et les décideurs politiques, et d'asseoir la légitimité de Zéro Waste France sur ce sujet.",
-          scenario: "Attire l'attention de quelques députés, mais l'industrie publie un article contradictoire.",
-          effects: { public: 1, political: 1, resources: 0 },
-          counterAttack: "Des experts financés par l'industrie critiquent l'article, réduisant son impact.",
-          counterEffects: { public: 0, political: 0, resources: 0 }
+          label: "Obtenir une audition en commission parlementaire",
+          description: "Être entendu officiellement en commission parlementaire, c'est être reconnu comme un acteur légitime du débat. ANTIDOTE peut présenter ses arguments directement aux décideurs qui examinent le texte.",
+          scenario: "ANTIDOTE obtient une audition officielle lors de l'examen du texte en commission parlementaire. L'association présente ses arguments directement aux élus qui vont voter sur la loi.",
+          effects: { public: 0, political: 2, resources: 0 },
+          counterAttack: "L'industrie obtient elle aussi une audition et mobilise ses experts pour contrecarrer les arguments d'ANTIDOTE.",
+          counterEffects: { public: 0, political: -1, resources: 0 }
         }
       ]
     },
     {
       id: 3,
-      title: "Influencer les Décideurs",
-      description: "Zéro Waste France intensifie ses efforts pour convaincre les députés de soutenir une proposition de loi visant à interdire les petites bouteilles en plastique. Cette phase implique des actions de lobbying auprès des législateurs pour contrer l'influence des industriels et renforcer la portée de la campagne au niveau politique.",
+      title: "Expertise scientifique",
+      description: "Dans les batailles réglementaires, l'expertise scientifique est un outil clé. Elle permet de contester les arguments des industriels et de donner une légitimité au plaidoyer. Mais l'industrie dispose de moyens considérables pour financer des contre-expertises et semer le doute.",
       actions: [
         {
-          label: "Faire appel à un député écologiste",
-          description: "Solliciter le soutien d'un député écologiste permettrait d'introduire directement la cause au sein de l'hémicycle, mais ce parlementaire pourrait se retrouver sous forte pression des lobbies industriels.",
-          scenario: "Augmente l'influence politique, mais sous la pression des lobbies, le député se retire.",
-          effects: { public: 0, political: 1, resources: 0 },
-          counterAttack: "L'industrie lance une campagne accusant les députés écologistes de nuire à l'économie.",
+          label: "Tribune de scientifiques dans la presse",
+          description: "Organiser la publication d'une tribune signée par plusieurs chercheurs reconnus permet de donner une visibilité médiatique à l'alerte scientifique sur les risques des pesticides.",
+          scenario: "Plusieurs chercheurs publient une tribune dans un grand quotidien national dénonçant les risques des pesticides concernés par la loi. Le sujet gagne en légitimité dans le débat public.",
+          effects: { public: 1, political: 1, resources: 0 },
+          counterAttack: "Le lobby finance rapidement une contre-tribune signée par des experts qu'il rémunère pour semer le doute sur les conclusions scientifiques.",
           counterEffects: { public: 0, political: -1, resources: 0 }
         },
         {
-          label: "Publier un dossier scientifique indépendant",
-          description: "Un dossier scientifique rigoureux et indépendant apportera des arguments solides pour convaincre les décideurs, mais sa production est coûteuse et l'industrie tentera de le décrédibiliser.",
-          scenario: "Fournit des arguments supplémentaires, mais le coût réduit les ressources.",
-          effects: { public: 0, political: 1, resources: -1 },
-          counterAttack: "L'industrie finance une étude contradictoire pour décrédibiliser le dossier.",
-          counterEffects: { public: 0, political: -1, resources: 0 }
+          label: "Publier une méta-analyse scientifique",
+          description: "Une méta-analyse rassemblant des centaines d'études existantes est un argument scientifique difficile à contester. C'est un travail coûteux mais très solide pour appuyer le plaidoyer.",
+          scenario: "ANTIDOTE publie une méta-analyse scientifique compilant l'ensemble des études sur les effets des pesticides concernés. C'est un argument de poids pour les parlementaires et les médias.",
+          effects: { public: 1, political: 2, resources: -2 },
+          counterAttack: "L'industrie finance immédiatement sa propre étude pour contester les conclusions. Elle soulève des questions méthodologiques pour brouiller le message.",
+          counterEffects: { public: 0, political: -2, resources: 0 }
         },
         {
-          label: "Organiser une rencontre avec des députés",
-          description: "Une rencontre directe avec des députés permettra de présenter vos arguments de façon personnalisée et de tisser des liens durables, bien que l'organisation d'un tel événement mobilise des ressources importantes.",
-          scenario: "La rencontre sensibilise plusieurs députés, mais réduit les ressources.",
-          effects: { public: 0, political: 2, resources: -1 },
-          counterAttack: "Les industriels organisent un événement concurrent pour contrer l'impact.",
+          label: "Prise de position d'une société savante",
+          description: "Obtenir la prise de position officielle d'une société savante reconnue - une académie, un collège de médecins - donne un poids institutionnel à la mobilisation scientifique.",
+          scenario: "Une société savante de renom prend officiellement position contre la réautorisation des pesticides dangereux. Cette prise de position institutionnelle est difficile à ignorer.",
+          effects: { public: 0, political: 2, resources: 0 },
+          counterAttack: "Le lobby tente de discréditer la société savante en la présentant comme proche des milieux militants. Il finance des tribunes de dissidence.",
           counterEffects: { public: 0, political: -1, resources: 0 }
         }
       ]
     },
     {
       id: 4,
-      title: "Mobilisation de la Jeunesse",
-      description: "Pour renforcer l'impact de la campagne, Zéro Waste France se tourne vers la jeunesse, souvent plus réceptive aux questions environnementales. En choisissant les bonnes actions pour sensibiliser et mobiliser les jeunes, l'association espère gagner un soutien public massif et rallier des voix influentes pour la cause.",
+      title: "Utiliser les médias",
+      description: "Les médias sont un terrain de bataille essentiel. La visibilité médiatique permet de peser sur l'opinion publique et d'exercer une pression indirecte sur les décideurs politiques. Mais l'industrie dispose de budgets de communication bien supérieurs à ceux d'une association.",
       actions: [
         {
-          label: "Organiser un concours vidéo avec des écoles",
-          description: "Ce concours pourrait générer des contenus viraux pour sensibiliser le public, mais il nécessitera des ressources pour son organisation.",
-          scenario: "Les vidéos des élèves deviennent virales, mais les coûts sont élevés.",
-          effects: { public: 2, political: 0, resources: -1 },
-          counterAttack: "L'industrie lance une campagne éducative concurrente dans les écoles.",
-          counterEffects: { public: -1, political: 0, resources: 0 }
+          label: "Tribune dans un grand journal national",
+          description: "Publier une tribune dans un quotidien national permet de toucher à la fois le grand public et les décideurs. Un texte bien argumenté peut avoir un impact durable sur le débat.",
+          scenario: "Une tribune d'ANTIDOTE est publiée dans un grand quotidien national. Le sujet des pesticides revient au centre du débat public. Plusieurs parlementaires réagissent.",
+          effects: { public: 2, political: 0, resources: 0 },
+          counterAttack: "Des représentants de l'industrie publient une tribune concurrente pour défendre la loi et présenter la réautorisation comme une nécessité économique.",
+          counterEffects: { public: -2, political: 0, resources: 0 }
         },
         {
-          label: "Recruter des ambassadeurs jeunesse dans les lycées et universités",
-          description: "Les ambassadeurs mènent des actions locales pour renforcer le soutien public sans mobiliser de grands moyens.",
-          scenario: "Sensibilisation et collecte de fonds modérées.",
-          effects: { public: 1, political: 0, resources: 1 },
-          counterAttack: "L'industrie lance une campagne en faveur de la « liberté de choix » des jeunes.",
-          counterEffects: { public: -1, political: 0, resources: 0 }
-        },
-        {
-          label: "Organiser une marche symbolique avec les jeunes activistes",
-          description: "Cette marche peut attirer l'attention médiatique et politique, mais elle est vulnérable aux contre-manifestations.",
-          scenario: "La marche attire des médias et sensibilise les députés.",
+          label: "Organiser une conférence de presse",
+          description: "Une conférence de presse bien préparée, avec des chiffres solides et des témoignages percutants, peut déclencher une vague d'articles et de reportages favorables à la cause.",
+          scenario: "ANTIDOTE organise une conférence de presse réunissant scientifiques, lanceurs d'alerte et victimes de pesticides. Les médias couvrent largement l'événement.",
           effects: { public: 1, political: 1, resources: 0 },
-          counterAttack: "Les lobbies organisent une contre-manifestation.",
-          counterEffects: { public: -1, political: -1, resources: 0 }
+          counterAttack: "L'industrie organise le lendemain sa propre conférence de presse avec ses experts pour tenter de noyer le message.",
+          counterEffects: { public: 0, political: -1, resources: 0 }
+        },
+        {
+          label: "Révéler un scandale industriel",
+          description: "ANTIDOTE dispose de documents montrant les liens entre certains industriels et des responsables politiques. Les révéler peut provoquer une onde de choc médiatique - mais cela coûte cher en ressources et l'industrie contre-attaquera violemment.",
+          scenario: "ANTIDOTE révèle des documents montrant les liens étroits entre l'industrie des pesticides et des responsables politiques. L'affaire fait grand bruit dans les médias. Les parlementaires sont embarrassés.",
+          effects: { public: 4, political: 0, resources: -2 },
+          counterAttack: "Le lobby accuse ANTIDOTE de manipulation et de faire de la politique. Il tente de décrédibiliser l'enquête et menace l'association de poursuites judiciaires.",
+          counterEffects: { public: -2, political: 0, resources: 0 }
         }
       ]
     },
     {
       id: 5,
-      title: "Collaboration avec des Entreprises Écoresponsables",
-      description: "Des entreprises cherchant à promouvoir leur image « verte » voient une opportunité de partenariat avec Zéro Waste France. Cette phase consiste à établir des alliances avec des entreprises écoresponsables pour soutenir la campagne. Zéro Waste France doit cependant veiller à ne pas nuire à sa crédibilité en s'associant avec des intérêts commerciaux.",
+      title: "Agenda public",
+      description: "Mettre un sujet à l'agenda public, c'est le rendre incontournable pour les décideurs. Des citoyens qui signent une pétition, des personnalités qui s'engagent, des campagnes d'interpellation : autant de leviers pour créer une pression politique diffuse mais réelle.",
       actions: [
         {
-          label: "Collaborer avec une entreprise de boissons vendant des alternatives en verre",
-          description: "Ce partenariat augmentera vos ressources et votre visibilité, mais risque de susciter des accusations de favoritisme.",
-          scenario: "Génère des fonds, mais Zéro Waste est accusé de favoritisme.",
-          effects: { public: 1, political: 0, resources: 2 },
-          counterAttack: "L'industrie critique le partenariat, qualifiant l'alternative de « luxe ».",
+          label: "Lancer une pétition nationale",
+          description: "Une pétition massive est un signal fort envoyé aux parlementaires : des milliers de citoyens regardent comment ils voteront. C'est un outil classique mais toujours efficace pour créer de la pression.",
+          scenario: "ANTIDOTE lance une pétition nationale contre la réautorisation des pesticides. Des milliers de citoyens la signent en quelques jours. Le sujet commence à inquiéter certains élus.",
+          effects: { public: 2, political: 0, resources: 0 },
+          counterAttack: "Les industriels financent un sondage affirmant que la majorité des agriculteurs ont besoin de ces produits. Les médias relaient les deux chiffres.",
           counterEffects: { public: -1, political: 0, resources: 0 }
         },
         {
-          label: "Promouvoir des fontaines d'eau publiques en partenariat avec des municipalités",
-          description: "Ce projet peut inciter les citoyens à abandonner le plastique, mais nécessite des ressources pour sa mise en œuvre.",
-          scenario: "Les fontaines sensibilisent le public et les élus locaux.",
-          effects: { public: 1, political: 1, resources: 0 },
-          counterAttack: "Les industriels lancent une campagne critiquant l'hygiène des fontaines.",
-          counterEffects: { public: -1, political: -1, resources: 0 }
+          label: "Campagne d'interpellation des élus",
+          description: "Organiser une campagne où des milliers de citoyens écrivent directement à leurs élus est un outil de pression politique direct. Cela oblige les parlementaires à prendre position.",
+          scenario: "Des milliers de citoyens contactent leurs députés pour leur demander de rejeter la loi. Les élus qui hésitaient ressentent la pression dans leurs circonscriptions.",
+          effects: { public: 0, political: 2, resources: 0 },
+          counterAttack: "Le lobby réplique en mobilisant ses réseaux agricoles pour une contre-campagne d'interpellation en sens inverse.",
+          counterEffects: { public: 0, political: -2, resources: 0 }
         },
         {
-          label: "S'associer avec une marque d'accessoires réutilisables (gourdes, etc.)",
-          description: "Ce partenariat augmente les ressources et promeut une alternative aux bouteilles plastiques, mais peut diviser l'opinion publique.",
-          scenario: "Les ventes d'accessoires augmentent les fonds et sensibilisent le public.",
-          effects: { public: 1, political: 0, resources: 1 },
-          counterAttack: "Les lobbies critiquent le coût élevé des alternatives réutilisables.",
+          label: "Lettre ouverte de personnalités publiques",
+          description: "Une lettre ouverte signée par des acteurs connus, des sportifs, des artistes engagés peut toucher un public bien au-delà des cercles militants et donner une visibilité nouvelle à la cause.",
+          scenario: "Des personnalités publiques signent une lettre ouverte contre la réautorisation des pesticides. La médiatisation de leur engagement touche un large public et crée un effet de légitimité.",
+          effects: { public: 1, political: 1, resources: 0 },
+          counterAttack: "L'industrie instrumentalise des agriculteurs pour dénoncer l'ingérence des « célébrités parisiennes » dans leurs affaires.",
           counterEffects: { public: -1, political: 0, resources: 0 }
         }
       ]
     },
     {
       id: 6,
-      title: "Influence à l'International",
-      description: "Face aux défis nationaux, Zéro Waste France envisage de s'allier avec des ONG et réseaux européens pour accroître son impact et faire pression sur les législateurs français par des canaux internationaux. Cette phase vise à développer une influence transnationale, attirant une attention européenne pour soutenir l'interdiction des petites bouteilles plastiques.",
+      title: "Réseaux sociaux",
+      description: "Les réseaux sociaux permettent de toucher des millions de personnes à faible coût. Mais ils sont aussi le terrain favori des contre-offensives industrielles : campagnes sponsorisées, trolls organisés, désinformation ciblée. Une arme à double tranchant.",
       actions: [
         {
-          label: "Rejoindre un réseau européen d'associations environnementales",
-          description: "Ce réseau renforce votre influence auprès des institutions européennes, mais il peut provoquer des critiques de la part des industriels.",
-          scenario: "Le réseau renforce l'influence auprès des institutions européennes.",
-          effects: { public: 1, political: 1, resources: 0 },
-          counterAttack: "Les industriels accusent Zéro Waste de s'ingérer dans les affaires nationales.",
-          counterEffects: { public: -1, political: -1, resources: 0 }
+          label: "Mobiliser des influenceurs",
+          description: "Des créateurs de contenu engagés peuvent toucher des millions de personnes jeunes peu habituées aux canaux traditionnels du militantisme. Mais cette visibilité peut attirer la critique sur le sérieux de la campagne.",
+          scenario: "Des influenceurs relaient la campagne d'ANTIDOTE sur les réseaux sociaux. La question des pesticides devient virale et touche un public nouveau, particulièrement les 18-35 ans.",
+          effects: { public: 3, political: 0, resources: 0 },
+          counterAttack: "L'industrie finance à son tour des campagnes sponsorisées massives pour contrecarrer le message et noyer la visibilité d'ANTIDOTE.",
+          counterEffects: { public: -2, political: 0, resources: 0 }
         },
         {
-          label: "Participer à une conférence internationale contre la pollution plastique",
-          description: "Une conférence offre une audience internationale et des contacts, mais représente un coût significatif.",
-          scenario: "Permet d'influencer des décideurs, mais les fonds diminuent.",
-          effects: { public: 0, political: 2, resources: -1 },
-          counterAttack: "L'industrie finance des panels pro-plastique lors de la conférence.",
-          counterEffects: { public: 0, political: -1, resources: 0 }
+          label: "Lancer une vidéo virale",
+          description: "Une vidéo percutante, pédagogique et émotionnellement engageante peut propager la sensibilisation bien au-delà des cercles convaincus. Format idéal pour les réseaux sociaux.",
+          scenario: "ANTIDOTE publie une vidéo expliquant simplement les risques liés aux pesticides concernés. Elle est massivement partagée et génère de nombreuses réactions publiques.",
+          effects: { public: 2, political: 0, resources: 0 },
+          counterAttack: "Le lobby produit sa propre vidéo mettant en scène des agriculteurs défendant leur travail et présentant les ONG comme des ennemis du monde rural.",
+          counterEffects: { public: -1, political: 0, resources: 0 }
         },
         {
-          label: "Inviter des experts étrangers pour des conférences en France",
-          description: "Ces conférences attirent l'attention médiatique et renforcent la légitimité de votre campagne.",
-          scenario: "Les experts renforcent la légitimité de Zéro Waste France.",
+          label: "Campagne pédagogique numérique",
+          description: "Diffuser une campagne de fond, factuelle et pédagogique, sur les réseaux sociaux : infographies, fils de discussion, explications scientifiques accessibles. Moins spectaculaire mais plus durable.",
+          scenario: "ANTIDOTE diffuse une série de contenus pédagogiques sur les réseaux sociaux. L'audience engagée grandit, la qualité des échanges s'améliore et la campagne gagne en profondeur.",
           effects: { public: 1, political: 1, resources: 0 },
-          counterAttack: "L'industrie décrédibilise l'expertise étrangère.",
-          counterEffects: { public: -1, political: -1, resources: 0 }
+          counterAttack: "L'industrie intensifie sa présence numérique avec des publicités ciblées contredisant les informations d'ANTIDOTE.",
+          counterEffects: { public: -1, political: 0, resources: 0 }
         }
       ]
     },
     {
       id: 7,
-      title: "Contre-Offensive Législative",
-      description: "Alors que la campagne progresse, l'industrie redouble d'efforts pour influencer les législateurs et bloquer toute tentative de réglementation. Zéro Waste France doit intensifier son lobbying direct auprès des députés et développer des stratégies pour maintenir le soutien politique en faveur de l'interdiction.",
+      title: "Actions militantes",
+      description: "Les actions militantes - manifestations, actions symboliques, happenings - créent de l'événement médiatique et montrent une mobilisation physique. Elles peuvent galvaniser les soutiens. Mais un incident peut aussi se retourner contre la campagne.",
       actions: [
         {
-          label: "Faire du porte-à-porte auprès des députés sensibles à l'environnement",
-          description: "Approcher directement les députés renforce votre influence, mais cela reste vulnérable aux critiques industrielles.",
-          scenario: "Renforce le soutien de certains députés malgré la pression des lobbies.",
-          effects: { public: 0, political: 2, resources: 0 },
-          counterAttack: "Les industriels critiquent les députés écologistes comme nuisibles à l'économie.",
-          counterEffects: { public: 0, political: -1, resources: 0 }
+          label: "Organiser une manifestation nationale",
+          description: "Une grande manifestation dans la rue montre la réalité de la mobilisation. Des milliers de personnes dans les rues envoient un signal fort aux décideurs politiques et aux médias.",
+          scenario: "Plusieurs milliers de personnes manifestent contre la réautorisation des pesticides. Les images font le tour des médias. Des parlementaires prennent note de l'ampleur de la mobilisation.",
+          effects: { public: 3, political: 0, resources: 0 },
+          counterAttack: "Le lobby accuse les ONG de s'attaquer au monde agricole et mobilise des syndicats agricoles pour organiser une contre-manifestation.",
+          counterEffects: { public: -1, political: 0, resources: 0 }
         },
         {
-          label: "Organiser une campagne de lettres citoyennes adressées aux députés",
-          description: "Une campagne de lettres montre le soutien populaire, mais elle est vulnérable aux réponses automatisées.",
-          scenario: "Renforce l'engagement citoyen et l'influence politique.",
-          effects: { public: 2, political: 1, resources: 0 },
-          counterAttack: "Les industriels lancent une réponse automatisée en opposition.",
-          counterEffects: { public: -1, political: -1, resources: 0 }
+          label: "Action symbolique devant l'Assemblée nationale",
+          description: "Une action symbolique, bien scénarisée, devant l'Assemblée nationale ou un ministère peut générer des images fortes qui circulent dans les médias. L'objectif : rendre visible l'enjeu politique.",
+          scenario: "ANTIDOTE mène une action symbolique percutante devant l'Assemblée nationale. Les images circulent dans la presse et sur les réseaux sociaux, rappelant aux élus que la société civile les observe.",
+          effects: { public: 2, political: 0, resources: 0 },
+          counterAttack: "L'industrie et ses alliés agricoles dénoncent l'action comme provocatrice et hors-sol. Ils tentent de retourner l'opinion contre les militants.",
+          counterEffects: { public: -1, political: 0, resources: 0 }
         },
         {
-          label: "Proposer des amendements législatifs en partenariat avec des députés écologistes",
-          description: "Ces amendements visent à limiter l'impact des industriels, mais nécessitent des ressources pour les études préalables.",
-          scenario: "Renforce la campagne législative mais réduit les ressources.",
-          effects: { public: 0, political: 2, resources: -1 },
-          counterAttack: "L'industrie fait pression pour retirer les amendements.",
-          counterEffects: { public: 0, political: -1, resources: 0 }
+          label: "Happening médiatique",
+          description: "Un happening créatif et surprenant peut créer un buzz médiatique important. Mais son impact dépend beaucoup de l'exécution et du contexte - et la réaction du public peut être imprévisible.",
+          scenario: "ANTIDOTE organise un happening médiatique percutant qui dénonce l'influence du lobby des pesticides. L'action est largement commentée sur les réseaux sociaux et dans la presse.",
+          effects: { public: 2, political: 0, resources: -3 },
+          counterAttack: "Le lobby et certains médias ironisent sur l'action, la présentant comme du théâtre militant sans contenu sérieux.",
+          counterEffects: { public: -1, political: 0, resources: 0 }
         }
       ]
     },
     {
       id: 8,
-      title: "Offensive Finale en Justice",
-      description: "Face à une probable impasse législative, Zéro Waste France décide de porter l'affaire devant les tribunaux, espérant obtenir une décision de justice favorable à l'interdiction du plastique. Bien que cette option soit coûteuse et risquée, elle représente une ultime tentative pour contrer l'influence des lobbies industriels et instaurer un changement durable.",
+      title: "Dialoguer avec les agriculteurs",
+      description: "Le lobby des pesticides s'appuie massivement sur la figure de l'agriculteur pour légitimer ses positions. Aller à la rencontre des agriculteurs, notamment ceux qui travaillent sans pesticides dangereux, permet de casser ce monopole de représentation.",
       actions: [
         {
-          label: "Lancer un recours juridique pour violation des droits environnementaux",
-          description: "Cette action symbolique est coûteuse mais pourrait générer du soutien public.",
-          scenario: "Mobilise les partisans, mais la procédure est coûteuse.",
-          effects: { public: 2, political: 0, resources: -2 },
-          counterAttack: "L'industrie engage une équipe juridique puissante pour contester.",
-          counterEffects: { public: -1, political: 0, resources: 0 }
+          label: "Témoignages d'agriculteurs bio",
+          description: "Mettre en avant des agriculteurs qui travaillent sans pesticides dangereux est un contre-récit puissant face à l'argument que \"les agriculteurs ont besoin de ces produits\". Des voix agricoles dans le débat changent la donne.",
+          scenario: "Des agriculteurs expliquent publiquement qu'il est possible et rentable de produire sans pesticides dangereux. Le débat devient plus nuancé et sort du clivage ONG vs. agriculture.",
+          effects: { public: 1, political: 0, resources: 0 },
+          counterAttack: "Le syndicat agricole majoritaire organise une mobilisation pour défendre les pesticides et présenter les agriculteurs bio comme des exceptions non représentatives.",
+          counterEffects: { public: 0, political: -2, resources: 0 }
         },
         {
-          label: "Mobiliser des juristes pro bono pour construire un dossier solide",
-          description: "Obtenir des conseils juridiques gratuits pourrait renforcer votre dossier sans affecter le budget.",
-          scenario: "Construit un dossier solide, mais avec un impact modéré.",
-          effects: { public: 0, political: 1, resources: 1 },
-          counterAttack: "L'industrie cherche à décrédibiliser votre recours en insinuant qu'il manque de fondement.",
+          label: "Tribune commune d'agriculteurs",
+          description: "Une tribune signée par plusieurs dizaines d'agriculteurs opposés à la réautorisation montre que le monde agricole n'est pas monolithique et que le lobby ne parle pas en son nom.",
+          scenario: "Des agriculteurs cosignent une tribune publique s'opposant à la réautorisation. Cette prise de parole déstabilise le discours du lobby et oblige les médias à nuancer leur traitement.",
+          effects: { public: 0, political: 1, resources: 0 },
+          counterAttack: "Le syndicat agricole majoritaire contre-attaque en présentant ces agriculteurs comme des militants déguisés en paysans.",
+          counterEffects: { public: 0, political: -2, resources: 0 }
+        },
+        {
+          label: "Rencontres terrain avec les agriculteurs",
+          description: "Organiser des rencontres directes sur le terrain permet de construire des relations de confiance avec des agriculteurs qui ne sont pas convaincus par les pesticides. Ce travail de fond prend du temps mais construit des alliances solides.",
+          scenario: "ANTIDOTE organise des rencontres sur le terrain avec des agriculteurs en quête d'alternatives aux pesticides dangereux. Des liens se créent qui pourraient devenir de futurs relais.",
+          effects: { public: 2, political: 0, resources: 0 },
+          counterAttack: "Le syndicat agricole majoritaire mobilise ses réseaux locaux pour dissuader les agriculteurs de participer aux rencontres d'ANTIDOTE.",
+          counterEffects: { public: 0, political: -1, resources: 0 }
+        }
+      ]
+    },
+    {
+      id: 9,
+      title: "Bataille juridique",
+      locked: true,
+      lockedUntil: 5,
+      lockedMessage: "Cette action n'est pas encore disponible",
+      description: "À mi-parcours du processus législatif, la voie juridique s'ouvre. Les recours, plaintes et stratégies judiciaires permettent de peser sur le débat par un autre canal - parfois le seul restant quand les autres leviers sont bloqués.",
+      actions: [
+        {
+          label: "Déposer un recours juridique",
+          description: "Contester juridiquement la réautorisation de certains pesticides devant les tribunaux administratifs peut bloquer ou retarder le processus. C'est coûteux mais potentiellement très efficace.",
+          scenario: "ANTIDOTE dépose un recours juridique pour contester la réautorisation de pesticides dont les risques sanitaires sont documentés. Le débat s'installe aussi sur le terrain judiciaire.",
+          effects: { public: 0, political: 3, resources: -2 },
+          counterAttack: "Les industriels mobilisent leurs propres équipes juridiques pour contester le recours et faire traîner la procédure.",
           counterEffects: { public: 0, political: -1, resources: 0 }
         },
         {
-          label: "Déposer une plainte au niveau européen pour forcer une réglementation stricte",
-          description: "Cette plainte vise à faire pression sur la France via les institutions européennes.",
-          scenario: "Attire l'attention des législateurs européens, mais coûte cher.",
-          effects: { public: 0, political: 2, resources: -1 },
-          counterAttack: "Les industriels exercent une pression pour ralentir le processus.",
+          label: "Déposer une plainte environnementale",
+          description: "Une plainte pour atteinte à l'environnement ou mise en danger d'autrui met en lumière la responsabilité des acteurs de l'industrie et peut contraindre des enquêtes officielles.",
+          scenario: "ANTIDOTE dépose une plainte environnementale dénonçant les impacts sanitaires des pesticides concernés. L'affaire est prise en charge par la justice et fait l'objet d'une couverture médiatique.",
+          effects: { public: 1, political: 1, resources: -1 },
+          counterAttack: "L'industrie minimise la portée de la plainte et tente d'intimider l'association avec des menaces de contre-poursuites.",
+          counterEffects: { public: 0, political: -1, resources: 0 }
+        },
+        {
+          label: "Mobiliser un collectif d'avocats",
+          description: "Rassembler un collectif d'avocats spécialisés en droit de l'environnement permet de construire une stratégie judiciaire robuste sans dépenser immédiatement des ressources importantes.",
+          scenario: "ANTIDOTE réunit un collectif d'avocats spécialisés en droit de l'environnement pour préparer une stratégie judiciaire complète. Ce dispositif renforce la crédibilité de l'association dans le débat.",
+          effects: { public: 0, political: 2, resources: 0 },
+          counterAttack: "L'industrie fait pression sur les cabinets d'avocats pour décourager certains d'entre eux de travailler avec ANTIDOTE.",
+          counterEffects: { public: 0, political: -1, resources: 0 }
+        }
+      ]
+    },
+    {
+      id: 10,
+      title: "Action européenne",
+      description: "L'Union européenne réglemente les pesticides et peut mettre la pression sur les États membres. Interpeller les institutions européennes permet d'ouvrir un second front dans la bataille politique et d'obtenir des soutiens au-delà des frontières.",
+      actions: [
+        {
+          label: "Saisir la Commission européenne",
+          description: "Alerter la Commission européenne sur la réautorisation de pesticides interdits dans d'autres pays européens crée un précédent diplomatique et oblige le gouvernement français à justifier sa position.",
+          scenario: "ANTIDOTE saisit la Commission européenne en lui soumettant un dossier documenté sur la réautorisation projetée. La démarche crée une pression diplomatique nouvelle sur le gouvernement.",
+          effects: { public: 0, political: 2, resources: 0 },
+          counterAttack: "Le lobby exerce des pressions auprès de ses relais au Parlement européen pour minimiser la portée de la saisine.",
+          counterEffects: { public: 0, political: -1, resources: 0 }
+        },
+        {
+          label: "Coalition d'ONG européennes",
+          description: "Construire une coalition d'ONG de plusieurs pays européens amplifie la visibilité de la campagne et montre que l'enjeu dépasse les frontières françaises. Solidarité et force collective.",
+          scenario: "Une coalition d'ONG européennes rejoint ANTIDOTE pour dénoncer la réautorisation de pesticides dangereux. L'affaire prend une dimension continentale et les médias européens s'en emparent.",
+          effects: { public: 2, political: 1, resources: 0 },
+          counterAttack: "L'industrie mobilise ses lobbies européens pour contrer la coalition et tenter d'isoler ANTIDOTE au niveau des instances bruxelloises.",
+          counterEffects: { public: -1, political: -1, resources: 0 }
+        },
+        {
+          label: "Interpeller des eurodéputés",
+          description: "Contacter directement des eurodéputés, notamment ceux des commissions environnement et santé, pour les inviter à interpeller le gouvernement français est un levier d'influence institutionnel.",
+          scenario: "Des eurodéputés interpellent le gouvernement français sur la réautorisation de pesticides dangereux. La question remonte jusqu'aux instances européennes et met le gouvernement en position délicate.",
+          effects: { public: 0, political: 2, resources: 0 },
+          counterAttack: "Le lobby exerce des pressions sur ses relais au Parlement européen pour contrecarrer les interpellations des eurodéputés alliés.",
           counterEffects: { public: 0, political: -1, resources: 0 }
         }
       ]

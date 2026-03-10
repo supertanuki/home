@@ -381,6 +381,32 @@ main {
   color: var(--text-muted);
 }
 
+/* Phase verrouillée */
+.phase-pick-btn.locked {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--grey-light);
+  border-color: var(--grey);
+}
+
+.phase-pick-btn.locked .ppb-num {
+  background: var(--grey);
+  border-color: var(--grey);
+  color: var(--white);
+  font-size: .9rem;
+}
+
+.phase-pick-btn.locked .ppb-title {
+  color: var(--text-muted);
+}
+
+.ppb-lock-msg {
+  font-size: .65rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+  font-style: italic;
+}
+
 /* ─── Progress steps ─── */
 .progress-steps {
   display: flex;
@@ -610,7 +636,7 @@ main {
   80%      { transform: translateX(3px); }
 }
 
-.counter-banner .counter-icon { font-size: 1.6rem; }
+.counter-banner .counter-icon { font-size: 2.2rem; line-height: 1; }
 
 .counter-banner .counter-text h4 {
   font-size: .8rem;
@@ -711,6 +737,30 @@ main {
   opacity: .9;
 }
 
+/* Liste des actions jouées (écrans de fin) */
+.actions-recap-list {
+  list-style: decimal;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.actions-recap-list li {
+  font-size: .88rem;
+  line-height: 1.7;
+  opacity: .9;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.actions-recap-list li:last-child {
+  border-bottom: none;
+}
+
+.ar-phase {
+  font-weight: 700;
+  opacity: 1;
+}
+
 .end-card .cta-text {
   font-style: italic;
   opacity: .75;
@@ -733,10 +783,10 @@ main {
   letter-spacing: .08em;
 }
 
-.badge-failure  { background: var(--red);          color: var(--white); }
-.badge-symbolic { background: var(--yellow);        color: #333; }
-.badge-national { background: var(--blue);          color: var(--white); }
-.badge-partial  { background: var(--green-light);   color: var(--green-dark); }
+.badge-lobby-win   { background: var(--red);          color: var(--white); }
+.badge-statu-quo   { background: var(--yellow);        color: #333; }
+.badge-partial-win { background: var(--blue);          color: var(--white); }
+.badge-complete-win{ background: var(--green-light);   color: var(--green-dark); }
 
 /* ─── Footer ─── */
 footer {
@@ -768,6 +818,166 @@ footer {
 .toast.show {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
+}
+
+/* ─── Event card ─── */
+.event-card-section {
+  display: none;
+  animation: slideDown .35s ease;
+  border-left: 4px solid var(--yellow-dark);
+}
+
+.event-header {
+  margin-bottom: 16px;
+}
+
+.event-type-badge {
+  display: inline-block;
+  background: var(--yellow-dark);
+  color: var(--white);
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+.event-body {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.event-icon-big {
+  font-size: 3rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.event-main {
+  flex: 1;
+}
+
+.event-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 10px;
+}
+
+.event-description {
+  font-size: .93rem;
+  line-height: 1.65;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.event-outcome {
+  font-size: .9rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 10px 14px;
+  background: #fffde7;
+  border-left: 3px solid var(--yellow-dark);
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+/* ─── Unlock card (Bataille juridique) ─── */
+.unlock-card-section {
+  display: none;
+  animation: slideDown .35s ease;
+  border-left: 4px solid var(--green-light);
+}
+
+.unlock-header {
+  margin-bottom: 16px;
+}
+
+.unlock-type-badge {
+  display: inline-block;
+  background: var(--green);
+  color: var(--white);
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+.unlock-body {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.unlock-icon-big {
+  font-size: 3rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.unlock-main {
+  flex: 1;
+}
+
+.unlock-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 10px;
+}
+
+.unlock-description {
+  font-size: .93rem;
+  line-height: 1.65;
+  color: var(--text);
+  padding: 10px 14px;
+  background: #e8f5ee;
+  border-left: 3px solid var(--green-light);
+  border-radius: 4px;
+}
+
+/* ─── Avatars ─── */
+
+/* Carte welcome avec avatar à gauche */
+.welcome-card.avatar-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.wc-avatar {
+  font-size: 2.8rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.wc-content {
+  flex: 1;
+}
+
+/* Structure joueur dans la carte résultat — miroir du counter-banner */
+.result-actor-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.result-actor-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.result-actor-content {
+  flex: 1;
 }
 
 /* ─── Responsive ─── */
