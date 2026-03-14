@@ -130,7 +130,7 @@ const GAME_DATA = {
           description: "Mobiliser des chercheurs pour soutenir publiquement la position d'ANTIDOTE renforce la légitimité scientifique de la campagne. Une communauté scientifique unie est difficile à ignorer pour les décideurs.",
           scenario: "Des chercheurs et experts scientifiques apportent leur soutien public à ANTIDOTE. La prise de position de la communauté scientifique renforce le poids de l'association dans le débat.",
           effects: { public: 0, political: 1, resources: -1 },
-          counterAttack: "Le lobby finance rapidement une contre-expertise pour semer le doute sur les conclusions scientifiques. Il s'appuie sur quelques chercheurs dissidents pour brouiller le message.",
+          counterAttack: "Le lobby des pesticides finance rapidement une contre-expertise pour semer le doute sur les conclusions scientifiques. Il s'appuie sur quelques chercheurs dissidents pour brouiller le message.",
           counterEffects: { public: 0, political: -1, resources: 0 }
         }
       ]
@@ -145,7 +145,7 @@ const GAME_DATA = {
           description: "Les groupes écologistes et de gauche sont souvent les alliés naturels des associations environnementales. Les convaincre d'entrer dans la bataille permet d'organiser une opposition structurée à la proposition de loi.",
           scenario: "Des députés écologistes et de gauche s'engagent publiquement contre la proposition de loi. Une opposition parlementaire organisée commence à se structurer autour d'ANTIDOTE.",
           effects: { public: 0, political: 2, resources: 0 },
-          counterAttack: "Le lobby riposte en finançant une campagne accusant ces parlementaires de s'attaquer au monde agricole et à l'emploi rural.",
+          counterAttack: "Le lobby des pesticides riposte en finançant une campagne accusant ces parlementaires de s'attaquer au monde agricole et à l'emploi rural.",
           counterEffects: { public: 0, political: -2, resources: 0 }
         },
         {
@@ -153,7 +153,7 @@ const GAME_DATA = {
           description: "Une coalition qui dépasse les clivages partisans a beaucoup plus de poids politique. Convaincre des parlementaires de droite, de centre et de gauche de s'unir contre la réautorisation envoie un signal fort - mais cela demande des compromis.",
           scenario: "ANTIDOTE parvient à convaincre des parlementaires de différents bords politiques. Une coalition transpartisane se forme pour bloquer la réautorisation des pesticides.",
           effects: { public: 1, political: 3, resources: 0 },
-          counterAttack: "Le lobby exerce une pression intense sur les parlementaires du centre et de la droite pour les faire sortir de la coalition. Plusieurs hésitent.",
+          counterAttack: "Le lobby des pesticides exerce une pression intense sur les parlementaires du centre et de la droite pour les faire sortir de la coalition. Plusieurs hésitent.",
           counterEffects: { public: 0, political: -2, resources: 0 }
         },
         {
@@ -176,7 +176,7 @@ const GAME_DATA = {
           description: "Organiser la publication d'une tribune signée par plusieurs chercheurs reconnus permet de donner une visibilité médiatique à l'alerte scientifique sur les risques des pesticides.",
           scenario: "Plusieurs chercheurs publient une tribune dans un grand quotidien national dénonçant les risques des pesticides concernés par la loi. Le sujet gagne en légitimité dans le débat public.",
           effects: { public: 1, political: 1, resources: 0 },
-          counterAttack: "Le lobby finance rapidement une contre-tribune signée par des experts qu'il rémunère pour semer le doute sur les conclusions scientifiques.",
+          counterAttack: "Le lobby des industriels finance rapidement une contre-tribune signée par des experts qu'il rémunère pour semer le doute sur les conclusions scientifiques.",
           counterEffects: { public: 0, political: -1, resources: 0 }
         },
         {
@@ -192,7 +192,7 @@ const GAME_DATA = {
           description: "Obtenir la prise de position officielle d'une société savante reconnue - une académie, un collège de médecins - donne un poids institutionnel à la mobilisation scientifique.",
           scenario: "Une société savante de renom prend officiellement position contre la réautorisation des pesticides dangereux. Cette prise de position institutionnelle est difficile à ignorer.",
           effects: { public: 0, political: 2, resources: 0 },
-          counterAttack: "Le lobby tente de discréditer la société savante en la présentant comme proche des milieux militants. Il finance des tribunes de dissidence.",
+          counterAttack: "Le lobby des pesticides tente de discréditer la société savante en la présentant comme proche des milieux militants. Il finance des tribunes de dissidence.",
           counterEffects: { public: 0, political: -1, resources: 0 }
         }
       ]
@@ -223,7 +223,7 @@ const GAME_DATA = {
           description: "ANTIDOTE dispose de documents montrant les liens entre certains industriels et des responsables politiques. Les révéler peut provoquer une onde de choc médiatique - mais cela coûte cher en ressources et l'industrie contre-attaquera violemment.",
           scenario: "ANTIDOTE révèle des documents montrant les liens étroits entre l'industrie des pesticides et des responsables politiques. L'affaire fait grand bruit dans les médias. Les parlementaires sont embarrassés.",
           effects: { public: 4, political: 0, resources: -2 },
-          counterAttack: "Le lobby accuse ANTIDOTE de manipulation et de faire de la politique. Il tente de décrédibiliser l'enquête et menace l'association de poursuites judiciaires.",
+          counterAttack: "Le lobby industriel accuse ANTIDOTE de manipulation et de faire de la politique. Il tente de décrédibiliser l'enquête et menace l'association de poursuites judiciaires.",
           counterEffects: { public: -2, political: 0, resources: 0 }
         }
       ]
@@ -246,7 +246,7 @@ const GAME_DATA = {
           description: "Organiser une campagne où des milliers de citoyens écrivent directement à leurs élus est un outil de pression politique direct. Cela oblige les parlementaires à prendre position.",
           scenario: "Des milliers de citoyens contactent leurs députés pour leur demander de rejeter la loi. Les élus qui hésitaient ressentent la pression dans leurs circonscriptions.",
           effects: { public: 0, political: 2, resources: 0 },
-          counterAttack: "Le lobby réplique en mobilisant ses réseaux agricoles pour une contre-campagne d'interpellation en sens inverse.",
+          counterAttack: "Le lobby des pesticides réplique en mobilisant ses réseaux agricoles pour une contre-campagne d'interpellation en sens inverse.",
           counterEffects: { public: 0, political: -2, resources: 0 }
         },
         {
@@ -277,7 +277,7 @@ const GAME_DATA = {
           description: "Une vidéo percutante, pédagogique et émotionnellement engageante peut propager la sensibilisation bien au-delà des cercles convaincus. Format idéal pour les réseaux sociaux.",
           scenario: "ANTIDOTE publie une vidéo expliquant simplement les risques liés aux pesticides concernés. Elle est massivement partagée et génère de nombreuses réactions publiques.",
           effects: { public: 2, political: 0, resources: 0 },
-          counterAttack: "Le lobby produit sa propre vidéo mettant en scène des agriculteurs défendant leur travail et présentant les ONG comme des ennemis du monde rural.",
+          counterAttack: "Le lobby des pesticides produit sa propre vidéo mettant en scène des agriculteurs défendant leur travail et présentant les ONG comme des ennemis du monde rural.",
           counterEffects: { public: -1, political: 0, resources: 0 }
         },
         {
@@ -300,7 +300,7 @@ const GAME_DATA = {
           description: "Une grande manifestation dans la rue montre la réalité de la mobilisation. Des milliers de personnes dans les rues envoient un signal fort aux décideurs politiques et aux médias.",
           scenario: "Plusieurs milliers de personnes manifestent contre la réautorisation des pesticides. Les images font le tour des médias. Des parlementaires prennent note de l'ampleur de la mobilisation.",
           effects: { public: 3, political: 0, resources: 0 },
-          counterAttack: "Le lobby accuse les ONG de s'attaquer au monde agricole et mobilise des syndicats agricoles pour organiser une contre-manifestation.",
+          counterAttack: "Le lobby des industriels accuse les ONG de s'attaquer au monde agricole et mobilise des syndicats agricoles pour organiser une contre-manifestation.",
           counterEffects: { public: -1, political: 0, resources: 0 }
         },
         {
@@ -315,8 +315,8 @@ const GAME_DATA = {
           label: "Happening médiatique",
           description: "Un happening créatif et surprenant peut créer un buzz médiatique important. Mais son impact dépend beaucoup de l'exécution et du contexte - et la réaction du public peut être imprévisible.",
           scenario: "ANTIDOTE organise un happening médiatique percutant qui dénonce l'influence du lobby des pesticides. L'action est largement commentée sur les réseaux sociaux et dans la presse.",
-          effects: { public: 2, political: 0, resources: -3 },
-          counterAttack: "Le lobby et certains médias ironisent sur l'action, la présentant comme du théâtre militant sans contenu sérieux.",
+          effects: { public: 2, political: 0, resources: -2 },
+          counterAttack: "Le lobby des pesticides et certains médias ironisent sur l'action, la présentant comme du théâtre militant sans contenu sérieux.",
           counterEffects: { public: -1, political: 0, resources: 0 }
         }
       ]
@@ -336,7 +336,7 @@ const GAME_DATA = {
         },
         {
           label: "Tribune commune d'agriculteurs",
-          description: "Une tribune signée par plusieurs dizaines d'agriculteurs opposés à la réautorisation montre que le monde agricole n'est pas monolithique et que le lobby ne parle pas en son nom.",
+          description: "Une tribune signée par plusieurs dizaines d'agriculteurs opposés à la réautorisation montre que le monde agricole n'est pas monolithique et que Le lobby des pesticides ne parle pas en son nom.",
           scenario: "Des agriculteurs cosignent une tribune publique s'opposant à la réautorisation. Cette prise de parole déstabilise le discours du lobby et oblige les médias à nuancer leur traitement.",
           effects: { public: 0, political: 1, resources: 0 },
           counterAttack: "Le syndicat agricole majoritaire contre-attaque en présentant ces agriculteurs comme des militants déguisés en paysans.",
@@ -396,7 +396,7 @@ const GAME_DATA = {
           description: "Alerter la Commission européenne sur la réautorisation de pesticides interdits dans d'autres pays européens crée un précédent diplomatique et oblige le gouvernement français à justifier sa position.",
           scenario: "ANTIDOTE saisit la Commission européenne en lui soumettant un dossier documenté sur la réautorisation projetée. La démarche crée une pression diplomatique nouvelle sur le gouvernement.",
           effects: { public: 0, political: 2, resources: 0 },
-          counterAttack: "Le lobby exerce des pressions auprès de ses relais au Parlement européen pour minimiser la portée de la saisine.",
+          counterAttack: "Le lobby des pesticides exerce des pressions auprès de ses relais au Parlement européen pour minimiser la portée de la saisine.",
           counterEffects: { public: 0, political: -1, resources: 0 }
         },
         {
@@ -412,7 +412,7 @@ const GAME_DATA = {
           description: "Contacter directement des eurodéputés, notamment ceux des commissions environnement et santé, pour les inviter à interpeller le gouvernement français est un levier d'influence institutionnel.",
           scenario: "Des eurodéputés interpellent le gouvernement français sur la réautorisation de pesticides dangereux. La question remonte jusqu'aux instances européennes et met le gouvernement en position délicate.",
           effects: { public: 0, political: 2, resources: 0 },
-          counterAttack: "Le lobby exerce des pressions sur ses relais au Parlement européen pour contrecarrer les interpellations des eurodéputés alliés.",
+          counterAttack: "Le lobby des industriels exerce des pressions sur ses relais au Parlement européen pour contrecarrer les interpellations des eurodéputés alliés.",
           counterEffects: { public: 0, political: -1, resources: 0 }
         }
       ]

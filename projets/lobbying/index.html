@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ANTIDOTE - Bataille contre le lobby des pesticides</title>
-  <link rel="stylesheet" href="style.css?1" />
-  <script src="game-data.js?1"></script>
+  <link rel="stylesheet" href="style.css?v2" />
+  <script src="game-data.js?v2"></script>
 </head>
 <body>
 
@@ -16,22 +16,21 @@
   <div class="welcome-box">
     <span class="big-icon">☣️</span>
     <h2>ANTIDOTE</h2>
-    <p class="tagline">
-      Bataille contre le lobby des pesticides
-    </p>
+    <p class="tagline">Bataille contre le lobby des pesticides</p>
 
     <div class="welcome-card avatar-card">
       <span class="wc-avatar">👩🏽‍💼</span>
       <div class="wc-content">
         <h3>Votre mission</h3>
         <p>
-          Tu viens de rejoindre l'équipe de plaidoyer de l'association <strong>ANTIDOTE</strong>.
-          Une proposition de loi vient d'être déposée à l'Assemblée nationale - son objectif : réautoriser plusieurs pesticides dangereux aujourd'hui interdits.
+          Tu viens de rejoindre l'équipe de plaidoyer de l'association <strong>ANTIDOTE</strong>.<br>
+          Une proposition de loi vient d'être déposée à l'Assemblée Nationale.<br>
+          Son objectif : réautoriser plusieurs pesticides dangereux aujourd'hui interdits.<br>
           Officieusement, le lobby des pesticides est déjà à l'œuvre.
         </p>
         <p style="margin-top:10px;">
-          Ton rôle : construire une stratégie pour <strong>empêcher l'adoption de cette loi</strong>.
-          Tu disposes de <strong>10 tours</strong> avant le vote final.
+          <strong>Naomi</strong>, ta collègue lobbyiste environnemental, va te guider.<br>
+          Tu disposes de <strong>10 actions</strong> à lancer avant le vote final au parlement.
         </p>
       </div>
     </div>
@@ -40,7 +39,7 @@
       <h3>Vos indicateurs de départ</h3>
       <div class="indicators-preview">
         <div class="indicator-chip">
-          <span class="chip-icon">🌍</span>
+          <span class="chip-icon">👥</span>
           <div class="chip-name">Soutien du Public</div>
           <div class="chip-val">4</div>
         </div>
@@ -50,191 +49,152 @@
           <div class="chip-val">3</div>
         </div>
         <div class="indicator-chip">
-          <span class="chip-icon">💰</span>
+          <span class="chip-icon">💶</span>
           <div class="chip-name">Ressources</div>
           <div class="chip-val">4</div>
         </div>
       </div>
     </div>
 
-    <div class="welcome-card avatar-card">
-      <span class="wc-avatar">👨🏻‍💼</span>
-      <div class="wc-content">
-        <h3>Règles</h3>
-        <p>
-          À chaque tour, choisissez un champ d'action parmi dix, puis sélectionnez votre stratégie.
-          Le <b>lobby des pesticides</b> ripostera systématiquement.
-          Si l'un de vos trois indicateurs atteint <strong>zéro</strong>, la partie s'arrête immédiatement.
-        </p>
-      </div>
+    <div class="welcome-card">
+      <h3>Règles</h3>
+      <p>
+        À chaque tour, choisissez un champ d'action parmi dix, puis sélectionnez votre stratégie.<br>
+        Le <b>lobby des pesticides</b> ripostera systématiquement.<br>
+        Si l'un de vos trois indicateurs atteint <strong>zéro</strong>, la partie s'arrête immédiatement.
+      </p>
     </div>
 
     <button class="btn btn-primary" onclick="startGame()" style="font-size:1.1rem; padding:16px 40px; margin-top:8px;">
-      Lancer la campagne
+      Commencer
     </button>
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════
-     SCREEN : GAME
+     SCREEN : GAME (Messagerie)
 ═══════════════════════════════════════════════ -->
 <div id="screen-game" class="screen">
-  <!-- Header -->
-  <header>
-    <span class="logo">☣️</span>
-    <div>
-      <h1>ANTIDOTE - Bataille contre le lobby des pesticides</h1>
-    </div>
-  </header>
 
-  <!-- Scoreboard -->
-  <div class="scoreboard">
-    <div class="scoreboard-inner">
-      <div class="score-item">
-        <div class="score-label">🌍 Soutien du Public</div>
-        <div class="score-value" id="score-public">4</div>
-        <div class="score-bar-bg"><div class="score-bar" id="bar-public" style="width:40%"></div></div>
+  <!-- Header chat (2 lignes mobile, 1 ligne desktop) -->
+  <div class="chat-header">
+
+    <!-- Ligne 1 : avatar + infos + progression -->
+    <div class="chat-header-row1">
+      <div class="chat-avatar-wrap">
+        <span class="chat-avatar-emoji">👩🏽‍💼</span>
+        <span class="chat-online-dot"></span>
       </div>
-      <div class="score-item">
-        <div class="score-label">🏛️ Influence Politique</div>
-        <div class="score-value" id="score-political">3</div>
-        <div class="score-bar-bg"><div class="score-bar" id="bar-political" style="width:30%"></div></div>
+      <div class="chat-header-info">
+        <div class="chat-header-name">Naomi</div>
+        <div class="chat-header-role">Lobbying environnemental · ANTIDOTE</div>
       </div>
-      <div class="score-item">
-        <div class="score-label">💰 Ressources</div>
-        <div class="score-value" id="score-resources">4</div>
-        <div class="score-bar-bg"><div class="score-bar" id="bar-resources" style="width:40%"></div></div>
+      <div class="chat-header-progress">
+        <div class="chp-bar-bg"><div class="chp-bar" id="chp-bar"></div></div>
+        <div class="chp-label" id="chp-label">0 / 10</div>
       </div>
     </div>
+
+    <!-- Ligne 2 : indicateurs de score -->
+    <div class="chat-header-scores">
+      <div class="score-pill" id="pill-public">
+        <span class="sp-icon">👥</span>
+        <div class="sp-content">
+          <div class="sp-label">Public</div>
+          <div class="sp-val" id="score-public">4</div>
+          <div class="sp-bar-bg"><div class="sp-bar" id="bar-public"></div></div>
+        </div>
+      </div>
+      <div class="score-pill" id="pill-political">
+        <span class="sp-icon">🏛️</span>
+        <div class="sp-content">
+          <div class="sp-label">Politique</div>
+          <div class="sp-val" id="score-political">3</div>
+          <div class="sp-bar-bg"><div class="sp-bar" id="bar-political"></div></div>
+        </div>
+      </div>
+      <div class="score-pill" id="pill-resources">
+        <span class="sp-icon">💶</span>
+        <div class="sp-content">
+          <div class="sp-label">Ressources</div>
+          <div class="sp-val" id="score-resources">4</div>
+          <div class="sp-bar-bg"><div class="sp-bar" id="bar-resources"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /chat-header -->
+
+  <!-- Messages zone -->
+  <div class="chat-messages" id="chat-messages"></div>
+
+  <!-- Input area - deux modes : picker ou saisie -->
+  <div class="chat-input-area" id="chat-input-area" style="display:none;">
+    <!-- Mode picker : bouton "Voir les actions" -->
+    <button class="chat-pick-btn" id="chat-pick-btn" onclick="openActionsOverlay()" style="display:none;">
+      Voir les actions disponibles
+    </button>
+    <!-- Mode saisie : texte + envoyer -->
+    <div class="chat-input-bubble" id="chat-input-text" style="display:none;"></div>
+    <button class="chat-send-btn" id="chat-send-btn" onclick="sendMessage()" style="display:none;">
+      <span>Envoyer</span>
+      <span class="send-icon">➤</span>
+    </button>
   </div>
 
-  <!-- Main -->
-  <main>
-    <!-- Phase picker -->
-    <div class="phase-picker" id="phase-picker"></div>
+</div><!-- /screen-game -->
 
-    <!-- Progress -->
-    <div class="progress-steps" id="progress-steps"></div>
-    <div class="progress-label" id="progress-label"></div>
-
-    <!-- Phase card -->
-    <div class="card" id="phase-card">
-      <div class="phase-header">
-        <span class="phase-badge" id="phase-badge">Tour 1 / 10</span>
-        <h2 class="phase-title" id="phase-title"></h2>
-      </div>
-      <p class="phase-desc" id="phase-desc"></p>
-
-      <div class="actions-list" id="actions-list"></div>
-    </div>
-
-    <!-- Event card (tous les 2 tours) -->
-    <div class="card event-card-section" id="event-card-section">
-      <div class="event-header">
-        <span class="event-type-badge">⚡ Évènement</span>
-      </div>
-      <div class="event-body">
-        <span class="event-icon-big" id="event-icon-big">📰</span>
-        <div class="event-main">
-          <h2 class="event-title" id="event-title"></h2>
-          <p class="event-description" id="event-description"></p>
-          <p class="event-outcome" id="event-outcome"></p>
-          <div class="delta-row" id="event-effects-row"></div>
-        </div>
-      </div>
-      <div class="next-wrap visible" style="margin-top:20px;">
-        <button class="btn btn-primary" onclick="continueAfterEvent()">
-          Choisir le prochain champ d'action →
-        </button>
-      </div>
-    </div>
-
-    <!-- Unlock card (Bataille juridique disponible au tour 5) -->
-    <div class="card unlock-card-section" id="unlock-card-section">
-      <div class="unlock-header">
-        <span class="unlock-type-badge">🔓 Nouvelle action débloquée</span>
-      </div>
-      <div class="unlock-body">
-        <span class="unlock-icon-big">⚖️</span>
-        <div class="unlock-main">
-          <h2 class="unlock-title">La Bataille juridique est maintenant disponible</h2>
-          <p class="unlock-description">
-            Vous avez atteint le tour 6. Le débat parlementaire commence — la voie judiciaire s'ouvre. Vous pouvez désormais déposer des recours, porter plainte et mobiliser des avocats pour faire pression par un autre canal.
-          </p>
-        </div>
-      </div>
-      <div class="next-wrap visible" style="margin-top:20px;">
-        <button class="btn btn-primary" onclick="continueAfterUnlock()">
-          Choisir le prochain champ d'action →
-        </button>
-      </div>
-    </div>
-
-    <!-- Result card -->
-    <div class="card result-card" id="result-card">
-      <!-- Action scenario -->
-      <div class="result-section positive" id="result-positive">
-        <div class="result-actor-row">
-          <span class="result-actor-icon">👩🏽‍💼</span>
-          <div class="result-actor-content">
-            <h4>Votre action</h4>
-            <p id="result-scenario"></p>
-            <div class="delta-row" id="delta-effects"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Counter-attack -->
-      <div class="counter-banner" id="counter-banner">
-        <span class="counter-icon">👨🏻‍💼</span>
-        <div class="counter-text">
-          <h4>Contre-offensive du lobby des pesticides</h4>
-          <p id="counter-text"></p>
-          <div class="delta-row" id="delta-counter"></div>
-        </div>
-      </div>
-
-      <!-- Next button -->
-      <div class="next-wrap" id="next-wrap">
-        <button class="btn btn-primary" id="btn-next" onclick="nextPhase()">
-          Choisir le prochain champ d'action →
-        </button>
-      </div>
-    </div>
-  </main>
-
-  <footer>ANTIDOTE - Bataille contre le lobby des pesticides</footer>
+<!-- ═══════════════════════════════════════════════
+     OVERLAY : Grille d'actions (plein écran)
+═══════════════════════════════════════════════ -->
+<div class="actions-overlay" id="actions-overlay">
+  <div class="ao-header">
+    <h2 class="ao-title" id="ao-title">Quelle action lances-tu ?</h2>
+    <button class="ao-close" onclick="closeActionsOverlay()">✕</button>
+  </div>
+  <div class="ao-grid" id="ao-grid"></div>
 </div>
 
 <!-- ═══════════════════════════════════════════════
-     SCREEN : EARLY END (indicateur à 0)
+     NOTIFICATION : Contre-attaque
+═══════════════════════════════════════════════ -->
+<div class="push-notification" id="push-notification">
+  <div class="pn-header">
+    <span class="pn-app-icon">🗞️</span>
+    <span class="pn-app-name">Breaking News</span>
+    <button class="pn-close" onclick="closePushNotif()">✕</button>
+  </div>
+  <div class="pn-body">
+    <div class="pn-content">
+      <div class="pn-title" id="pn-title-text">Événement inattendu</div>
+      <div class="pn-text" id="pn-text"></div>
+      <div class="pn-deltas" id="pn-deltas"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN : END
 ═══════════════════════════════════════════════ -->
 <div id="screen-end" class="screen">
   <div class="end-box">
     <span class="end-icon" id="end-icon">❌</span>
     <h2 id="end-title"></h2>
     <p class="end-subtitle" id="end-subtitle"></p>
-
-    <div class="end-card">
-      <p id="end-description"></p>
-    </div>
-
+    <div class="end-card"><p id="end-description"></p></div>
     <div class="end-card">
       <h3>📊 Résumé de la Partie</h3>
       <div class="scores-summary" id="end-scores"></div>
     </div>
-
     <div class="end-card">
       <h3>👩🏽‍💼 Vos actions</h3>
       <div id="end-actions"></div>
     </div>
-
     <div class="end-card">
       <p id="end-conclusion"></p>
       <p class="cta-text" id="end-cta"></p>
     </div>
-
-    <div style="text-align:center; margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+    <div style="text-align:center; margin-top:20px;">
       <button class="btn btn-primary" onclick="restartGame()">Rejouer</button>
     </div>
   </div>
@@ -248,36 +208,26 @@
     <span class="end-icon" id="result-icon">🏆</span>
     <div class="result-type-badge"><span id="result-badge-span">Résultat</span></div>
     <h2 id="result-title"></h2>
-    <p class="end-subtitle">Tour 10 - Résultat du Vote Final</p>
-
-    <div class="end-card">
-      <p id="result-description"></p>
-    </div>
-
+    <p class="end-subtitle">Résultat du vote final</p>
+    <div class="end-card"><p id="result-description"></p></div>
     <div class="end-card">
       <h3>📊 Résumé de la Partie</h3>
       <div class="scores-summary" id="result-scores"></div>
     </div>
-
     <div class="end-card">
       <h3>👩🏽‍💼 Vos actions</h3>
       <div id="result-actions"></div>
     </div>
-
     <div class="end-card">
       <p id="result-conclusion"></p>
       <p class="cta-text" id="result-cta"></p>
     </div>
-
-    <div style="text-align:center; margin-top:20px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+    <div style="text-align:center; margin-top:20px;">
       <button class="btn btn-primary" onclick="restartGame()">Rejouer</button>
     </div>
   </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<script src="game.js"></script>
+<script src="game.js?v2"></script>
 </body>
 </html>
