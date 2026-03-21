@@ -155,7 +155,8 @@ class GameScene extends Phaser.Scene {
       preview = 6; // gid 6 = sapling stage 1
     } else if (act === GameState.ACTION_FARM &&
                td.biome === GameState.TILE_DESERT && !td.building &&
-               this.gardens.length < this.persons.length) {
+               this.gardens.length < this.persons.length &&
+               GameState.wood >= 1) {
       preview = 11; // gid 11 = garden stage 1
     } else if (td.biome === GameState.TILE_FARM) {
       const g = this._getGarden(c.x, c.y);
@@ -167,12 +168,12 @@ class GameScene extends Phaser.Scene {
       }
     }
 
-    // Show pointer cursor when hovering a harvestable garden
+    // Pointer cursor when hovering a harvestable garden (any mode) or any actionable tile
     const hoverHarvestable = td.biome === GameState.TILE_FARM && (() => {
       const g = this._getGarden(c.x, c.y);
       return g && g.stage === 2;
     })();
-    this.input.setDefaultCursor(hoverHarvestable ? 'pointer' : 'default');
+    this.input.setDefaultCursor(preview !== -1 || hoverHarvestable ? 'pointer' : 'default');
 
     if (preview !== -1) {
       const t = this.previewLayer.putTileAt(preview, c.x, c.y);
@@ -196,11 +197,12 @@ class GameScene extends Phaser.Scene {
       this._placeFarm(c, td);
     } else if (td.biome === GameState.TILE_FARM) {
       const g = this._getGarden(c.x, c.y);
-      if (act === GameState.ACTION_BUILD) {
+      if (g && g.stage === 2) {
+        this._harvestGarden(c, g);
+      } else if (act === GameState.ACTION_BUILD) {
         this._removeGarden(c, td, g);
       } else if (act === GameState.ACTION_FARM) {
-        if (g && g.stage === 2)                        this._harvestGarden(c, g);
-        else if (g && (g.stage === 3 || g.stage === 4)) this._replantGarden(c, g);
+        if (g && (g.stage === 3 || g.stage === 4)) this._replantGarden(c, g);
       }
     }
   }
@@ -257,6 +259,8 @@ class GameScene extends Phaser.Scene {
       return;
     }
     this.farmLimitAlertShown = false;
+    if (GameState.wood < 1) return;
+    GameState.wood -= 1;
     GameState.changeWater(-2);
     td.biome = GameState.TILE_FARM;
     this.biomeLayer.putTileAt(11, c.x, c.y); // gid 11 = garden stage 1
@@ -283,9 +287,9 @@ class GameScene extends Phaser.Scene {
 
     if (firstBuilding) {
       const ui = this.scene.get('UIScene');
-      GameState.current_action = GameState.ACTION_FARM;
       if (ui) ui.showAlert(
-        'Now that you have a shelter, you need to grow food so that your community can eat.'
+        'Now that you have a shelter, you need to grow food so that your community can eat.\n' +
+        'Click on the Farm button then place a farmland wherever you want.'
       );
     }
   }
@@ -423,7 +427,6 @@ class GameScene extends Phaser.Scene {
           if (!this.gardenReadyAlertShown) {
             this.gardenReadyAlertShown = true;
             const ui = this.scene.get('UIScene');
-            GameState.current_action = GameState.ACTION_FARM;
             if (ui) ui.showAlert('Your first garden is ready!\nClick quickly to harvest before the produce goes off.');
           }
         }
@@ -446,16 +449,16 @@ class GameScene extends Phaser.Scene {
     this.previewLayer.removeTileAt(c.x, c.y);
     this.lastPreviewCell = null;
     GameState.changeCommunity(1);
+    GameState.wood += 1;
     if (this.persons.length < this.buildingCells.length * 4) {
       const spawnPos = this._randomDesertNear(c);
       this.persons.push(new Person(this, spawnPos.x, spawnPos.y));
     }
     if (!this.gardenHarvestAlertShown) {
       this.gardenHarvestAlertShown = true;
-      GameState.current_action = GameState.ACTION_BUILD;
       const ui = this.scene.get('UIScene');
       if (ui) ui.showAlert(
-        'Now, you can expand your community by building other shelters.\n' +
+        'Farming give food and wood. Now, you can expand your community by building other shelters.\n' +
         'You can replant in the same place where you harvested.\n' +
         'Pay attention to the damage you cause on the land health and on the water level.'
       );
