@@ -2,7 +2,7 @@ class GameScene extends Phaser.Scene {
   constructor() { super({ key: 'GameScene' }); }
 
   preload() {
-    this.load.spritesheet('tiles', 'art/tiles.png?v5', { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('tiles', 'art/tiles.png?v7', { frameWidth: 32, frameHeight: 32 });
     this.load.audio('sfx-wind', 'sfx/sfx-wind.mp3');
     this.load.bitmapFont('pixel', 'font/FreePixel-16.png', 'font/FreePixel-16.xml?v1');
   }
@@ -23,6 +23,7 @@ class GameScene extends Phaser.Scene {
     this.treesCut              = 0;
     this.growingTrees          = [];
     this.gardens               = [];
+    this.basins                = []; // { x, y, full: bool, timer: number }
     this.gardenReadyAlertShown   = false;
     this.gardenHarvestAlertShown = false;
     this.farmLimitAlertShown     = false;
@@ -161,6 +162,9 @@ class GameScene extends Phaser.Scene {
     } while (this.waterCells.length < MIN_WATER);
 
     this.initialWaterCount = this.waterCells.length;
+
+    // Apply border-aware GIDs to all water tiles
+    for (const { x, y } of this.waterCells) this._refreshWaterTile(x, y);
   }
 
   // ── Input ───────────────────────────────────────────────────────────────────
@@ -223,6 +227,10 @@ class GameScene extends Phaser.Scene {
                this.gardens.length < this.persons.length &&
                GameState.wood >= 1) {
       preview = 11; // gid 11 = garden stage 1
+    } else if (act === GameState.ACTION_BASIN &&
+               td.biome === GameState.TILE_DESERT && !td.building &&
+               GameState.wood >= GameState.BASIN_WOOD_COST) {
+      preview = 9; // gid 9 = empty basin (col=3, row=1)
     } else if (td.biome === GameState.TILE_FARM) {
       const g = this._getGarden(c.x, c.y);
       if (g && g.stage === 2) {
@@ -266,6 +274,9 @@ class GameScene extends Phaser.Scene {
     } else if (act === GameState.ACTION_FARM && td.biome === GameState.TILE_DESERT && !td.building) {
       this._dragIntent = 'place_farm';
       this._placeFarm(c, td);
+    } else if (act === GameState.ACTION_BASIN && td.biome === GameState.TILE_DESERT && !td.building) {
+      this._dragIntent = 'place_basin';
+      this._placeBasin(c, td);
     } else if (td.biome === GameState.TILE_FARM) {
       const g = this._getGarden(c.x, c.y);
       if (g && g.stage === 2) {
@@ -301,6 +312,9 @@ class GameScene extends Phaser.Scene {
     } else if (intent === 'place_farm') {
       if (td.biome === GameState.TILE_DESERT && !td.building)
         this._placeFarm(c, td);
+    } else if (intent === 'place_basin') {
+      if (td.biome === GameState.TILE_DESERT && !td.building && GameState.wood >= GameState.BASIN_WOOD_COST)
+        this._placeBasin(c, td);
     } else if (intent === 'replant_garden') {
       if (td.biome === GameState.TILE_FARM) {
         const g = this._getGarden(c.x, c.y);
@@ -387,13 +401,26 @@ class GameScene extends Phaser.Scene {
     if (GameState.wood < 1) return;
     if (this.sndPlaceTile) this.sndPlaceTile.play();
     GameState.wood -= 1;
-    GameState.changeWaterHidden(-1);
+    const isRaining = this.rain && this.rain.state !== 'idle';
+    if (!isRaining) {
+      GameState.changeWaterHidden(-1);
+      this._floatLabelAtTile(c.x, c.y, +20, '-1', '#1a6abf');
+    }
     td.biome = GameState.TILE_FARM;
     this.biomeLayer.putTileAt(11, c.x, c.y); // gid 11 = garden stage 1
     this.gardens.push({ x: c.x, y: c.y, stage: 0, timer: 0 });
     GameState.gardenPlaced = true;
     this._floatLabelAtTile(c.x, c.y, -20, '-1', '#aa6633');
-    this._floatLabelAtTile(c.x, c.y, +20, '-1', '#1a6abf');
+  }
+
+  _placeBasin(c, td) {
+    if (GameState.wood < GameState.BASIN_WOOD_COST) return;
+    if (this.sndPlaceTile) this.sndPlaceTile.play();
+    GameState.wood -= GameState.BASIN_WOOD_COST;
+    td.biome = GameState.TILE_BASIN;
+    this.biomeLayer.putTileAt(9, c.x, c.y); // gid 9 = empty basin (col=3, row=1)
+    this.basins.push({ x: c.x, y: c.y, full: false, timer: 0 });
+    this._floatLabelAtTile(c.x, c.y, 0, `-${GameState.BASIN_WOOD_COST}`, '#aa6633');
   }
 
   _tryBuild(c, td) {
@@ -490,6 +517,37 @@ class GameScene extends Phaser.Scene {
   }
 
   // ── Water drain ─────────────────────────────────────────────────────────────
+
+  // ── Water border tiles ───────────────────────────────────────────────────────
+
+  _waterTileGid(x, y) {
+    const L = x > 0                       && GameState.tiles[y][x-1].biome === GameState.TILE_WATER;
+    const R = x < GameState.MAP_WIDTH-1   && GameState.tiles[y][x+1].biome === GameState.TILE_WATER;
+    const T = y > 0                       && GameState.tiles[y-1][x].biome === GameState.TILE_WATER;
+    const B = y < GameState.MAP_HEIGHT-1  && GameState.tiles[y+1][x].biome === GameState.TILE_WATER;
+    const k = (L?8:0)|(R?4:0)|(T?2:0)|(B?1:0);
+    //         0      1      2      3      4      5      6      7
+    const G = [[16,0],[19,0],[21,0],[20,0],[18,0],[23,0],[22,0],[28,0],
+    //         8      9      10     11     12     13     14     15
+               [18,1],[23,1],[22,1],[28,1],[30,0],[27,0],[26,0],[17,0]];
+    return G[k];
+  }
+
+  _refreshWaterTile(x, y) {
+    if (x < 0 || y < 0 || x >= GameState.MAP_WIDTH || y >= GameState.MAP_HEIGHT) return;
+    if (GameState.tiles[y][x].biome !== GameState.TILE_WATER) return;
+    const [gid, fx] = this._waterTileGid(x, y);
+    const tile = this.biomeLayer.putTileAt(gid, x, y);
+    if (tile) tile.flipX = !!fx;
+  }
+
+  _refreshWaterNeighbors(x, y) {
+    this._refreshWaterTile(x,   y);
+    this._refreshWaterTile(x-1, y);
+    this._refreshWaterTile(x+1, y);
+    this._refreshWaterTile(x,   y-1);
+    this._refreshWaterTile(x,   y+1);
+  }
 
   _desertTileAdjacentToWater() {
     const dirs = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
@@ -626,8 +684,25 @@ class GameScene extends Phaser.Scene {
     g.stage = 0;
     g.timer = 0;
     this.biomeLayer.putTileAt(11, c.x, c.y);
-    GameState.changeWaterHidden(-1);
-    this._floatLabelAtTile(c.x, c.y, 0, '-1', '#1a6abf');
+    const isRaining = this.rain && this.rain.state !== 'idle';
+    if (!isRaining) {
+      GameState.changeWaterHidden(-1);
+      this._floatLabelAtTile(c.x, c.y, 0, '-1', '#1a6abf');
+    }
+  }
+
+  // ── Basins ───────────────────────────────────────────────────────────────────
+
+  _updateBasins(dt) {
+    for (const b of this.basins) {
+      if (!b.full) continue;
+      b.timer += dt;
+      if (b.timer >= 10) {
+        b.timer -= 10;
+        GameState.changeWaterHidden(1);
+        this._floatLabelAtTile(b.x, b.y, 0, '+1', '#1a6abf');
+      }
+    }
   }
 
   // ── Tree growth ──────────────────────────────────────────────────────────────
@@ -696,12 +771,12 @@ class GameScene extends Phaser.Scene {
       return;
     }
 
-    // A switch is needed — debounce 30s
+    // A switch is needed — debounce 15s
     if (this._pendingMusicSwitch === wantState) return; // already scheduled
 
     if (this._musicSwitchTimer) { this._musicSwitchTimer.remove(); this._musicSwitchTimer = null; }
     this._pendingMusicSwitch = wantState;
-    this._musicSwitchTimer = this.time.delayedCall(30000, () => {
+    this._musicSwitchTimer = this.time.delayedCall(15000, () => {
       this._musicSwitchTimer = null;
       this._pendingMusicSwitch = null;
       // Only switch if water is still on the same side of 20%
@@ -714,13 +789,15 @@ class GameScene extends Phaser.Scene {
   _doMusicSwitch(state) {
     this._waterMusicState = state;
     if (state === 'desert') {
-      if (this.sndMusic.isPlaying) this._fadeSound(this.sndMusic, 0, 2000);
       if (this._musicLoopTimer) { this._musicLoopTimer.remove(); this._musicLoopTimer = null; }
-      if (!this.sndMusicDesert.isPlaying) { this.sndMusicDesert.setVolume(0.1); this.sndMusicDesert.play(); }
+      this._fadeSound(this.sndMusic, 0, 2000);
+      if (!this.sndMusicDesert.isPlaying) { this.sndMusicDesert.setVolume(0); this.sndMusicDesert.play(); }
+      this._fadeSound(this.sndMusicDesert, 0.2, 2000);
     } else {
-      if (this.sndMusicDesert.isPlaying) this._fadeSound(this.sndMusicDesert, 0, 2000);
       if (this._desertLoopTimer) { this._desertLoopTimer.remove(); this._desertLoopTimer = null; }
-      if (!this.sndMusic.isPlaying) { this.sndMusic.setVolume(0.1); this.sndMusic.play(); }
+      this._fadeSound(this.sndMusicDesert, 0, 2000);
+      if (!this.sndMusic.isPlaying) { this.sndMusic.setVolume(0); this.sndMusic.play(); }
+      this._fadeSound(this.sndMusic, 0.1, 2000);
     }
   }
 
@@ -800,7 +877,17 @@ class GameScene extends Phaser.Scene {
         GameState.changeWaterHidden(1);
         r.gainGiven++;
       }
-      if (r.phaseTimer >= r.duration) { r.state = 'fadeout'; r.phaseTimer = 0; }
+      if (r.phaseTimer >= r.duration) {
+        r.state = 'fadeout';
+        r.phaseTimer = 0;
+        // Fill all basins as the rain ends
+        for (const b of this.basins) {
+          if (!b.full) {
+            b.full = true;
+            this.biomeLayer.putTileAt(10, b.x, b.y); // gid 10 = full basin (col=4, row=1)
+          }
+        }
+      }
 
     } else if (r.state === 'fadeout') {
       intensity = Math.max(1 - r.phaseTimer / FADE, 0);
@@ -897,13 +984,18 @@ class GameScene extends Phaser.Scene {
             GameState.tiles[tile.y][tile.x].biome = GameState.TILE_DESERT;
             this.biomeLayer.putTileAt(GameState.toPhaserId(GameState.TILE_DESERT), tile.x, tile.y);
             this.waterCells = this.waterCells.filter(c => !(c.x === tile.x && c.y === tile.y));
+            // Refresh borders on the 4 neighbors now adjacent to desert
+            this._refreshWaterTile(tile.x-1, tile.y);
+            this._refreshWaterTile(tile.x+1, tile.y);
+            this._refreshWaterTile(tile.x,   tile.y-1);
+            this._refreshWaterTile(tile.x,   tile.y+1);
           }
         } else if (this.waterCells.length < target) {
           const tile = this._desertTileAdjacentToWater();
           if (tile) {
             GameState.tiles[tile.y][tile.x].biome = GameState.TILE_WATER;
-            this.biomeLayer.putTileAt(GameState.toPhaserId(GameState.TILE_WATER), tile.x, tile.y);
             this.waterCells.push({ x: tile.x, y: tile.y });
+            this._refreshWaterNeighbors(tile.x, tile.y);
           }
         }
         // Visible indicator = exact reflection of current tile count
@@ -976,6 +1068,7 @@ class GameScene extends Phaser.Scene {
     this._updateRain(dt);
     this._updateGrowingTrees(dt);
     this._updateGardens(dt);
+    this._updateBasins(dt);
 
     for (const p of this.persons) p.update(delta);
   }

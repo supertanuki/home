@@ -28,14 +28,16 @@ class UIScene extends Phaser.Scene {
     this.journalOpen = false;
     this._journalEntries = [];
     this._journalTimer = null;
-    this.musicEnabled = true;
-    this.sfxEnabled   = true;
+    this.musicEnabled   = window._musicEnabled   !== false;
+    this.sfxEnabled     = window._sfxEnabled     !== false;
+    this.alertsEnabled  = window._alertsEnabled  !== false;
 
     this._buildHUD();
     this._buildAlertPopup();
     this._buildJournalOverlay();
     this._buildSettingsOverlay();
     this._buildGameOverPopup();
+    this._applyAudioSettings();
   }
 
   // ── HUD ─────────────────────────────────────────────────────────────────────
@@ -83,17 +85,32 @@ class UIScene extends Phaser.Scene {
     }
 
     // Buttons
-    this._btnBuild    = this._makeButton(910,  12, 150, t('btn_build'),   () => this._setAction(GameState.ACTION_BUILD));
-    this._btnFarm     = this._makeButton(1075, 12, 120, t('btn_farm'),    () => this._setAction(GameState.ACTION_FARM),    false);
-    this._btnReforest = this._makeButton(1210, 12, 150, t('btn_plant'),   () => this._setAction(GameState.ACTION_REFOREST), false);
-    this._btnJournal  = this._makeButton(1505, 12, 112, t('btn_journal'), () => this._openJournal(),  true, true);
-    this._btnSettings = this._makeButton(1610, 12, 112, t('btn_settings'),() => this._openSettings(), true, true);
+    this._btnBuild    = this._makeButton(890,  12, 140, t('btn_build'),   () => this._setAction(GameState.ACTION_BUILD));
+    this._btnFarm     = this._makeButton(1045, 12, 140, t('btn_farm'),    () => this._setAction(GameState.ACTION_FARM),    false);
+    this._btnReforest = this._makeButton(1200, 12, 140, t('btn_plant'),   () => this._setAction(GameState.ACTION_REFOREST), false);
+    this._btnBasin    = this._makeButton(1355, 12, 150, t('btn_basin'),   () => this._setAction(GameState.ACTION_BASIN), false);
+    this._btnJournal  = this._makeButton(1520, 12, 112, t('btn_journal'), () => this._openJournal(),  true, true);
+    this._btnSettings = this._makeButton(1630, 12, 112, t('btn_settings'),() => this._openSettings(), true, true);
+
+    // Alert count badge — placed right of "JOURNAL" text, vertically aligned
+    const _jTxt = this._btnJournal.txt;
+    const _badgeR = 10;
+    const _badgeX = _jTxt.x + _jTxt.width / 2 + 2 + _badgeR + 5;
+    const _badgeY = _jTxt.y;
+    this._journalBadgeX   = _badgeX;
+    this._journalBadgeY   = _badgeY;
+    this._journalBadgeR   = _badgeR;
+    this._journalBadgeBg  = this.add.graphics().setDepth(10);
+    this._journalBadgeTxt = this.add.bitmapText(_badgeX, _badgeY, 'pixel', '0', 16).setTint(0x000000).setOrigin(0.5).setDepth(11);
+    this._updateJournalBadge();
     this._btnPicture  = this._makeButton(1753, 12, 130, t('btn_picture'), () => this._takePicture(),  true, true);
 
     this.farmUnlocked     = GameState.uiFarmUnlocked;
     this.reforestUnlocked = GameState.uiReforestUnlocked;
+    this.basinUnlocked    = GameState.uiBasinUnlocked;
     if (this.farmUnlocked)     this._setBtnVisible(this._btnFarm,     true);
     if (this.reforestUnlocked) this._setBtnVisible(this._btnReforest, true);
+    if (this.basinUnlocked)    this._setBtnVisible(this._btnBasin,    true);
 
     this._refreshButtons();
   }
@@ -107,10 +124,8 @@ class UIScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setVisible(initialVisible);
 
-    const zone = this.add
-      .zone(x, y, w, h)
-      .setOrigin(0)
-      .setInteractive({ useHandCursor: true });
+    const zone = this.add.zone(x, y, w, h).setOrigin(0);
+    if (initialVisible) zone.setInteractive({ useHandCursor: true });
     const btn = { bg, txt, zone, x, y, w, h, disabled: false, active: false, hovered: false, textOnly };
     zone.on("pointerdown",  () => { if (!btn.disabled) { this.sfxButton.play(); cb(); } });
     zone.on("pointerover",  () => { if (!btn.disabled) { btn.hovered = true;  this._drawButton(btn, btn.active, btn.disabled); } });
@@ -183,6 +198,11 @@ class UIScene extends Phaser.Scene {
     if (this.reforestUnlocked) {
       this._btnReforest.txt.setText(`${t('btn_plant')}\n${GameState.wood}/1 ${wu}`);
       this._drawButton(this._btnReforest, GameState.current_action === GameState.ACTION_REFOREST, !canReforest);
+    }
+    if (this.basinUnlocked) {
+      const canBasin = GameState.wood >= GameState.BASIN_WOOD_COST;
+      this._btnBasin.txt.setText(`${t('btn_basin')}\n${GameState.wood}/${GameState.BASIN_WOOD_COST} ${wu}`);
+      this._drawButton(this._btnBasin, GameState.current_action === GameState.ACTION_BASIN, !canBasin);
     }
   }
 
@@ -374,7 +394,7 @@ class UIScene extends Phaser.Scene {
   // ── Settings ─────────────────────────────────────────────────────────────────
 
   _buildSettingsOverlay() {
-    const PW = 460, PH = 290;
+    const PW = 460, PH = 345;
     const px = (GAME_WIDTH - PW) / 2, py = (GAME_HEIGHT - PH) / 2;
 
     this._settingsPanel = this.add.container(px, py).setVisible(false).setDepth(200);
@@ -387,15 +407,16 @@ class UIScene extends Phaser.Scene {
 
     const title = this.add.bitmapText(PW / 2, 28, 'pixel', t('settings_title'), 32).setTint(0xcccccc).setOrigin(0.5);
 
-    this._settingsBtnMusic = this._makeSettingsToggle(PW, 75,  t('settings_music'), () => this._toggleMusic());
-    this._settingsBtnSfx   = this._makeSettingsToggle(PW, 130, t('settings_sfx'),   () => this._toggleSfx());
+    this._settingsBtnMusic  = this._makeSettingsToggle(PW, 75,  t('settings_music'),  () => this._toggleMusic());
+    this._settingsBtnSfx    = this._makeSettingsToggle(PW, 130, t('settings_sfx'),    () => this._toggleSfx());
+    this._settingsBtnAlerts = this._makeSettingsToggle(PW, 185, t('settings_alerts'), () => this._toggleAlerts());
 
     // Language toggle row
-    const langLbl = this.add.bitmapText(40, 185, 'pixel', t('settings_lang'), 32).setTint(0xaaaaaa).setOrigin(0, 0.5);
+    const langLbl = this.add.bitmapText(40, 240, 'pixel', t('settings_lang'), 32).setTint(0xaaaaaa).setOrigin(0, 0.5);
     this._settingsLangBg = this.add.graphics();
-    this._settingsLangTxt = this.add.bitmapText(PW - 100, 185, 'pixel', t('settings_lang_toggle'), 16).setOrigin(0.5);
+    this._settingsLangTxt = this.add.bitmapText(PW - 100, 240, 'pixel', t('settings_lang_toggle'), 16).setOrigin(0.5);
     this._drawSettingsLangBtn(false);
-    const langZone = this.add.zone(PW - 140, 167, 80, 36)
+    const langZone = this.add.zone(PW - 140, 222, 80, 36)
       .setOrigin(0).setInteractive({ useHandCursor: true });
     langZone.on('pointerover',  () => this._drawSettingsLangBtn(true));
     langZone.on('pointerout',   () => this._drawSettingsLangBtn(false));
@@ -418,13 +439,14 @@ class UIScene extends Phaser.Scene {
     this._settingsPanel.add([bg, title,
       ...this._settingsBtnMusic.objects,
       ...this._settingsBtnSfx.objects,
+      ...this._settingsBtnAlerts.objects,
       langLbl, this._settingsLangBg, this._settingsLangTxt, langZone,
       this._settingsCloseBg, closeTxt, closeZone,
     ]);
   }
 
   _drawSettingsCloseBtn(hovered) {
-    const PW = 460, PH = 290;
+    const PW = 460, PH = 345;
     this._settingsCloseBg.clear();
     this._settingsCloseBg.fillStyle(hovered ? 0x666666 : 0x333333, 1);
     this._settingsCloseBg.fillRoundedRect(PW / 2 - 60, PH - 55, 120, 36, 4);
@@ -434,9 +456,9 @@ class UIScene extends Phaser.Scene {
     const PW = 460;
     this._settingsLangBg.clear();
     this._settingsLangBg.fillStyle(hovered ? 0x555555 : 0x2a2a2a, 1);
-    this._settingsLangBg.fillRoundedRect(PW - 140, 167, 80, 36, 4);
+    this._settingsLangBg.fillRoundedRect(PW - 140, 222, 80, 36, 4);
     this._settingsLangBg.lineStyle(1, hovered ? 0x888888 : 0x555555, 1);
-    this._settingsLangBg.strokeRoundedRect(PW - 140, 167, 80, 36, 4);
+    this._settingsLangBg.strokeRoundedRect(PW - 140, 222, 80, 36, 4);
   }
 
   _makeSettingsToggle(PW, y, label, onToggle) {
@@ -463,8 +485,9 @@ class UIScene extends Phaser.Scene {
     if (this.overlayOpen) return;
     this.overlayOpen = true;
     this._drawButton(this._btnSettings, false, true);
-    this._drawSettingsToggle(this._settingsBtnMusic, this.musicEnabled);
-    this._drawSettingsToggle(this._settingsBtnSfx,   this.sfxEnabled);
+    this._drawSettingsToggle(this._settingsBtnMusic,  this.musicEnabled);
+    this._drawSettingsToggle(this._settingsBtnSfx,    this.sfxEnabled);
+    this._drawSettingsToggle(this._settingsBtnAlerts, this.alertsEnabled);
     this._settingsPanel.setVisible(true);
     this.scene.pause('GameScene');
   }
@@ -478,14 +501,31 @@ class UIScene extends Phaser.Scene {
 
   _toggleMusic() {
     this.musicEnabled = !this.musicEnabled;
+    window._musicEnabled = this.musicEnabled;
     this._drawSettingsToggle(this._settingsBtnMusic, this.musicEnabled);
     this._applyAudioSettings();
   }
 
   _toggleSfx() {
     this.sfxEnabled = !this.sfxEnabled;
+    window._sfxEnabled = this.sfxEnabled;
     this._drawSettingsToggle(this._settingsBtnSfx, this.sfxEnabled);
     this._applyAudioSettings();
+  }
+
+  _toggleAlerts() {
+    this.alertsEnabled = !this.alertsEnabled;
+    window._alertsEnabled = this.alertsEnabled;
+    this._drawSettingsToggle(this._settingsBtnAlerts, this.alertsEnabled);
+    if (this._goAlertsBg) this._drawGameOverAlertsToggle();
+  }
+
+  _updateJournalBadge() {
+    const count = this.alertHistory.length;
+    this._journalBadgeBg.clear();
+    this._journalBadgeBg.fillStyle(0xffffff, 1);
+    this._journalBadgeBg.fillCircle(this._journalBadgeX, this._journalBadgeY, this._journalBadgeR);
+    this._journalBadgeTxt.setText(String(count));
   }
 
   _applyAudioSettings() {
@@ -509,7 +549,7 @@ class UIScene extends Phaser.Scene {
     if (on) {
       this._setPictureHideOverlays();
       // Remember which buttons were actually visible
-      const btns = [this._btnBuild, this._btnFarm, this._btnReforest, this._btnJournal, this._btnSettings, this._btnPicture];
+      const btns = [this._btnBuild, this._btnFarm, this._btnReforest, this._btnBasin, this._btnJournal, this._btnSettings, this._btnPicture];
       this._pictureHiddenBtns = btns.filter(btn => btn.txt.visible);
       for (const btn of this._pictureHiddenBtns) {
         if (!btn.textOnly) btn.bg.setVisible(false);
@@ -598,12 +638,16 @@ class UIScene extends Phaser.Scene {
   }
 
   showAlert(text, warning = false) {
-    if (this.overlayOpen) return;
+    // Always record in journal/history
     if (this.alertHistory.length > 0 && this.alertHistory[0].text === text) {
       this.alertHistory[0].time = this.time.now;
     } else {
       this.alertHistory.unshift({ text, time: this.time.now });
+      if (this._journalBadgeBg) this._updateJournalBadge();
     }
+    // Skip popup display if alerts are disabled
+    if (!this.alertsEnabled) return;
+    if (this.overlayOpen) return;
     this.alertLabel.setText(text);
     this.alertPopup.setVisible(true);
     this.overlayOpen = true;
@@ -620,8 +664,7 @@ class UIScene extends Phaser.Scene {
   // ── Game Over popup ──────────────────────────────────────────────────────────
 
   _buildGameOverPopup() {
-    const W = 500,
-      H = 220;
+    const W = 500, H = 320;
     const px = (GAME_WIDTH - W) / 2;
     const py = (GAME_HEIGHT - H) / 2;
 
@@ -637,26 +680,49 @@ class UIScene extends Phaser.Scene {
     bg.strokeRoundedRect(0, 0, W, H, 8);
 
     this.gameOverLabel = this.add
-      .bitmapText(W / 2, 70, "pixel", "", 32).setTint(0xff5555).setMaxWidth(W - 40)
+      .bitmapText(W / 2, 65, "pixel", "", 32).setTint(0xff5555).setMaxWidth(W - 40)
       .setOrigin(0.5);
     this.gameOverLabel.align = 1;
 
-    const replayBg = this.add.graphics();
-    replayBg.fillStyle(0x2d6e2d, 1);
-    replayBg.fillRoundedRect(W / 2 - 80, H - 60, 160, 38, 4);
-    replayBg.lineStyle(1, 0x55cc55, 1);
-    replayBg.strokeRoundedRect(W / 2 - 80, H - 60, 160, 38, 4);
+    // Alerts toggle: label centered, toggle button centered below
+    const alertsLbl = this.add.bitmapText(W / 2, 148, 'pixel', t('settings_alerts'), 16).setTint(0xaaaaaa).setOrigin(0.5);
+    this._goAlertsBg  = this.add.graphics();
+    this._goAlertsTxt = this.add.bitmapText(W / 2, 186, 'pixel', '', 16).setOrigin(0.5);
+    this._drawGameOverAlertsToggle();
+    const alertsZone = this.add.zone(W / 2 - 50, 168, 100, 36)
+      .setOrigin(0).setInteractive({ useHandCursor: true });
+    alertsZone.on('pointerdown', () => {
+      this.alertsEnabled = !this.alertsEnabled;
+      window._alertsEnabled = this.alertsEnabled;
+      this._drawGameOverAlertsToggle();
+      if (this._settingsBtnAlerts) this._drawSettingsToggle(this._settingsBtnAlerts, this.alertsEnabled);
+    });
+
+    // Replay button (32px text, with hover)
+    this._replayBg = this.add.graphics();
+    this._drawGameOverReplayBtn(false);
 
     const replayTxt = this.add
-      .bitmapText(W / 2, H - 41, "pixel", t('replay'), 16)
+      .bitmapText(W / 2, 258, "pixel", t('replay'), 32)
       .setOrigin(0.5);
 
     const replayZone = this.add
-      .zone(W / 2 - 80, H - 60, 160, 38)
+      .zone(W / 2 - 90, 232, 180, 52)
       .setOrigin(0)
       .setInteractive({ useHandCursor: true });
+    replayZone.on('pointerover',  () => this._drawGameOverReplayBtn(true));
+    replayZone.on('pointerout',   () => this._drawGameOverReplayBtn(false));
     replayZone.on("pointerdown", () => {
       this.sfxButton.play();
+      // Stop all sounds and music
+      const gs = this.scene.get('GameScene');
+      if (gs) {
+        for (const s of [gs.sndWind, gs.sndRain, gs.sndMusic, gs.sndMusicDesert,
+                         gs.sndBuild, gs.sndCuttingTree, gs.sndPlaceTile, gs.sndHarvest, gs.sndThunder]) {
+          if (s) s.stop();
+        }
+      }
+      this.sound.stopAll();
       this.gameOver = false;
       this.overlayOpen = false;
       this.alertLandTriggered = false;
@@ -672,10 +738,26 @@ class UIScene extends Phaser.Scene {
     this.gameOverPopup.add([
       bg,
       this.gameOverLabel,
-      replayBg,
-      replayTxt,
-      replayZone,
+      alertsLbl, this._goAlertsBg, this._goAlertsTxt, alertsZone,
+      this._replayBg, replayTxt, replayZone,
     ]);
+  }
+
+  _drawGameOverReplayBtn(hovered) {
+    const W = 500;
+    this._replayBg.clear();
+    this._replayBg.fillStyle(hovered ? 0x3d8e3d : 0x2d6e2d, 1);
+    this._replayBg.fillRoundedRect(W / 2 - 90, 232, 180, 52, 4);
+    this._replayBg.lineStyle(1, hovered ? 0x88ff88 : 0x55cc55, 1);
+    this._replayBg.strokeRoundedRect(W / 2 - 90, 232, 180, 52, 4);
+  }
+
+  _drawGameOverAlertsToggle() {
+    const W = 500;
+    this._goAlertsBg.clear();
+    this._goAlertsBg.fillStyle(this.alertsEnabled ? 0x2d6e2d : 0x6e2d2d, 1);
+    this._goAlertsBg.fillRoundedRect(W / 2 - 50, 168, 100, 36, 4);
+    this._goAlertsTxt.setText(this.alertsEnabled ? t('settings_on') : t('settings_off'));
   }
 
   // ── Update ───────────────────────────────────────────────────────────────────
@@ -721,6 +803,12 @@ class UIScene extends Phaser.Scene {
       this.farmUnlocked = true;
       GameState.uiFarmUnlocked = true;
       this._setBtnVisible(this._btnFarm, true);
+    }
+    if (!this.basinUnlocked && GameState.water < 25) {
+      this.basinUnlocked = true;
+      GameState.uiBasinUnlocked = true;
+      this._setBtnVisible(this._btnBasin, true);
+      this.showAlert(t('alert_basin_unlock'), true);
     }
 
     // Alerts
