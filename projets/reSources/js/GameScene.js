@@ -2,7 +2,9 @@ class GameScene extends Phaser.Scene {
   constructor() { super({ key: 'GameScene' }); }
 
   preload() {
-    this.load.spritesheet('tiles', 'art/tiles.png?v4', { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('tiles', 'art/tiles.png?v5', { frameWidth: 32, frameHeight: 32 });
+    this.load.audio('sfx-wind', 'sfx/sfx-wind.mp3');
+    this.load.bitmapFont('pixel', 'font/FreePixel-16.png', 'font/FreePixel-16.xml?v1');
   }
 
   create() {
@@ -15,6 +17,7 @@ class GameScene extends Phaser.Scene {
     this.waterRegenTimer = 0;
     this.persons         = [];
     this.mouseHeld       = false;
+    this._dragIntent     = null;
     this.lastPreviewCell = null;
     this.woodAlertShown        = false;
     this.treesCut              = 0;
@@ -23,10 +26,18 @@ class GameScene extends Phaser.Scene {
     this.gardenReadyAlertShown   = false;
     this.gardenHarvestAlertShown = false;
     this.farmLimitAlertShown     = false;
+    this.buildLimitAlertShown    = false;
     this.gardenBlinkTimer        = 0;
     this.gardenBlinkOn           = true;
     this.waterCrisisTimer        = 0;
     this.waterCrisisTriggered    = false;
+    this._communityDrainTimer    = 0;
+    this._foodTimer              = 0;
+    this._harvestCount           = 0;
+    this._firstHarvestDone       = false;
+    this._starving               = false;
+    this._starvationDrainTimer   = 0;
+    this._starvationAlertShown   = false;
 
     // Rain
     this.rain = { state: 'idle', phaseTimer: 0, duration: 0, nextTimer: 0, drops: [], started: false, lightningTimer: 0, lightningDelay: 0 };
@@ -57,15 +68,68 @@ class GameScene extends Phaser.Scene {
     this._generateWorld();
     this._setupInput();
 
+    // Audio: sfx-wind préchargé, les autres chargés après démarrage
+    this.musicUnlocked = false;
+    this.sndRain = this.sndMusic = this.sndMusicDesert = this.sndThunder = null;
+    this.sndBuild = this.sndCuttingTree = this.sndPlaceTile = this.sndHarvest = null;
+    this._musicLoopTimer = null;
+    this._desertLoopTimer = null;
+    this._waterMusicState = null;   // 'normal' | 'desert'
+    this._musicSwitchTimer = null;  // pending 30s debounce timer
+    this._pendingMusicSwitch = null; // 'normal' | 'desert'
+    this.sndWind = this.sound.add('sfx-wind', { loop: true, volume: 2 });
+    this.sndWind.play();
+    this.load.audio('sfx-rain',         'sfx/sfx-rain.mp3');
+    this.load.audio('sfx-thunder',      'sfx/sfx-thunder.mp3');
+    this.load.audio('sfx-build',        'sfx/sfx-build.mp3');
+    this.load.audio('sfx-cutting-tree', 'sfx/sfx-cutting-tree.mp3');
+    this.load.audio('sfx-place-tile',   'sfx/sfx-place-tile.mp3');
+    this.load.audio('sfx-harvest',      'sfx/sfx-harvest.mp3');
+    this.load.audio('music-theme',      'sfx/abydos_music-middle-eastern-moon.mp3');
+    this.load.audio('music-desert',     'sfx/abydos_music-middle-eastern-mystic-desert-1-minute-edit.mp3');
+    this.load.once('complete', () => {
+      this.sndRain        = this.sound.add('sfx-rain',         { loop: true,  volume: 0 });
+      this.sndMusic       = this.sound.add('music-theme',      { loop: false, volume: 0 });
+      this.sndMusic.on('complete', () => {
+        if (this._musicLoopTimer) this._musicLoopTimer.remove();
+        this._musicLoopTimer = this.time.delayedCall(30000, () => {
+          this._musicLoopTimer = null;
+          if (this.sndMusic && !this.sndMusic.isPlaying && GameState.water >= 20) {
+            this.sndMusic.setVolume(0.1);
+            this.sndMusic.play();
+          }
+        });
+      });
+      this.sndMusicDesert = this.sound.add('music-desert',     { loop: false, volume: 0 });
+      this.sndMusicDesert.on('complete', () => {
+        if (this._desertLoopTimer) this._desertLoopTimer.remove();
+        this._desertLoopTimer = this.time.delayedCall(30000, () => {
+          this._desertLoopTimer = null;
+          if (this.sndMusicDesert && !this.sndMusicDesert.isPlaying && GameState.water < 20) {
+            this.sndMusicDesert.setVolume(0.2);
+            this.sndMusicDesert.play();
+          }
+        });
+      });
+      this.sndThunder     = this.sound.add('sfx-thunder',      { loop: false, volume: 1 });
+      this.sndBuild       = this.sound.add('sfx-build',        { loop: false, volume: 1 });
+      this.sndCuttingTree = this.sound.add('sfx-cutting-tree', { loop: false, volume: 1 });
+      this.sndPlaceTile   = this.sound.add('sfx-place-tile',   { loop: false, volume: 1 });
+      this.sndHarvest     = this.sound.add('sfx-harvest',      { loop: false, volume: 1 });
+    });
+    this.load.start();
+
     this.scene.launch('UIScene');
+
+    // Fade-in
+    const fadeW = GameState.MAP_WIDTH * 32, fadeH = GameState.MAP_HEIGHT * 32 + UI_HEIGHT;
+    const fadeRect = this.add.rectangle(0, 0, fadeW, fadeH, 0x000000).setOrigin(0).setAlpha(1).setDepth(10);
+    this.tweens.add({ targets: fadeRect, alpha: 0, duration: 1000, onComplete: () => fadeRect.destroy() });
 
     this.time.delayedCall(5000, () => {
       if (this.buildingCells.length > 0) return;
       const ui = this.scene.get('UIScene');
-      if (ui) ui.showAlert(
-        'To build a shelter, cut at least 5 trees.\n' +
-        'You can click and hold to cut multiple trees at once.'
-      );
+      if (ui) ui.showAlert(t('alert_start'));
     });
   }
 
@@ -110,7 +174,7 @@ class GameScene extends Phaser.Scene {
       }
     });
 
-    this.input.on('pointerup', () => { this.mouseHeld = false; });
+    this.input.on('pointerup', () => { this.mouseHeld = false; this._dragIntent = null; });
 
     this.input.on('pointermove', (p) => {
       this._updatePreview(p.worldX, p.worldY, p.y < UI_HEIGHT);
@@ -152,6 +216,7 @@ class GameScene extends Phaser.Scene {
     } else if (act === GameState.ACTION_REFOREST &&
                td.biome === GameState.TILE_DESERT && !td.building &&
                GameState.wood >= 1) {
+      if (!this._pendingReforest) this._pendingReforest = { flipX: Math.random() < 0.5 };
       preview = 6; // gid 6 = sapling stage 1
     } else if (act === GameState.ACTION_FARM &&
                td.biome === GameState.TILE_DESERT && !td.building &&
@@ -160,11 +225,12 @@ class GameScene extends Phaser.Scene {
       preview = 11; // gid 11 = garden stage 1
     } else if (td.biome === GameState.TILE_FARM) {
       const g = this._getGarden(c.x, c.y);
-      if (act === GameState.ACTION_BUILD) {
+      if (g && g.stage === 2) {
+        preview = 14; // toujours afficher la tile récoltée, peu importe le mode
+      } else if (act === GameState.ACTION_BUILD) {
         preview = GameState.toPhaserId(GameState.TILE_DESERT);
       } else if (act === GameState.ACTION_FARM) {
-        if (g && g.stage === 2)                        preview = 14;
-        else if (g && (g.stage === 3 || g.stage === 4)) preview = 11;
+        if (g && (g.stage === 3 || g.stage === 4)) preview = 11;
       }
     }
 
@@ -177,32 +243,41 @@ class GameScene extends Phaser.Scene {
 
     if (preview !== -1) {
       const t = this.previewLayer.putTileAt(preview, c.x, c.y);
-      if (this._pendingBuild && t) t.flipX = this._pendingBuild.flipX;
+      if (this._pendingBuild    && t) t.flipX = this._pendingBuild.flipX;
+      if (this._pendingReforest && t) t.flipX = this._pendingReforest.flipX;
       this.lastPreviewCell = { x: c.x, y: c.y };
     }
   }
 
   _handleClick(c) {
     if (!this._valid(c)) return;
+    this._dragIntent = null;
     const td  = GameState.tiles[c.y][c.x];
     const act = GameState.current_action;
 
     if (td.biome === GameState.TILE_FOREST && td.has_tree && !td.building) {
+      this._dragIntent = 'harvest_tree';
       this._harvestTree(c, td);
     } else if (act === GameState.ACTION_BUILD && td.biome === GameState.TILE_DESERT && !td.building) {
       this._tryBuild(c, td);
     } else if (act === GameState.ACTION_REFOREST && td.biome === GameState.TILE_DESERT && !td.building) {
+      this._dragIntent = 'plant_tree';
       this._reforest(c, td);
     } else if (act === GameState.ACTION_FARM && td.biome === GameState.TILE_DESERT && !td.building) {
+      this._dragIntent = 'place_farm';
       this._placeFarm(c, td);
     } else if (td.biome === GameState.TILE_FARM) {
       const g = this._getGarden(c.x, c.y);
       if (g && g.stage === 2) {
+        this._dragIntent = 'harvest_garden';
         this._harvestGarden(c, g);
       } else if (act === GameState.ACTION_BUILD) {
         this._removeGarden(c, td, g);
       } else if (act === GameState.ACTION_FARM) {
-        if (g && (g.stage === 3 || g.stage === 4)) this._replantGarden(c, g);
+        if (g && (g.stage === 3 || g.stage === 4)) {
+          this._dragIntent = 'replant_garden';
+          this._replantGarden(c, g);
+        }
       }
     }
   }
@@ -210,43 +285,93 @@ class GameScene extends Phaser.Scene {
   _handleDrag(c) {
     if (!this._valid(c)) return;
     const td = GameState.tiles[c.y][c.x];
-    if (td.biome === GameState.TILE_FOREST && td.has_tree && !td.building) {
-      this._harvestTree(c, td);
+    const intent = this._dragIntent;
+
+    if (intent === 'harvest_tree') {
+      if (td.biome === GameState.TILE_FOREST && td.has_tree && !td.building)
+        this._harvestTree(c, td);
+    } else if (intent === 'plant_tree') {
+      if (td.biome === GameState.TILE_DESERT && !td.building && GameState.wood >= 1)
+        this._reforest(c, td);
+    } else if (intent === 'harvest_garden') {
+      if (td.biome === GameState.TILE_FARM) {
+        const g = this._getGarden(c.x, c.y);
+        if (g && g.stage === 2) this._harvestGarden(c, g);
+      }
+    } else if (intent === 'place_farm') {
+      if (td.biome === GameState.TILE_DESERT && !td.building)
+        this._placeFarm(c, td);
+    } else if (intent === 'replant_garden') {
+      if (td.biome === GameState.TILE_FARM) {
+        const g = this._getGarden(c.x, c.y);
+        if (g && (g.stage === 3 || g.stage === 4)) this._replantGarden(c, g);
+      }
     }
   }
 
   // ── Actions ─────────────────────────────────────────────────────────────────
 
+  // Base: world coordinates
+  _floatLabel(wx, wy, text, color) {
+    const R = 17;
+    const colorInt = parseInt(color.replace('#', ''), 16);
+    const container = this.add.container(wx, wy).setDepth(6);
+
+    const bg = this.add.graphics();
+    bg.fillStyle(colorInt, 1);
+    bg.fillCircle(0, 0, R);
+
+    const t = this.add.bitmapText(0, 0, 'pixel', text, 16).setOrigin(0.5);
+
+    container.add([bg, t]);
+    this.tweens.add({
+      targets: container, y: wy - 44, alpha: 0, duration: 1900,
+      ease: 'Cubic.easeOut', onComplete: () => container.destroy(),
+    });
+  }
+
+  // Helper: tile coordinates + horizontal pixel offset
+  _floatLabelAtTile(cx, cy, offsetPx, text, color) {
+    this._floatLabel(cx * 32 + 16 + offsetPx, cy * 32 + UI_HEIGHT + 8, text, color);
+  }
+
   _harvestTree(c, td) {
+    if (this.sndCuttingTree) this.sndCuttingTree.play();
     td.has_tree = false;
     td.biome = GameState.TILE_DESERT;
     this.biomeLayer.putTileAt(GameState.toPhaserId(GameState.TILE_DESERT), c.x, c.y);
     this.growingTrees = this.growingTrees.filter(t => !(t.x === c.x && t.y === c.y));
     GameState.addWood(1);
     GameState.changeLandHealth(-1);
-    GameState.changeWater(-1);
+    GameState.changeWaterHidden(-1);
+    this._floatLabelAtTile(c.x, c.y, -32, '-1', '#2d7a2d');
+    this._floatLabelAtTile(c.x, c.y,   0, '-1', '#1a6abf');
+    this._floatLabelAtTile(c.x, c.y, +32, '+1', '#aa6633');
 
     this.treesCut++;
-    if (!this.rain.started && GameState.water < 50) this._startRain();
+    if (!this.rain.started && GameState.waterHidden < 50) this._startRain();
 
     if (!this.woodAlertShown && GameState.wood >= 5 && this.buildingCells.length === 0) {
       this.woodAlertShown = true;
       const ui = this.scene.get('UIScene');
-      if (ui) ui.showAlert(
-        'Now that you have 5 pieces of wood, you can build your shelter.\n' +
-        'Click where you want to place your shelter.'
-      );
+      if (ui) ui.showAlert(t('alert_wood_ready'));
     }
   }
 
   _reforest(c, td) {
     if (GameState.wood < 1) return;
+    if (this.sndPlaceTile) this.sndPlaceTile.play();
     GameState.wood -= 1;
     td.biome = GameState.TILE_FOREST;
     td.has_tree = true;
-    this.biomeLayer.putTileAt(6, c.x, c.y); // gid 6 = sapling stage 1
-    this.growingTrees.push({ x: c.x, y: c.y, stage: 0, timer: 0 });
+    const pending = this._pendingReforest || { flipX: Math.random() < 0.5 };
+    const reforestTile = this.biomeLayer.putTileAt(6, c.x, c.y); // gid 6 = sapling stage 1
+    if (reforestTile) reforestTile.flipX = pending.flipX;
+    this._pendingReforest = null;
+    this.growingTrees.push({ x: c.x, y: c.y, stage: 0, timer: 0, flipX: pending.flipX });
     GameState.changeLandHealth(1);
+    this._floatLabelAtTile(c.x, c.y, -20, '-1', '#aa6633');
+    this._floatLabelAtTile(c.x, c.y, +20, '+1', '#2d7a2d');
   }
 
   _placeFarm(c, td) {
@@ -254,22 +379,35 @@ class GameScene extends Phaser.Scene {
       if (!this.farmLimitAlertShown) {
         this.farmLimitAlertShown = true;
         const ui = this.scene.get('UIScene');
-        if (ui) ui.showAlert('The number of farmland depends on your community size. Build more shelters to welcome more people.');
+        if (ui) ui.showAlert(t('alert_farm_limit'));
       }
       return;
     }
     this.farmLimitAlertShown = false;
     if (GameState.wood < 1) return;
+    if (this.sndPlaceTile) this.sndPlaceTile.play();
     GameState.wood -= 1;
-    GameState.changeWater(-2);
+    GameState.changeWaterHidden(-1);
     td.biome = GameState.TILE_FARM;
     this.biomeLayer.putTileAt(11, c.x, c.y); // gid 11 = garden stage 1
     this.gardens.push({ x: c.x, y: c.y, stage: 0, timer: 0 });
     GameState.gardenPlaced = true;
+    this._floatLabelAtTile(c.x, c.y, -20, '-1', '#aa6633');
+    this._floatLabelAtTile(c.x, c.y, +20, '-1', '#1a6abf');
   }
 
   _tryBuild(c, td) {
     if (GameState.wood < GameState.BUILDING_WOOD_COST) return;
+    if (this.buildingCells.length > 0 && this.buildingCells.length >= this.gardens.length) {
+      if (!this.buildLimitAlertShown) {
+        this.buildLimitAlertShown = true;
+        const ui = this.scene.get('UIScene');
+        if (ui) ui.showAlert(t('alert_build_limit'));
+      }
+      return;
+    }
+    this.buildLimitAlertShown = false;
+    if (this.sndBuild) this.sndBuild.play();
     GameState.wood -= GameState.BUILDING_WOOD_COST;
     td.building = 'hut';
     td.biome = GameState.TILE_BUILDING;
@@ -277,20 +415,21 @@ class GameScene extends Phaser.Scene {
     const buildTile = this.biomeLayer.putTileAt(pending.gid, c.x, c.y);
     if (buildTile) buildTile.flipX = pending.flipX;
     this._pendingBuild = null;
-    GameState.changeCommunity(2);
-    GameState.changeWater(-1);
+    GameState.changeWaterHidden(-1);
     const firstBuilding = this.buildingCells.length === 0;
     if (firstBuilding) GameState.shelterBuilt = true;
     this.woodAlertShown = true;
     this._registerBuilding(c);
-    this._spawnPeople(c);
+    const spawned = this._spawnPeople(c);
+    this._syncCommunity();
+    const waterCost = 1 + spawned;
+    this._floatLabelAtTile(c.x, c.y, -32, `-${GameState.BUILDING_WOOD_COST}`, '#aa6633');
+    this._floatLabelAtTile(c.x, c.y,   0, `-${waterCost}`,                   '#1a6abf');
+    this._floatLabelAtTile(c.x, c.y, +32, `+${spawned}`,                     '#111111');
 
     if (firstBuilding) {
       const ui = this.scene.get('UIScene');
-      if (ui) ui.showAlert(
-        'Now that you have a shelter, you need to grow food so that your community can eat.\n' +
-        'Click on the Farm button then place a farmland wherever you want.'
-      );
+      if (ui) ui.showAlert(t('alert_shelter_built'));
     }
   }
 
@@ -301,12 +440,15 @@ class GameScene extends Phaser.Scene {
 
   _spawnPeople(c) {
     const count = Math.floor(Math.random() * 3) + 2;
+    let spawned = 0;
     for (let i = 0; i < count; i++) {
       if (this.persons.length >= this.buildingCells.length * 4) break;
       const pos = this._randomDesertNear(c);
       this.persons.push(new Person(this, pos.x, pos.y));
-      GameState.changeWater(-1);
+      GameState.changeWaterHidden(-1);
+      spawned++;
     }
+    return spawned;
   }
 
   _randomDesertNear(center) {
@@ -427,7 +569,7 @@ class GameScene extends Phaser.Scene {
           if (!this.gardenReadyAlertShown) {
             this.gardenReadyAlertShown = true;
             const ui = this.scene.get('UIScene');
-            if (ui) ui.showAlert('Your first garden is ready!\nClick quickly to harvest before the produce goes off.');
+            if (ui) ui.showAlert(t('alert_garden_ready'));
           }
         }
       } else if (g.stage === 2 && g.timer >= 10) {
@@ -441,6 +583,14 @@ class GameScene extends Phaser.Scene {
   }
 
   _harvestGarden(c, g) {
+    if (this.sndHarvest) this.sndHarvest.play();
+    this._harvestCount++;
+    this._firstHarvestDone = true;
+    // First harvest: start music after 10s delay (only if not raining)
+    if (!this.musicUnlocked && this.rain.state === 'idle') {
+      this.musicUnlocked = true;
+      this.time.delayedCall(10000, () => this._startMusic());
+    }
     const th = this.biomeLayer.getTileAt(c.x, c.y);
     if (th) th.alpha = 1;
     g.stage = 4;
@@ -448,20 +598,20 @@ class GameScene extends Phaser.Scene {
     this.biomeLayer.putTileAt(14, c.x, c.y); // gid 14 = harvested
     this.previewLayer.removeTileAt(c.x, c.y);
     this.lastPreviewCell = null;
-    GameState.changeCommunity(1);
     GameState.wood += 1;
-    if (this.persons.length < this.buildingCells.length * 4) {
+    const hadCapacity = this.persons.length < this.buildingCells.length * 4 && GameState.water >= 20;
+    if (hadCapacity) {
       const spawnPos = this._randomDesertNear(c);
       this.persons.push(new Person(this, spawnPos.x, spawnPos.y));
+      this._syncCommunity();
     }
+    this._floatLabelAtTile(c.x, c.y, -32, '+1', '#aa6633');
+    this._floatLabelAtTile(c.x, c.y,   0, '+1', '#ffaa33');
+    if (hadCapacity) this._floatLabelAtTile(c.x, c.y, +32, '+1', '#111111');
     if (!this.gardenHarvestAlertShown) {
       this.gardenHarvestAlertShown = true;
       const ui = this.scene.get('UIScene');
-      if (ui) ui.showAlert(
-        'Farming give food and wood. Now, you can expand your community by building other shelters.\n' +
-        'You can replant in the same place where you harvested.\n' +
-        'Pay attention to the damage you cause on the land health and on the water level.'
-      );
+      if (ui) ui.showAlert(t('alert_garden_harvest'));
     }
   }
 
@@ -472,10 +622,12 @@ class GameScene extends Phaser.Scene {
   }
 
   _replantGarden(c, g) {
+    if (this.sndPlaceTile) this.sndPlaceTile.play();
     g.stage = 0;
     g.timer = 0;
     this.biomeLayer.putTileAt(11, c.x, c.y);
-    GameState.changeWater(-2);
+    GameState.changeWaterHidden(-1);
+    this._floatLabelAtTile(c.x, c.y, 0, '-1', '#1a6abf');
   }
 
   // ── Tree growth ──────────────────────────────────────────────────────────────
@@ -486,11 +638,90 @@ class GameScene extends Phaser.Scene {
       if (t.timer >= 30 && t.stage < 2) {
         t.timer -= 30;
         t.stage++;
-        this.biomeLayer.putTileAt(6 + t.stage, t.x, t.y); // gid 7 then 8
-        if (t.stage === 2) GameState.changeWater(1);
+        const growTile = this.biomeLayer.putTileAt(6 + t.stage, t.x, t.y); // gid 7 then 8
+        if (growTile && t.flipX) growTile.flipX = true;
+        if (t.stage === 2) {
+          GameState.changeWaterHidden(1);
+          this._floatLabelAtTile(t.x, t.y, 0, '+1', '#1a6abf');
+        }
       }
       return t.stage < 2; // remove once fully grown (stage 2 stays as gid 8)
     });
+  }
+
+  // ── Audio ────────────────────────────────────────────────────────────────────
+
+  fadeOutAllAudio(duration = 2000) {
+    if (this.sndWind        && this.sndWind.isPlaying)        this._fadeSound(this.sndWind,        0, duration);
+    if (this.sndRain        && this.sndRain.isPlaying)        this._fadeSound(this.sndRain,        0, duration);
+    if (this.sndMusic       && this.sndMusic.isPlaying)       this._fadeSound(this.sndMusic,       0, duration);
+    if (this.sndMusicDesert && this.sndMusicDesert.isPlaying) this._fadeSound(this.sndMusicDesert, 0, duration);
+    if (this._musicLoopTimer)   { this._musicLoopTimer.remove();   this._musicLoopTimer   = null; }
+    if (this._desertLoopTimer)  { this._desertLoopTimer.remove();  this._desertLoopTimer  = null; }
+    if (this._musicSwitchTimer) { this._musicSwitchTimer.remove(); this._musicSwitchTimer = null; }
+    this._pendingMusicSwitch = null;
+    this._waterMusicState = null;
+  }
+
+  _fadeSound(snd, toVol, duration, onComplete) {
+    this.tweens.killTweensOf(snd);
+    this.tweens.add({
+      targets: snd, volume: toVol, duration,
+      onComplete: () => {
+        if (toVol === 0) snd.stop();
+        if (onComplete) onComplete();
+      },
+    });
+  }
+
+  _startMusic() {
+    this.musicUnlocked = true;
+    this._updateMusicTrack();
+  }
+
+  _updateMusicTrack() {
+    if (!this.musicUnlocked || !this.sndMusic || !this.sndMusicDesert) return;
+    const isRaining = this.rain && this.rain.state !== 'idle';
+    if (isRaining) return;
+
+    const wantState = GameState.water < 20 ? 'desert' : 'normal';
+
+    // Already playing the right track — cancel any pending switch away from it
+    if (this._waterMusicState === wantState) {
+      if (this._musicSwitchTimer && this._pendingMusicSwitch !== wantState) {
+        this._musicSwitchTimer.remove();
+        this._musicSwitchTimer = null;
+        this._pendingMusicSwitch = null;
+      }
+      return;
+    }
+
+    // A switch is needed — debounce 30s
+    if (this._pendingMusicSwitch === wantState) return; // already scheduled
+
+    if (this._musicSwitchTimer) { this._musicSwitchTimer.remove(); this._musicSwitchTimer = null; }
+    this._pendingMusicSwitch = wantState;
+    this._musicSwitchTimer = this.time.delayedCall(30000, () => {
+      this._musicSwitchTimer = null;
+      this._pendingMusicSwitch = null;
+      // Only switch if water is still on the same side of 20%
+      if ((GameState.water < 20) === (wantState === 'desert')) {
+        this._doMusicSwitch(wantState);
+      }
+    });
+  }
+
+  _doMusicSwitch(state) {
+    this._waterMusicState = state;
+    if (state === 'desert') {
+      if (this.sndMusic.isPlaying) this._fadeSound(this.sndMusic, 0, 2000);
+      if (this._musicLoopTimer) { this._musicLoopTimer.remove(); this._musicLoopTimer = null; }
+      if (!this.sndMusicDesert.isPlaying) { this.sndMusicDesert.setVolume(0.1); this.sndMusicDesert.play(); }
+    } else {
+      if (this.sndMusicDesert.isPlaying) this._fadeSound(this.sndMusicDesert, 0, 2000);
+      if (this._desertLoopTimer) { this._desertLoopTimer.remove(); this._desertLoopTimer = null; }
+      if (!this.sndMusic.isPlaying) { this.sndMusic.setVolume(0.1); this.sndMusic.play(); }
+    }
   }
 
   // ── Rain ─────────────────────────────────────────────────────────────────────
@@ -503,9 +734,26 @@ class GameScene extends Phaser.Scene {
     this.rain.started       = true;
     this.rain.lightningTimer = 0;
     this.rain.lightningDelay = 3 + Math.random() * 5; // first strike 3–8 s into active
+    this.rain.totalGain     = Math.round(15 + ((this.rain.duration - 30) / 30) * 15); // 15–30 pts
+    this.rain.gainGiven     = 0;
+    this.rain.gainTimer     = 0;
+    this.rain.gainInterval  = this.rain.duration / this.rain.totalGain;
+
+    // Audio: fade out music only (wind stays), fade in rain
+    if (this.sndMusic && this.sndMusic.isPlaying) this._fadeSound(this.sndMusic, 0, 3000);
+    if (this.sndMusicDesert && this.sndMusicDesert.isPlaying) this._fadeSound(this.sndMusicDesert, 0, 3000);
+    if (this._musicLoopTimer)   { this._musicLoopTimer.remove();   this._musicLoopTimer   = null; }
+    if (this._desertLoopTimer)  { this._desertLoopTimer.remove();  this._desertLoopTimer  = null; }
+    if (this._musicSwitchTimer) { this._musicSwitchTimer.remove(); this._musicSwitchTimer = null; }
+    this._pendingMusicSwitch = null;
+    this._waterMusicState = null; // reset so _updateMusicTrack() redémarre après la pluie
+    this.sndRain.setVolume(0);
+    if (!this.sndRain.isPlaying) this.sndRain.play();
+    this._fadeSound(this.sndRain, 0.5, 3000);
   }
 
   _triggerLightning() {
+    this.sndThunder.play();
     const count = Math.random() < 0.4 ? 3 : 2;
     let delay = 0;
     for (let i = 0; i < count; i++) {
@@ -545,6 +793,13 @@ class GameScene extends Phaser.Scene {
         r.lightningDelay  = 5 + Math.random() * 8;
         this._triggerLightning();
       }
+      // Distribute rain water points progressively
+      r.gainTimer += dt;
+      while (r.gainTimer >= r.gainInterval && r.gainGiven < r.totalGain) {
+        r.gainTimer -= r.gainInterval;
+        GameState.changeWaterHidden(1);
+        r.gainGiven++;
+      }
       if (r.phaseTimer >= r.duration) { r.state = 'fadeout'; r.phaseTimer = 0; }
 
     } else if (r.state === 'fadeout') {
@@ -555,9 +810,12 @@ class GameScene extends Phaser.Scene {
         r.drops      = [];
         this.rainGraphics.clear();
         this.rainOverlay.setAlpha(0);
-        const gain = Math.round(5 + ((r.duration - 30) / 30) * 5); // 5–10 pts
-        GameState.changeWater(gain);
+        // Give any remaining points not yet distributed
+        const remaining = r.totalGain - r.gainGiven;
+        if (remaining > 0) GameState.changeWaterHidden(remaining);
         r.nextTimer = 120 + Math.random() * 180; // 120–300 s
+        // Audio: fade out rain, start music
+        this._fadeSound(this.sndRain, 0, 3000, () => this._startMusic());
         return;
       }
     }
@@ -608,24 +866,31 @@ class GameScene extends Phaser.Scene {
     }
   }
 
+  _syncCommunity() {
+    GameState.community = Math.min(100, this.persons.length);
+  }
+
   // ── Update ───────────────────────────────────────────────────────────────────
 
   update(_, delta) {
     const dt = delta / 1000;
 
-    // Water regen (+1 every 30s)
+    this._syncCommunity();
+
+    // Water regen (+1 every 30s) → hidden indicator
     this.waterRegenTimer += dt;
     if (this.waterRegenTimer >= 30) {
       this.waterRegenTimer = 0;
-      GameState.changeWater(1);
+      GameState.changeWaterHidden(1);
     }
 
-    // Water drain (1 tile every 2s)
+    // Water tiles converge toward waterHidden (1 tile every 2s)
+    // GameState.water is always derived from tile count → always in sync
     if (this.initialWaterCount > 0) {
       this.waterDrainTimer += dt;
       if (this.waterDrainTimer >= 2) {
         this.waterDrainTimer = 0;
-        const target = Math.round((GameState.water / 100) * this.initialWaterCount);
+        const target = Math.round((GameState.waterHidden / 100) * this.initialWaterCount);
         if (this.waterCells.length > target) {
           const tile = this._leastConnectedWaterTile();
           if (tile) {
@@ -641,16 +906,71 @@ class GameScene extends Phaser.Scene {
             this.waterCells.push({ x: tile.x, y: tile.y });
           }
         }
+        // Visible indicator = exact reflection of current tile count
+        GameState.water = Math.round((this.waterCells.length / this.initialWaterCount) * 100);
+        this._updateMusicTrack();
       }
     }
 
-    // Water crisis: game over only after 10s with no water tiles
-    if (this.waterCells.length === 0) {
+    // Water crisis: game over only after 10s with no water tiles, never during rain
+    const isRaining = this.rain.state !== 'idle';
+    if (this.waterCells.length === 0 && !isRaining) {
       this.waterCrisisTimer += dt;
       if (this.waterCrisisTimer >= 10) this.waterCrisisTriggered = true;
     } else {
       this.waterCrisisTimer = 0;
-      this.waterCrisisTriggered = false;
+      if (isRaining) this.waterCrisisTriggered = false;
+    }
+
+    // Community drain: -1 person every 20s when water < 10%, every 10s when water < 20%
+    if (GameState.water < 20 && this.persons.length > 0) {
+      const waterDrainInterval = GameState.water < 10 ? 20 : 10;
+      this._communityDrainTimer += dt;
+      if (this._communityDrainTimer >= waterDrainInterval) {
+        this._communityDrainTimer = 0;
+        const idx = Math.floor(Math.random() * this.persons.length);
+        const person = this.persons[idx];
+        this._floatLabel(person.x, person.y, '-1', '#000000');
+        person.destroy();
+        this.persons.splice(idx, 1);
+        this._syncCommunity();
+      }
+    } else {
+      this._communityDrainTimer = 0;
+    }
+
+    // Starvation: need 1 harvest per 10 persons every 30s (only after first harvest)
+    if (this._firstHarvestDone && this.persons.length > 0) {
+      this._foodTimer += dt;
+      if (this._foodTimer >= 30) {
+        this._foodTimer = 0;
+        const required = Math.ceil(this.persons.length / 20);
+        this._starving = this._harvestCount < required;
+        this._harvestCount = 0;
+      }
+      if (this._starving) {
+        this._starvationDrainTimer += dt;
+        if (this._starvationDrainTimer >= 10) {
+          this._starvationDrainTimer = 0;
+          const idx = Math.floor(Math.random() * this.persons.length);
+          const person = this.persons[idx];
+          this._floatLabel(person.x, person.y, '-1', '#000000');
+          person.destroy();
+          this.persons.splice(idx, 1);
+          this._syncCommunity();
+          if (!this._starvationAlertShown) {
+            this._starvationAlertShown = true;
+            const ui = this.scene.get('UIScene');
+            if (ui) ui.showAlert(t('alert_starvation'), true);
+          }
+        }
+      } else {
+        this._starvationDrainTimer = 0;
+      }
+    } else {
+      this._starving = false;
+      this._starvationDrainTimer = 0;
+      if (!this._firstHarvestDone) this._foodTimer = 0;
     }
 
     this._updateRain(dt);
