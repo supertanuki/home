@@ -2,7 +2,7 @@ class GameScene extends Phaser.Scene {
   constructor() { super({ key: 'GameScene' }); }
 
   preload() {
-    this.load.spritesheet('tiles', 'art/tiles.png?v7', { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('tiles', 'art/tiles.png?v8', { frameWidth: 32, frameHeight: 32 });
     this.load.audio('sfx-wind', 'sfx/sfx-wind.mp3');
     this.load.bitmapFont('pixel', 'font/FreePixel-16.png', 'font/FreePixel-16.xml?v1');
   }
@@ -70,6 +70,13 @@ class GameScene extends Phaser.Scene {
     this.biomeLayer   = this.map.createBlankLayer('biome',   this.tileset, 0, UI_HEIGHT);
     this.previewLayer = this.map.createBlankLayer('preview', this.tileset, 0, UI_HEIGHT);
     this.previewLayer.setAlpha(0.5);
+
+    // Scrolling water background (gid 16 borderless water tile)
+    this._waterBg = this.add.tileSprite(
+      0, UI_HEIGHT,
+      GAME_WIDTH, GAME_HEIGHT - UI_HEIGHT,
+      'tiles', 16
+    ).setOrigin(0, 0).setDepth(-1);
 
     this._generateWorld();
     this._setupInput();
@@ -142,7 +149,7 @@ class GameScene extends Phaser.Scene {
   // ── World generation ────────────────────────────────────────────────────────
 
   _generateWorld() {
-    const MIN_WATER = 20;
+    const MIN_WATER = 40;
 
     do {
       this.waterCells = [];
@@ -452,9 +459,13 @@ class GameScene extends Phaser.Scene {
     td.building = 'hut';
     td.biome = GameState.TILE_BUILDING;
     const pending = this._pendingBuild || { gid: Math.random() < 0.5 ? 4 : 5, flipX: Math.random() < 0.5 };
-    const buildTile = this.biomeLayer.putTileAt(pending.gid, c.x, c.y);
+    const buildTile = this.biomeLayer.putTileAt(3, c.x, c.y); // gid 3 = under construction
     if (buildTile) buildTile.flipX = pending.flipX;
     this._pendingBuild = null;
+    this.time.delayedCall(2000, () => {
+      const finalTile = this.biomeLayer.putTileAt(pending.gid, c.x, c.y);
+      if (finalTile) finalTile.flipX = pending.flipX;
+    });
     GameState.changeWaterHidden(-1);
     GameState.changeLandHealth(-2);
     const firstBuilding = this.buildingCells.length === 0;
@@ -564,8 +575,13 @@ class GameScene extends Phaser.Scene {
     if (x < 0 || y < 0 || x >= GameState.MAP_WIDTH || y >= GameState.MAP_HEIGHT) return;
     if (GameState.tiles[y][x].biome !== GameState.TILE_WATER) return;
     const [gid, fx] = this._waterTileGid(x, y);
-    const tile = this.biomeLayer.putTileAt(gid, x, y);
-    if (tile) tile.flipX = !!fx;
+    if (gid === 17) {
+      // Fully surrounded (k=15) — no border to draw, let the TileSprite show through
+      this.biomeLayer.removeTileAt(x, y);
+    } else {
+      const tile = this.biomeLayer.putTileAt(gid, x, y);
+      if (tile) tile.flipX = !!fx;
+    }
   }
 
   _refreshWaterNeighbors(x, y) {
@@ -638,10 +654,9 @@ class GameScene extends Phaser.Scene {
     for (const g of this.gardens) {
       if (g.stage === 3 || g.stage === 4) continue; // withered or harvested, waiting for player action
 
-      // Apply blink alpha to stage-2 tiles only in the last 5s before withering
-      if (g.stage === 2) {
-        const tile = this.biomeLayer.getTileAt(g.x, g.y);
-        if (tile) tile.alpha = g.timer >= 5 && this.gardenBlinkOn ? 0.35 : 1;
+      // Blink stage-2 tiles in the last 5s before withering: swap between ready (gid 13) and harvested (gid 14)
+      if (g.stage === 2 && g.timer >= 5) {
+        this.biomeLayer.putTileAt(this.gardenBlinkOn ? 13 : 14, g.x, g.y);
       }
 
       g.timer += dt;
@@ -657,8 +672,6 @@ class GameScene extends Phaser.Scene {
           }
         }
       } else if (g.stage === 2 && g.timer >= 10) {
-        const t2 = this.biomeLayer.getTileAt(g.x, g.y);
-        if (t2) t2.alpha = 1;
         g.stage = 3;
         this.lostHarvests++;
         g.timer = 0;
@@ -1102,6 +1115,10 @@ class GameScene extends Phaser.Scene {
       this._starvationDrainTimer = 0;
       if (!this._firstHarvestDone) this._foodTimer = 0;
     }
+
+    this._waterScroll = (this._waterScroll || 0) + 12 * dt;
+    this._waterBg.tilePositionX = Math.round(this._waterScroll);
+    this._waterBg.tilePositionY = Math.round(this._waterScroll);
 
     this._updateRain(dt);
     this._updateGrowingTrees(dt);
