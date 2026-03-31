@@ -106,6 +106,9 @@ const GAME_DATA = {
   phases: [
     {
       id: 1,
+      tourLabel: "Inscription et désignation du rapporteur",
+      tourDescription: "Le texte est inscrit à l'ordre du jour et un rapporteur est désigné pour piloter son examen.",
+      tourDate: { day: 2, month: 4, year: 2026 },
       title: "Coalition d'organisations",
       description: "Construire une coalition d'associations est souvent la première étape d'une stratégie de plaidoyer. En unissant leurs forces, les organisations multiplient leur visibilité et leur crédibilité. Mais chaque alliance a ses fragilités - et le lobby s'empressera de les exploiter.",
       actions: [
@@ -137,6 +140,9 @@ const GAME_DATA = {
     },
     {
       id: 2,
+      tourLabel: "Auditions",
+      tourDescription: "Le rapporteur lance ses auditions et consulte les différents acteurs concernés.",
+      tourDate: { day: 12, month: 4, year: 2026 },
       title: "Coalition parlementaire",
       description: "Sans relais au sein des institutions, une association ne peut peser sur les votes. Construire une coalition parlementaire est l'un des leviers les plus puissants - mais aussi l'un des plus difficiles à maintenir face aux pressions des lobbies industriels.",
       actions: [
@@ -168,6 +174,9 @@ const GAME_DATA = {
     },
     {
       id: 3,
+      tourLabel: "Rédaction du rapport",
+      tourDescription: "Le rapporteur rédige son rapport, qui commence à structurer le débat politique.",
+      tourDate: { day: 30, month: 4, year: 2026 },
       title: "Expertise scientifique",
       description: "Dans les batailles réglementaires, l'expertise scientifique est un outil clé. Elle permet de contester les arguments des industriels et de donner une légitimité au plaidoyer. Mais l'industrie dispose de moyens considérables pour financer des contre-expertises et semer le doute.",
       actions: [
@@ -199,6 +208,9 @@ const GAME_DATA = {
     },
     {
       id: 4,
+      tourLabel: "Dépôt des amendements en commission",
+      tourDescription: "Les députés déposent leurs premiers amendements pour modifier le texte.",
+      tourDate: { day: 4, month: 5, year: 2026 },
       title: "Utiliser les médias",
       description: "Les médias sont un terrain de bataille essentiel. La visibilité médiatique permet de peser sur l'opinion publique et d'exercer une pression indirecte sur les décideurs politiques. Mais l'industrie dispose de budgets de communication bien supérieurs à ceux d'une association.",
       actions: [
@@ -230,6 +242,9 @@ const GAME_DATA = {
     },
     {
       id: 5,
+      tourLabel: "Examen en commission",
+      tourDescription: "La commission examine le texte et vote sur les amendements.",
+      tourDate: { day: 6, month: 5, year: 2026 },
       title: "Agenda public",
       description: "Mettre un sujet à l'agenda public, c'est le rendre incontournable pour les décideurs. Des citoyens qui signent une pétition, des personnalités qui s'engagent, des campagnes d'interpellation : autant de leviers pour créer une pression politique diffuse mais réelle.",
       actions: [
@@ -261,6 +276,9 @@ const GAME_DATA = {
     },
     {
       id: 6,
+      tourLabel: "Dépôt des amendements en séance",
+      tourDescription: "De nouveaux amendements sont déposés en vue de la séance publique.",
+      tourDate: { day: 12, month: 5, year: 2026 },
       title: "Réseaux sociaux",
       description: "Les réseaux sociaux permettent de toucher des millions de personnes à faible coût. Mais ils sont aussi le terrain favori des contre-offensives industrielles : campagnes sponsorisées, trolls organisés, désinformation ciblée. Une arme à double tranchant.",
       actions: [
@@ -292,6 +310,9 @@ const GAME_DATA = {
     },
     {
       id: 7,
+      tourLabel: "Début de la séance publique",
+      tourDescription: "Le texte arrive dans l'hémicycle et les débats commencent.",
+      tourDate: { day: 25, month: 5, year: 2026 },
       title: "Actions militantes",
       description: "Les actions militantes - manifestations, actions symboliques, happenings - créent de l'événement médiatique et montrent une mobilisation physique. Elles peuvent galvaniser les soutiens. Mais un incident peut aussi se retourner contre la campagne.",
       actions: [
@@ -323,6 +344,9 @@ const GAME_DATA = {
     },
     {
       id: 8,
+      tourLabel: "Suite des débats en séance",
+      tourDescription: "Les députés discutent et votent les articles et amendements.",
+      tourDate: { day: 1, month: 6, year: 2026 },
       title: "Dialoguer avec les agriculteurs",
       description: "Le lobby des pesticides s'appuie massivement sur la figure de l'agriculteur pour légitimer ses positions. Aller à la rencontre des agriculteurs, notamment ceux qui travaillent sans pesticides dangereux, permet de casser ce monopole de représentation.",
       actions: [
@@ -354,6 +378,9 @@ const GAME_DATA = {
     },
     {
       id: 9,
+      tourLabel: "Vote solennel",
+      tourDescription: "Les députés se prononcent sur l'ensemble du texte.",
+      tourDate: { day: 5, month: 6, year: 2026 },
       title: "Bataille juridique",
       locked: true,
       lockedUntil: 5,
@@ -388,6 +415,9 @@ const GAME_DATA = {
     },
     {
       id: 10,
+      tourLabel: "Après-vote",
+      tourDescription: "Le résultat déclenche des réactions politiques et peut ouvrir une nouvelle phase de bataille.",
+      tourDate: { day: 8, month: 6, year: 2026 },
       title: "Action européenne",
       description: "L'Union européenne réglemente les pesticides et peut mettre la pression sur les États membres. Interpeller les institutions européennes permet d'ouvrir un second front dans la bataille politique et d'obtenir des soutiens au-delà des frontières.",
       actions: [

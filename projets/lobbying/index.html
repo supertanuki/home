@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ANTIDOTE - Bataille contre le lobby des pesticides</title>
-  <link rel="stylesheet" href="style.css?v2" />
-  <script src="game-data.js?v2"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="game-data.js"></script>
 </head>
 <body>
 
@@ -79,7 +79,7 @@
   <!-- Header chat (2 lignes mobile, 1 ligne desktop) -->
   <div class="chat-header">
 
-    <!-- Ligne 1 : avatar + infos + progression -->
+    <!-- Ligne 1 : avatar + infos -->
     <div class="chat-header-row1">
       <div class="chat-avatar-wrap">
         <span class="chat-avatar-emoji">👩🏽‍💼</span>
@@ -89,14 +89,18 @@
         <div class="chat-header-name">Naomi</div>
         <div class="chat-header-role">Lobbying environnemental · ANTIDOTE</div>
       </div>
-      <div class="chat-header-progress">
-        <div class="chp-bar-bg"><div class="chp-bar" id="chp-bar"></div></div>
-        <div class="chp-label" id="chp-label">0 / 10</div>
-      </div>
     </div>
 
-    <!-- Ligne 2 : indicateurs de score -->
+    <!-- Ligne 2 : tour + indicateurs de score sur la même ligne -->
     <div class="chat-header-scores">
+      <button class="chp-tour-pill" id="chp-label" onclick="openCalendar()" aria-label="Voir le calendrier">
+        <span class="sp-icon">📅</span>
+        <div class="sp-content">
+          <div class="chp-tour-num sp-label" id="chp-tour-num">Tour 1&nbsp;/&nbsp;10</div>
+          <div class="chp-tour-name" id="chp-tour-name">—</div>
+          <div class="chp-bar-bg"><div class="chp-bar" id="chp-bar"></div></div>
+        </div>
+      </button>
       <div class="score-pill" id="pill-public">
         <span class="sp-icon">👥</span>
         <div class="sp-content">
@@ -154,6 +158,9 @@
   </div>
   <div class="ao-grid" id="ao-grid"></div>
 </div>
+
+<!-- Overlay grisé pour la notification -->
+<div class="notif-overlay" id="notif-overlay"></div>
 
 <!-- ═══════════════════════════════════════════════
      NOTIFICATION : Contre-attaque
@@ -228,6 +235,18 @@
   </div>
 </div>
 
-<script src="game.js?v2"></script>
+<!-- Calendrier -->
+<div class="cal-overlay" id="cal-overlay" onclick="onCalOverlayClick(event)">
+  <div class="cal-modal" id="cal-modal">
+    <div class="pn-header">
+      <span class="pn-app-icon">📅</span>
+      <span class="pn-app-name">Calendrier</span>
+      <button class="pn-close" onclick="closeCalendar()" aria-label="Fermer">✕</button>
+    </div>
+    <div class="cal-inner" id="cal-inner"></div>
+  </div>
+</div>
+
+<script src="game.js"></script>
 </body>
 </html>

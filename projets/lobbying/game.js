@@ -146,9 +146,128 @@ function updateProgress() {
   const pct    = (played / total) * 100;
 
   const bar   = document.getElementById('chp-bar');
+  const num   = document.getElementById('chp-tour-num');
+  const name  = document.getElementById('chp-tour-name');
   const label = document.getElementById('chp-label');
-  if (bar)   bar.style.width = pct + '%';
-  if (label) label.textContent = 'Action ' + played + ' / ' + total;
+
+  if (bar) bar.style.width = pct + '%';
+
+  const currentPhaseIdx = Math.min(played, total - 1);
+  const phase = GAME_DATA.phases[currentPhaseIdx];
+
+  if (label) label.dataset.phaseIdx = currentPhaseIdx;
+  if (num)   num.textContent  = 'Tour\u00a0' + (currentPhaseIdx + 1) + '\u00a0/\u00a0' + total;
+  if (name)  name.textContent = phase && phase.tourLabel ? phase.tourLabel : '—';
+}
+
+/* ════════════════════════════════════════════
+   CALENDRIER
+════════════════════════════════════════════ */
+const CAL_MONTH_NAMES = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+  'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+const CAL_DAY_NAMES   = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+let _calMonth = 4;
+let _calYear  = 2025;
+let _calSelectedPhaseIdx = 0;
+let _calOnClose = null;
+
+function openCalendar() {
+  const label = document.getElementById('chp-label');
+  const phaseIdx = parseInt(label.dataset.phaseIdx || '0', 10);
+  const phase = GAME_DATA.phases[phaseIdx];
+  _calSelectedPhaseIdx = phaseIdx;
+  _calMonth = phase && phase.tourDate ? phase.tourDate.month : 4;
+  _calYear  = phase && phase.tourDate ? phase.tourDate.year  : 2025;
+  renderCalendar();
+  document.getElementById('cal-overlay').classList.add('open');
+}
+
+function closeCalendar() {
+  document.getElementById('cal-overlay').classList.remove('open');
+  if (_calOnClose) {
+    const cb = _calOnClose;
+    _calOnClose = null;
+    setTimeout(cb, 300);
+  }
+}
+
+function onCalOverlayClick(e) {
+  if (e.target === document.getElementById('cal-overlay')) closeCalendar();
+}
+
+function calNav(dir) {
+  _calMonth += dir;
+  if (_calMonth > 12) { _calMonth = 1;  _calYear++; }
+  if (_calMonth < 1)  { _calMonth = 12; _calYear--; }
+  renderCalendar();
+}
+
+function calSelectDay(phaseIdx) {
+  _calSelectedPhaseIdx = phaseIdx;
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const phases = GAME_DATA.phases;
+  const firstDay    = new Date(_calYear, _calMonth - 1, 1);
+  const daysInMonth = new Date(_calYear, _calMonth, 0).getDate();
+  let startDow = firstDay.getDay();
+  startDow = (startDow === 0) ? 6 : startDow - 1; // lundi = 0
+
+  // Index des tours dans ce mois
+  const toursByDay = {};
+  phases.forEach(function(p, i) {
+    if (p.tourDate && p.tourDate.month === _calMonth && p.tourDate.year === _calYear) {
+      toursByDay[p.tourDate.day] = i;
+    }
+  });
+
+  // En-tête du mois + navigation
+  let html = '<div class="cal-month-header">'
+    + '<button class="cal-nav-btn" onclick="calNav(-1)">‹</button>'
+    + '<span class="cal-month-title">' + CAL_MONTH_NAMES[_calMonth] + ' ' + _calYear + '</span>'
+    + '<button class="cal-nav-btn" onclick="calNav(1)">›</button>'
+    + '</div>';
+
+  // Grille jours
+  html += '<div class="cal-grid">';
+  CAL_DAY_NAMES.forEach(function(d) {
+    html += '<div class="cal-day-head">' + d + '</div>';
+  });
+
+  for (let i = 0; i < startDow; i++) {
+    html += '<div class="cal-cell"></div>';
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const phaseIdx = toursByDay[d];
+    const hasTour  = phaseIdx !== undefined;
+    const isSel    = hasTour && phaseIdx === _calSelectedPhaseIdx;
+    let cls = 'cal-cell';
+    if (hasTour) cls += ' has-tour';
+    if (isSel)   cls += ' selected';
+    const click = hasTour ? ' onclick="calSelectDay(' + phaseIdx + ')"' : '';
+    html += '<div class="' + cls + '"' + click + '>'
+      + d
+      + (hasTour ? '<span class="cal-dot"></span>' : '')
+      + '</div>';
+  }
+  html += '</div>'; // cal-grid
+
+  // Description du tour sélectionné
+  const sel = phases[_calSelectedPhaseIdx];
+  if (sel && sel.tourDate) {
+    const dayStr = sel.tourDate.day + '\u00a0' + CAL_MONTH_NAMES[sel.tourDate.month].toLowerCase();
+    html += '<div class="cal-desc-panel">'
+      + '<div class="cal-desc-label">Tour\u00a0' + sel.id + '\u00a0\u2014\u00a0' + sel.tourLabel + '</div>'
+      + '<div class="cal-desc-date">' + dayStr + '</div>'
+      + '<div class="cal-desc-text">' + sel.tourDescription + '</div>'
+      + '</div>';
+  } else {
+    html += '<div class="cal-desc-panel cal-desc-empty">Aucun tour ce mois-ci.</div>';
+  }
+
+  document.getElementById('cal-inner').innerHTML = html;
 }
 
 /* ════════════════════════════════════════════
@@ -526,7 +645,6 @@ function sendActionChoice() {
 
   playedActions.push({ phase: phase.title, action: action.label });
   playedPhases.push(phaseIndex);
-  updateProgress();
 
   pendingCounterData = {
     counterAttack:  action.counterAttack,
@@ -640,18 +758,32 @@ function askAction() {
     'Ok, au suivant. <strong>' + remaining + ' action' + s + '</strong> restante' + s + '. Quelle est ta strat\u00e9gie\u00a0?',
   ];
 
-  showTyping();
-  setTimeout(() => {
-    hideTyping();
+  if (playedPhases.length === 0) {
+    // Premier tour : pas de calendrier, message d'intro direct
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addColleagueMessage('Pour commencer, choisis ta <strong>première action</strong>.<br>Je te proposerai les options disponibles et tu décideras par où on attaque.');
+      showPickerBtn();
+      scrollToBottom();
+    }, 900);
+    return;
+  }
 
-    const text = (playedPhases.length === 0)
-      ? 'Pour commencer, choisis ta <strong>première action</strong>.<br>Je te proposerai les options disponibles et tu décideras par où on attaque.'
-      : msgs[Math.floor(Math.random() * msgs.length)];
-
-    addColleagueMessage(text);
-    showPickerBtn();
-    scrollToBottom();
-  }, 900);
+  // Tours suivants : incrémenter le tour, ouvrir le calendrier,
+  // puis afficher le message de Naomi à la fermeture
+  updateProgress();
+  const text = msgs[Math.floor(Math.random() * msgs.length)];
+  _calOnClose = function() {
+    showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addColleagueMessage(text);
+      showPickerBtn();
+      scrollToBottom();
+    }, 900);
+  };
+  openCalendar();
 }
 
 /* ════════════════════════════════════════════
