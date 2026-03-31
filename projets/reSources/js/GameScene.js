@@ -3,7 +3,11 @@ class GameScene extends Phaser.Scene {
 
   preload() {
     this.load.spritesheet('tiles', 'art/tiles.png?v8', { frameWidth: 32, frameHeight: 32 });
-    this.load.audio('sfx-wind', 'sfx/sfx-wind.mp3');
+    this.load.audio('sfx-wind',         'sfx/sfx-wind.mp3');
+    this.load.audio('sfx-button',       'sfx/sfx-button.mp3');
+    this.load.audio('sfx-notification', 'sfx/sfx-notification.mp3');
+    this.load.audio('sfx-warning',      'sfx/sfx-warning.mp3');
+    this.load.audio('sfx-congrats',     'sfx/sfx-congrats.mp3');
     this.load.bitmapFont('pixel', 'font/FreePixel-16.png', 'font/FreePixel-16.xml?v1');
   }
 
@@ -133,6 +137,8 @@ class GameScene extends Phaser.Scene {
     this.load.start();
 
     this.scene.launch('UIScene');
+
+    this._spawnIntroGroup();
 
     // Fade-in
     const fadeW = GameState.MAP_WIDTH * 32, fadeH = GameState.MAP_HEIGHT * 32 + UI_HEIGHT;
@@ -390,6 +396,7 @@ class GameScene extends Phaser.Scene {
     GameState.wood -= 1;
     td.biome = GameState.TILE_FOREST;
     td.has_tree = true;
+    this._invalidatePathsThrough(c.x, c.y);
     const pending = this._pendingReforest || { flipX: Math.random() < 0.5 };
     const reforestTile = this.biomeLayer.putTileAt(6, c.x, c.y); // gid 6 = sapling stage 1
     if (reforestTile) reforestTile.flipX = pending.flipX;
@@ -477,10 +484,16 @@ class GameScene extends Phaser.Scene {
     const waterCost = 1 + spawned;
     this._floatLabelAtTile(c.x, c.y, -48, `-${GameState.BUILDING_WOOD_COST}`, '#aa6633');
     this._floatLabelAtTile(c.x, c.y, -16, `-${waterCost}`,                   '#1a6abf');
-    this._floatLabelAtTile(c.x, c.y, +16, `+${spawned}`,                     '#111111');
+    if (spawned > 0) this._floatLabelAtTile(c.x, c.y, +16, `+${spawned}`,     '#111111');
     this._floatLabelAtTile(c.x, c.y, +48, '-2',                              '#2d7a2d');
 
     if (firstBuilding) {
+      for (const p of this.persons) {
+        if (p._followsCursor) {
+          p._followsCursor = false;
+          p._pickNewTarget();
+        }
+      }
       const ui = this.scene.get('UIScene');
       if (ui) ui.showAlert(t('alert_shelter_built'));
     }
@@ -527,13 +540,43 @@ class GameScene extends Phaser.Scene {
   }
 
   getRandomDestinationPosition() {
-    const all = [
-      ...this.buildingCells,
-      ...this.gardens.filter(g => g.stage !== 2 && g.stage !== 3 && g.stage !== 4).map(g => ({ x: g.x, y: g.y })),
-    ];
+    const buildings = this.buildingCells;
+    const gardens   = this.gardens.filter(g => g.stage !== 2 && g.stage !== 3 && g.stage !== 4)
+                                  .map(g => ({ x: g.x, y: g.y }));
+    const all = [...buildings, ...gardens];
     if (!all.length) return this.getRandomBuildingPosition();
+
     const c = all[Math.floor(Math.random() * all.length)];
-    return { x: c.x * 32 + 16, y: c.y * 32 + 16 + UI_HEIGHT };
+    const isBuilding = buildings.some(b => b.x === c.x && b.y === c.y);
+
+    if (isBuilding) {
+      // Target the north edge of the tile just south of the building
+      const sy = c.y + 1;
+      if (sy < GameState.MAP_HEIGHT) {
+        const td = GameState.tiles[sy][c.x];
+        const southPassable = td.biome !== GameState.TILE_WATER &&
+                              td.biome !== GameState.TILE_BASIN &&
+                              td.biome !== GameState.TILE_BUILDING &&
+                              td.biome !== GameState.TILE_FARM &&
+                              !(td.biome === GameState.TILE_FOREST && td.has_tree);
+        if (southPassable) {
+          return { x: c.x * 32 + 16, y: sy * 32 + UI_HEIGHT, pause: 2 };
+        }
+      }
+    }
+
+    return { x: c.x * 32 + 16, y: c.y * 32 + 16 + UI_HEIGHT, pause: 0 };
+  }
+
+  isPassableWorldPosition(wx, wy) {
+    const c = this._toCell(wx, wy);
+    if (!this._valid(c)) return false;
+    const td = GameState.tiles[c.y][c.x];
+    return td.biome !== GameState.TILE_WATER &&
+           td.biome !== GameState.TILE_BASIN &&
+           td.biome !== GameState.TILE_BUILDING &&
+           td.biome !== GameState.TILE_FARM &&
+           !(td.biome === GameState.TILE_FOREST && td.has_tree);
   }
 
   isDesertWorldPosition(wx, wy) {
@@ -546,6 +589,13 @@ class GameScene extends Phaser.Scene {
     const c = this._toCell(wx, wy);
     if (!this._valid(c)) return false;
     return GameState.tiles[c.y][c.x].biome === GameState.TILE_WATER;
+  }
+
+  isBasinWorldPosition(wx, wy) {
+    const c = this._toCell(wx, wy);
+    if (!this._valid(c)) return false;
+    if (GameState.tiles[c.y][c.x].biome !== GameState.TILE_BASIN) return false;
+    return this.basins.some(b => b.x === c.x && b.y === c.y && b.full);
   }
 
   isBuildingWorldPosition(wx, wy) {
@@ -1000,6 +1050,164 @@ class GameScene extends Phaser.Scene {
     GameState.community = Math.min(100, this.persons.length);
   }
 
+  // ── Pathfinding (A*) ────────────────────────────────────────────────────────
+
+  findPath(fromWorld, toWorld, allowWater = false) {
+    const W = GameState.MAP_WIDTH, H = GameState.MAP_HEIGHT;
+
+    // World → cell (clamped)
+    const cell = (wx, wy) => ({
+      x: Math.max(0, Math.min(W - 1, Math.floor(wx / 32))),
+      y: Math.max(0, Math.min(H - 1, Math.floor((wy - UI_HEIGHT) / 32))),
+    });
+
+    const from = cell(fromWorld.x, fromWorld.y);
+    let   { x: tx, y: ty } = cell(toWorld.x, toWorld.y);
+
+    const walkable = (x, y) => {
+      if (x < 0 || y < 0 || x >= W || y >= H) return false;
+      const td = GameState.tiles[y][x];
+      return (allowWater || (td.biome !== GameState.TILE_WATER && td.biome !== GameState.TILE_BASIN)) &&
+             td.biome !== GameState.TILE_BUILDING &&
+             td.biome !== GameState.TILE_FARM &&
+             !(td.biome === GameState.TILE_FOREST && td.has_tree);
+    };
+
+    // If target cell is blocked, use nearest walkable neighbour
+    if (!walkable(tx, ty)) {
+      const ring = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1},
+                    {x:1,y:1},{x:-1,y:1},{x:1,y:-1},{x:-1,y:-1}];
+      let found = false;
+      for (const d of ring) {
+        if (walkable(tx + d.x, ty + d.y)) { tx += d.x; ty += d.y; found = true; break; }
+      }
+      if (!found) return null;
+    }
+
+    if (from.x === tx && from.y === ty) return [];
+
+    const idx  = (x, y) => y * W + x;
+    const h    = (x, y) => Math.abs(x - tx) + Math.abs(y - ty);
+
+    const SIZE   = W * H;
+    const gScore = new Float32Array(SIZE).fill(Infinity);
+    const parent = new Int32Array(SIZE).fill(-1);
+    const closed = new Uint8Array(SIZE);
+
+    // 8-directional neighbours [dx, dy, cost]
+    const DIRS = [
+      [1,0,1],[-1,0,1],[0,1,1],[0,-1,1],
+      [1,1,1.414],[-1,1,1.414],[1,-1,1.414],[-1,-1,1.414],
+    ];
+
+    const startIdx = idx(from.x, from.y);
+    gScore[startIdx] = 0;
+    const open = [[h(from.x, from.y), from.x, from.y]]; // [f, x, y]
+
+    while (open.length > 0) {
+      // Pop node with lowest f (linear scan — fast enough for this grid size)
+      let mi = 0;
+      for (let i = 1; i < open.length; i++) { if (open[i][0] < open[mi][0]) mi = i; }
+      const [, cx, cy] = open[mi];
+      open[mi] = open[open.length - 1];
+      open.pop();
+
+      const ci = idx(cx, cy);
+      if (closed[ci]) continue;
+      closed[ci] = 1;
+
+      if (cx === tx && cy === ty) {
+        // Reconstruct path (world centres, skip start cell)
+        const path = [];
+        let k = ci;
+        while (parent[k] !== -1) {
+          path.unshift({ x: (k % W) * 32 + 16, y: Math.floor(k / W) * 32 + 16 + UI_HEIGHT });
+          k = parent[k];
+        }
+        return path;
+      }
+
+      const cg = gScore[ci];
+      for (const [dx, dy, cost] of DIRS) {
+        const nx = cx + dx, ny = cy + dy;
+        if (!walkable(nx, ny)) continue;
+        // No corner-cutting through diagonals
+        if (cost > 1 && (!walkable(cx + dx, cy) || !walkable(cx, cy + dy))) continue;
+        const ni = idx(nx, ny);
+        if (closed[ni]) continue;
+        const ng = cg + cost;
+        if (ng < gScore[ni]) {
+          gScore[ni] = ng;
+          parent[ni] = ci;
+          open.push([ng + h(nx, ny), nx, ny]);
+        }
+      }
+    }
+
+    return null; // no path found
+  }
+
+  _invalidatePathsThrough(cx, cy) {
+    const all = this.persons;
+    for (const p of all) {
+      if (p._path.some(wp => {
+        const x = Math.floor(wp.x / 32);
+        const y = Math.floor((wp.y - UI_HEIGHT) / 32);
+        return x === cx && y === cy;
+      })) p._path = [];
+    }
+  }
+
+  // ── Intro group ─────────────────────────────────────────────────────────────
+
+  _spawnIntroGroup() {
+    // Find the horizontal run of ≥5 consecutive desert tiles closest to mid-map
+    const midRow = Math.floor(GameState.MAP_HEIGHT / 2);
+    let best = null, bestScore = -1;
+
+    for (let row = 0; row < GameState.MAP_HEIGHT; row++) {
+      let runStart = -1, runLen = 0;
+      for (let col = 0; col <= GameState.MAP_WIDTH; col++) {
+        const desert = col < GameState.MAP_WIDTH &&
+          GameState.tiles[row][col].biome === GameState.TILE_DESERT;
+        if (desert) {
+          if (runStart === -1) runStart = col;
+          runLen++;
+        } else {
+          if (runLen >= 5) {
+            const score = runLen - Math.abs(row - midRow) * 0.1;
+            if (score > bestScore) {
+              bestScore = score;
+              best = { row, colStart: runStart, colEnd: runStart + runLen - 1 };
+            }
+          }
+          runStart = -1; runLen = 0;
+        }
+      }
+    }
+    if (!best) return;
+
+    const { row, colEnd } = best;
+    const startX = colEnd * 32 + 16;
+    const baseY  = row * 32 + 16 + UI_HEIGHT;
+
+    // 5 persons spread over ~15px in x, ~8px in y
+    const offsets = [
+      { dx:  0, dy:  0 },
+      { dx:  5, dy: -4 },
+      { dx: -4, dy:  3 },
+      { dx:  8, dy:  3 },
+      { dx: -7, dy: -3 },
+    ];
+
+    for (const { dx, dy } of offsets) {
+      const p = new Person(this, startX + dx, baseY + dy);
+      p._followsCursor = true;
+      this.persons.push(p);
+    }
+    this._syncCommunity();
+  }
+
   // ── Update ───────────────────────────────────────────────────────────────────
 
   update(_, delta) {
@@ -1116,7 +1324,7 @@ class GameScene extends Phaser.Scene {
       if (!this._firstHarvestDone) this._foodTimer = 0;
     }
 
-    this._waterScroll = (this._waterScroll || 0) + 12 * dt;
+    this._waterScroll = (this._waterScroll || 0) + (isRaining ? 14 : 8) * dt;
     this._waterBg.tilePositionX = Math.round(this._waterScroll);
     this._waterBg.tilePositionY = Math.round(this._waterScroll);
 
@@ -1125,6 +1333,21 @@ class GameScene extends Phaser.Scene {
     this._updateGardens(dt);
     this._updateBasins(dt);
 
-    for (const p of this.persons) p.update(delta);
+
+
+    const ptr = this.input.activePointer;
+    for (const p of this.persons) {
+      if (p._followsCursor) {
+        const dest = { x: ptr.worldX, y: ptr.worldY };
+        const prev = p._cursorDest;
+        const moved = !prev ||
+          Math.abs(dest.x - prev.x) > 16 || Math.abs(dest.y - prev.y) > 16;
+        if (moved || p._path.length === 0) {
+          const path = this.findPath({ x: p.x, y: p.y }, dest); // no allowWater
+          if (path) { p._path = path; p._cursorDest = dest; }
+        }
+      }
+      p.update(delta);
+    }
   }
 }
