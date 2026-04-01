@@ -108,24 +108,22 @@ function startGame() {
   showDormantInput();
   showTyping();
 
-  setTimeout(() => {
+  setTimeout(function() {
     hideTyping();
     addColleagueMessage(
-      `Salut collègue\u00a0! Bienvenu chez ANTIDOTE\u00a0! ✊<br>Je suis <strong>Naomi</strong>, lobbyiste environnemental.`
+      `Bienvenue dans l'équipe\u00a0🙂<br>Je suis <strong>Naomi</strong>, la directrice de l'association Antidote. Ravie de t'accueillir, même si, tu vas voir, le timing est… particulier.`
     );
-    setTimeout(() => {
-      addPlayerMessage('Salut Naomi, merci !');
+    showMerciInput(function() {
       showTyping();
-      setTimeout(() => {
-        addColleagueMessage(
-          `Une proposition de loi vient d'être déposée pour <strong>réautoriser plusieurs pesticides dangereux</strong>.<br>
-          Nous avons la possibilité de lancer <strong>10&nbsp;actions</strong> avant le vote final à l'Assemblée Nationale qui aura lieu dans quelques semaines.<br>
-          Le lobby des pesticides est déjà à l'œuvre. On doit agir vite.`
-        );
+      setTimeout(function() {
         hideTyping();
-      }, 1200);
-      setTimeout(() => askAction(), 2000);
-    }, 1000);
+        addColleagueMessage('Es-tu prêt·e\u00a0?');
+        showMerciInput(function() { showExplanations(); }, [
+          { label: 'Voir les explications', text: 'Oui', cb: function() { showExplanations(); } },
+          { label: 'Passer les explications', text: 'On y va\u00a0!', cb: function() { askAction(); } },
+        ]);
+      }, 800);
+    }, [{ label: 'Merci\u00a0!', text: 'Merci\u00a0!' }]);
   }, 500);
 }
 
@@ -1029,13 +1027,18 @@ function askAction() {
   ];
 
   if (playedPhases.length === 0) {
-    // Premier tour : pas de calendrier, message d'intro direct
+    // Premier tour : deux messages d'intro puis le picker
     showTyping();
-    setTimeout(() => {
+    setTimeout(function() {
       hideTyping();
-      addColleagueMessage('Pour commencer, choisis ta <strong>première action</strong>.<br>Je te proposerai les options disponibles et tu décideras par où on attaque.');
-      showPickerBtn();
-      scrollToBottom();
+      addColleagueMessage(`On entre dans la première phase.<br>Le texte vient d'être inscrit à l'ordre du jour. Et un rapporteur vient d'être désigné.<br><br>C'est lui qui va organiser les auditions, structurer le débat… et orienter une bonne partie de la suite.`);
+      showTyping();
+      setTimeout(function() {
+        hideTyping();
+        addColleagueMessage(`Si on arrive à exister maintenant, on peut peser.<br>Sinon, on subira. On a plusieurs options pour démarrer.<br>Mais on ne pourra pas toutes les activer.<br><br>Qu'est-ce que tu proposes de lancer en premier\u00a0?`);
+        showPickerBtn();
+        scrollToBottom();
+      }, 3500);
     }, 900);
     return;
   }
@@ -1089,7 +1092,7 @@ const MERCI_SUGGESTIONS = [
   { label: 'On va gagner', text: 'Tu m\'étonnes ! On va gagner, on peut y arriver ! A+' },
 ];
 
-function showMerciInput(cb) {
+function showMerciInput(cb, customSuggestions) {
   const inputEl = document.getElementById('chat-input-text');
   const area    = document.getElementById('chat-input-area');
   area.style.display    = 'flex';
@@ -1098,17 +1101,17 @@ function showMerciInput(cb) {
   const sendBtn = document.getElementById('chat-send-btn');
   sendBtn.style.display = 'flex';
   inputEl.style.display = 'block';
-  const picked = shuffle(MERCI_SUGGESTIONS).slice(0, 2);
-  inputEl.textContent   = picked[0].text;
+  const suggestions = customSuggestions || shuffle(MERCI_SUGGESTIONS).slice(0, 2);
+  inputEl.textContent   = suggestions[0].text;
   inputEl.contentEditable = 'false';
   enableSendBtn();
   _pendingSend = cb;
   currentStep  = 'merci';
 
-  // Boutons de suggestion : 2 au hasard
+  // Boutons de suggestion
   const qr = document.getElementById('quick-replies');
   qr.innerHTML = '';
-  picked.forEach(function(s) {
+  suggestions.forEach(function(s) {
     const btn = document.createElement('button');
     btn.className   = 'qr-btn';
     btn.textContent = s.label;
@@ -1116,6 +1119,7 @@ function showMerciInput(cb) {
       inputEl.textContent = s.text;
       qr.querySelectorAll('.qr-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
+      if (s.cb) { _pendingSend = s.cb; }
     });
     qr.appendChild(btn);
   });
@@ -1124,6 +1128,36 @@ function showMerciInput(cb) {
   qr.style.display = 'flex';
 
   scrollToBottom();
+}
+
+/* ════════════════════════════════════════════
+   SÉQUENCE D'EXPLICATIONS INTRO
+════════════════════════════════════════════ */
+function showSequentialMessages(messages, onComplete) {
+  if (messages.length === 0) { onComplete(); return; }
+  showTyping();
+  setTimeout(function() {
+    hideTyping();
+    addColleagueMessage(messages[0]);
+    setTimeout(function() {
+      showSequentialMessages(messages.slice(1), onComplete);
+    }, 3500);
+  }, 900);
+}
+
+function showExplanations() {
+  showSequentialMessages([
+    `Tu arrives au moment où on entre dans une bataille assez tendue.<br><br>Une proposition de loi, qui a été adoptée au Sénat, arrive à l'Assemblée nationale.<br>Officiellement, elle vise à "simplifier" les règles pour les agriculteurs.<br>Dans les faits, elle permettrait de réintroduire plusieurs pesticides qui avaient été interdits.<br><br>Et sans surprise, le lobby des pesticides est déjà très mobilisé pour la faire passer.`,
+    `De notre côté, on va devoir construire une campagne rapidement. On ne doit pas se laisser faire\u00a0!<br>Tu vas piloter ça avec moi.`,
+    `Avant de démarrer, il faut que tu saches que le timing est serré.<br><br>La proposition de loi va suivre son parcours classique\u00a0: commission, débats, séance… puis vote.<br>On a donc une fenêtre très limitée pour agir.`,
+    `Concrètement, tu disposes de <strong>10 tours</strong> avant le vote final.<br>Chaque tour correspond à une étape d'avancée du texte.`,
+    `À chaque tour, tu vas devoir choisir une action à lancer.<br>Sensibilisation des médias, mobilisation militante, sollicitation de scientifiques…<br>C'est toi qui décide de la stratégie.<br><br>Mais tu ne pourras pas tout faire. Nous sommes une petite association avec des ressources limitées.<br>Et chaque action aura un impact soit\u00a0:<br>→ sur nos ressources économiques<br>→ sur notre crédibilité<br>→ sur le soutien du public`,
+    `Et surtout fais attention à ça, car chaque action compte. Si on épuise complètement nos ressources, nous perdons la campagne et le lobby des pesticides aura le champ libre, sans mauvais jeu de mot.<br><br>Et évidemment, le lobby ne va pas rester passif. À chaque fois qu'on fera quelque chose, il réagit. Et ça peut nous fragiliser.<br><br>On y va\u00a0?`,
+  ], function() {
+    showMerciInput(function() { askAction(); }, [
+      { label: 'On y va\u00a0!', text: 'On y va\u00a0!' },
+    ]);
+  });
 }
 
 /* ════════════════════════════════════════════
