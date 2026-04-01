@@ -9,7 +9,7 @@ let playedActions  = [];
 let phaseOrder     = [];
 let eventOrder     = [];
 let eventCount     = 0;
-let juridiqueLocked    = true;
+let _unlockedShown     = [];
 let pendingAction      = null;
 let pendingOption      = null;
 let pendingCounterData = null;
@@ -19,8 +19,21 @@ let typingRowEl        = null;
 let pushTimer          = null;
 let counterTimer       = null;
 
-const MAX_SCORE   = 100;
-const PHASE_ICONS = ['🤝','🏛️','🔬','📺','📣','📱','✊','🌾','⚖️','🇪🇺'];
+// Référence d'affichage des barres : valeur initiale × 2 = 50 % au départ
+const BAR_REF = { public: 80, political: 120, resources: 200 };
+const PHASE_ICONS = ['🤝','🏛️','🔬','📺','🌾','📣','📱','✊','📋','⚖️'];
+
+/* ── Sons ── */
+let _soundEnabled = true;
+
+function playSound(filename) {
+  if (!_soundEnabled) return;
+  try {
+    const audio = new Audio('sfx/' + filename);
+    audio.volume = 0.5;
+    audio.play().catch(function() {});
+  } catch (e) {}
+}
 
 function shuffle(arr) {
   const a = [...arr];
@@ -32,7 +45,8 @@ function shuffle(arr) {
 }
 
 function isLocked(i) {
-  return !!(GAME_DATA.phases[i].locked && juridiqueLocked);
+  const lu = GAME_DATA.phases[i].lockedUntil;
+  return !!(lu && playedPhases.length < lu);
 }
 
 function getTime() {
@@ -55,13 +69,25 @@ function bindBtn(row, selector, handler) {
    INIT
 ════════════════════════════════════════════ */
 function startGame() {
+  _soundEnabled = document.getElementById('opt-sound')
+    ? document.getElementById('opt-sound').checked
+    : true;
+
+  const wantFullscreen = document.getElementById('opt-fullscreen')
+    && document.getElementById('opt-fullscreen').checked;
+  if (wantFullscreen && document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch(function() {});
+  }
+
   scores             = { ...GAME_DATA.initialScores };
   playedPhases       = [];
   playedActions      = [];
   phaseOrder         = shuffle(GAME_DATA.phases.map((_, i) => i));
   eventOrder         = shuffle(GAME_DATA.events.map((_, i) => i));
   eventCount         = 0;
-  juridiqueLocked    = true;
+  _unlockedShown     = [];
+  _pendingSend       = null;
+  _pendingUnlocks    = [];
   pendingAction      = null;
   pendingOption      = null;
   pendingCounterData = null;
@@ -72,7 +98,10 @@ function startGame() {
   if (pushTimer)    { clearTimeout(pushTimer); pushTimer = null; }
 
   document.getElementById('chat-messages').innerHTML = '';
-  closeActionsOverlay();
+  _lastDateSep = null;
+  addDateSeparator("Aujourd'hui");
+  closeStrategyPanel();
+  closeActionsPanel();
   updateScoreboard();
   updateProgress();
   showScreen('screen-game');
@@ -116,19 +145,20 @@ function showScreen(id) {
 ════════════════════════════════════════════ */
 function updateScoreboard(animateKeys) {
   ['public','political','resources'].forEach(key => {
-    const val  = scores[key];
+    const val = scores[key];
+    const ref = BAR_REF[key];
     const elV  = document.getElementById('score-' + key);
     const elB  = document.getElementById('bar-'   + key);
     const pill = document.getElementById('pill-'  + key);
 
     elV.textContent = val;
-    const pct = Math.max(0, Math.min(100, (val / MAX_SCORE) * 100));
+    const pct = Math.max(0, Math.min(100, (val / ref) * 100));
     elB.style.width = pct + '%';
 
     elB.classList.remove('danger','warning');
     pill.classList.remove('danger','warning');
-    if (val <= 1)      { elB.classList.add('danger');  pill.classList.add('danger'); }
-    else if (val <= 2) { elB.classList.add('warning'); pill.classList.add('warning'); }
+    if (val <= ref * 0.10)      { elB.classList.add('danger');  pill.classList.add('danger'); }
+    else if (val <= ref * 0.20) { elB.classList.add('warning'); pill.classList.add('warning'); }
 
     if (animateKeys && animateKeys.includes(key)) {
       elV.style.color = '#f5c842';
@@ -170,7 +200,9 @@ const CAL_DAY_NAMES   = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 let _calMonth = 4;
 let _calYear  = 2025;
 let _calSelectedPhaseIdx = 0;
-let _calOnClose = null;
+let _calOnClose   = null;
+let _pendingSend    = null; // callback déclenché au clic Envoyer (mode merci)
+let _pendingUnlocks = [];  // phases débloquées à annoncer au début du prochain tour
 
 function openCalendar() {
   const label = document.getElementById('chp-label');
@@ -273,14 +305,22 @@ function renderCalendar() {
 /* ════════════════════════════════════════════
    EFFETS
 ════════════════════════════════════════════ */
+function getTourBand() {
+  const t = playedPhases.length;
+  if (t <= 3) return 0; // tours 1-4
+  if (t <= 6) return 1; // tours 5-7
+  return 2;             // tours 8-10
+}
+
 function applyEffects(effects) {
-  scores.public    = Math.max(0, Math.min(MAX_SCORE, scores.public    + (effects.public    || 0)));
-  scores.political = Math.max(0, Math.min(MAX_SCORE, scores.political + (effects.political || 0)));
-  scores.resources = Math.max(0, Math.min(MAX_SCORE, scores.resources + (effects.resources || 0)));
+  scores.public    = Math.max(0, scores.public    + (effects.public    || 0));
+  scores.political = Math.max(0, scores.political + (effects.political || 0));
+  scores.resources = Math.max(0, scores.resources + (effects.resources || 0));
+  scores.score     = (scores.score || 0) + (effects.score || 0);
 }
 
 function changedKeys(effects) {
-  return Object.keys(effects).filter(k => effects[k] !== 0);
+  return Object.keys(effects).filter(k => effects[k] !== 0 && k !== 'score');
 }
 
 /* ── Animation flottante +/- sur les pills de score ── */
@@ -296,16 +336,16 @@ function showScoreDelta(effects) {
     el.className  = 'score-delta-float ' + (delta > 0 ? 'pos' : 'neg');
     el.textContent = (delta > 0 ? '+' : '') + delta;
     el.style.left = (rect.left + rect.width / 2) + 'px';
-    el.style.top  = rect.top + 'px';
+    el.style.top  = rect.bottom + 'px';
     document.body.appendChild(el);
-    setTimeout(function() { if (el.parentNode) el.remove(); }, 1400);
+    setTimeout(function() { if (el.parentNode) el.remove(); }, 2200);
   });
 }
 
 function buildDeltaChips(effects) {
   const labels = { public: '👥 Public', political: '🏛️ Politique', resources: '💶 Ressources' };
   const chips = Object.entries(effects)
-    .filter(([, v]) => v !== 0)
+    .filter(([k, v]) => v !== 0 && labels[k])
     .map(([k, v]) => '<span class="delta-chip ' + (v > 0 ? 'pos' : 'neg') + '">' + labels[k] + ' ' + (v > 0 ? '+' : '') + v + '</span>');
   return chips.length ? chips.join('') : '<span class="delta-chip zero">Aucun effet</span>';
 }
@@ -322,6 +362,38 @@ function checkZero() {
 ════════════════════════════════════════════ */
 function getChatEl() { return document.getElementById('chat-messages'); }
 
+function setNaomiOffline(offline) {
+  const dot = document.querySelector('.chat-online-dot');
+  if (dot) dot.classList.toggle('offline', offline);
+  if (!offline) {
+    getChatEl().querySelectorAll('.chat-date-sep').forEach(function(sep) {
+      if (sep.textContent === 'Naomi est hors ligne') sep.remove();
+    });
+  }
+}
+
+const MONTH_NAMES = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+function formatTourDate(tourDate) {
+  return tourDate.day + '\u00a0' + MONTH_NAMES[tourDate.month - 1] + '\u00a0' + tourDate.year;
+}
+
+function addDaysToTourDate(tourDate, n) {
+  const d = new Date(tourDate.year, tourDate.month - 1, tourDate.day + n);
+  return { day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear() };
+}
+
+let _lastDateSep = null;
+
+function addDateSeparator(label) {
+  const chat = getChatEl();
+  const sep  = document.createElement('div');
+  sep.className   = 'chat-date-sep';
+  sep.textContent = label;
+  chat.appendChild(sep);
+  _lastDateSep = sep;
+}
+
 function scrollToBottom() {
   window.scrollTo({
     top: document.body.scrollHeight,
@@ -337,6 +409,7 @@ function scrollToTop() {
 }
 
 function addColleagueMessage(htmlContent) {
+  playSound('400697__daphne_in_wonderland__messenger-notification-sound-imitation.mp3');
   const chat = getChatEl();
   const row  = document.createElement('div');
   row.className = 'msg-row naomi';
@@ -404,10 +477,9 @@ function freezeOptionCards() {
 /* ── Typewriter dans la zone de saisie ── */
 function typewriterInput(text, cb) {
   const inputEl = document.getElementById('chat-input-text');
-  const sendBtn = document.getElementById('chat-send-btn');
-  sendBtn.disabled = true;
   showInputArea();
   inputEl.innerHTML = '';
+  enableSendBtn();
 
   let i = 0;
   const SPEED = 14;
@@ -420,7 +492,6 @@ function typewriterInput(text, cb) {
       const cursor = document.createElement('span');
       cursor.className = 'cursor';
       inputEl.appendChild(cursor);
-      sendBtn.disabled = false;
       scrollToBottom();
       if (cb) cb();
     }
@@ -434,7 +505,7 @@ function showDormantInput() {
   const area = document.getElementById('chat-input-area');
   area.style.display = 'flex';
   area.classList.add('dormant');
-  document.getElementById('chat-pick-btn').style.display   = 'none';
+  document.getElementById('chat-actions-btn').style.display = 'none';
   const inputEl = document.getElementById('chat-input-text');
   inputEl.style.display = 'block';
   inputEl.innerHTML     = '';
@@ -444,14 +515,26 @@ function showDormantInput() {
   scrollToBottom();
 }
 
-/* ── Mode picker : bouton "Voir les actions" dans la barre ── */
+/* ── Mode picker : bouton Actions + champ + envoyer (désactivés) ── */
 function showPickerBtn() {
-  const area = document.getElementById('chat-input-area');
-  area.style.display = 'flex';
+  const area    = document.getElementById('chat-input-area');
+  const inputEl = document.getElementById('chat-input-text');
+  const sendBtn = document.getElementById('chat-send-btn');
+  const actBtn  = document.getElementById('chat-actions-btn');
+  area.style.display    = 'flex';
   area.classList.remove('dormant');
-  document.getElementById('chat-pick-btn').style.display   = 'flex';
-  document.getElementById('chat-input-text').style.display = 'none';
-  document.getElementById('chat-send-btn').style.display   = 'none';
+  actBtn.style.display  = 'flex';
+  actBtn.classList.remove('pulse');
+  void actBtn.offsetWidth; // force reflow pour relancer l'animation
+  actBtn.classList.add('pulse');
+  actBtn.addEventListener('mouseenter', function stopPulse() {
+    actBtn.classList.remove('pulse');
+    actBtn.removeEventListener('mouseenter', stopPulse);
+  }, { once: true });
+  inputEl.style.display = 'block';
+  inputEl.innerHTML     = '<span style="color:var(--text-muted);opacity:.5;">Message…</span>';
+  sendBtn.style.display = 'flex';
+  sendBtn.disabled      = true;
   scrollToBottom();
 }
 
@@ -460,33 +543,49 @@ function showInputArea() {
   const area = document.getElementById('chat-input-area');
   area.style.display = 'flex';
   area.classList.remove('dormant');
-  document.getElementById('chat-pick-btn').style.display   = 'none';
-  document.getElementById('chat-input-text').style.display = 'block';
-  document.getElementById('chat-send-btn').style.display   = 'flex';
+  closeActionsPanel();
+  document.getElementById('chat-actions-btn').style.display = 'none';
+  document.getElementById('chat-input-text').style.display  = 'block';
+  document.getElementById('chat-send-btn').style.display    = 'flex';
   scrollToBottom();
 }
 
+function enableSendBtn() {
+  const btn = document.getElementById('chat-send-btn');
+  btn.disabled = false;
+  btn.classList.remove('pulse');
+  void btn.offsetWidth;
+  btn.classList.add('pulse');
+  btn.addEventListener('mouseenter', function stop() {
+    btn.classList.remove('pulse');
+    btn.removeEventListener('mouseenter', stop);
+  }, { once: true });
+}
+
 function hideInputArea() {
+  closeStrategyPanel();
+  closeActionsPanel();
+  document.getElementById('quick-replies').style.display   = 'none';
   document.getElementById('chat-input-area').style.display = 'none';
   document.getElementById('chat-input-area').classList.remove('dormant');
   document.getElementById('chat-input-text').innerHTML     = '';
   document.getElementById('chat-send-btn').disabled        = true;
-  document.getElementById('chat-pick-btn').style.display   = 'none';
+  document.getElementById('chat-actions-btn').style.display = 'none';
 }
 
 /* ════════════════════════════════════════════
-   OVERLAY GRILLE D'ACTIONS
+   PANEL GRILLE D'ACTIONS
 ════════════════════════════════════════════ */
-function openActionsOverlay() {
-  const overlay = document.getElementById('actions-overlay');
-  const grid    = document.getElementById('ao-grid');
-  document.getElementById('ao-title').textContent = 'Quelle action lances-tu ?';
+function openActionsPanel() {
+  const grid = document.getElementById('ao-grid');
   grid.innerHTML = '';
 
-  const JURIDIQUE_INDEX = 8;
-  const unplayed     = phaseOrder.filter(function(i) { return !playedPhases.includes(i) && i !== JURIDIQUE_INDEX; });
-  const juridiqueArr = !playedPhases.includes(JURIDIQUE_INDEX) ? [JURIDIQUE_INDEX] : [];
-  const displayOrder = playedPhases.concat(unplayed).concat(juridiqueArr);
+  const unplayed  = phaseOrder.filter(function(i) { return !playedPhases.includes(i) && !isLocked(i); });
+  const lockedArr = GAME_DATA.phases
+    .map(function(_, i) { return i; })
+    .filter(function(i) { return !playedPhases.includes(i) && isLocked(i); })
+    .sort(function(a, b) { return (GAME_DATA.phases[a].lockedUntil || 99) - (GAME_DATA.phases[b].lockedUntil || 99); });
+  const displayOrder = playedPhases.concat(unplayed).concat(lockedArr);
 
   displayOrder.forEach(function(i) {
     const phase    = GAME_DATA.phases[i];
@@ -499,7 +598,7 @@ function openActionsOverlay() {
     card.disabled  = isPlayed || locked;
 
     let badge = '';
-    if (isPlayed)    badge = '<span class="ao-card-played-badge">✓ Action ' + (playedPhases.indexOf(i) + 1) + '</span>';
+    if (isPlayed)    badge = '<span class="ao-card-played-badge">✓ Tour ' + (playedPhases.indexOf(i) + 1) + '</span>';
     else if (locked) badge = '<span class="ao-card-locked-badge">🔒</span>';
 
     card.innerHTML = badge +
@@ -514,35 +613,157 @@ function openActionsOverlay() {
     grid.appendChild(card);
   });
 
-  overlay.classList.add('open');
+  document.getElementById('actions-panel').classList.add('open');
+  document.getElementById('chat-actions-btn').classList.add('active');
 }
 
-function closeActionsOverlay() {
-  document.getElementById('actions-overlay').classList.remove('open');
+function closeActionsPanel() {
+  document.getElementById('actions-panel').classList.remove('open');
+  const btn = document.getElementById('chat-actions-btn');
+  if (btn) btn.classList.remove('active');
+}
+
+function toggleActionsPanel() {
+  const panel = document.getElementById('actions-panel');
+  if (panel.classList.contains('open')) {
+    closeStrategyPanel();
+    closeActionsPanel();
+  } else {
+    openActionsPanel();
+  }
 }
 
 function selectPhaseFromOverlay(phaseIndex) {
-  closeActionsOverlay();
   pendingAction = { phaseIndex: phaseIndex };
-  currentStep   = 'option';
-  typewriterInput('Quelles sont les options pour : ' + GAME_DATA.phases[phaseIndex].title + ' ?', null);
+  pendingOption = null;
+
+  // Mode panel (tous sauf tours 1, 4, 7 ; le tour 10 va toujours au panel)
+  if (playedPhases.length % 3 !== 0 || playedPhases.length === 9) {
+    openStrategyPanel(phaseIndex);
+    return;
+  }
+
+  // Mode chat (tours 1, 4, 7) : demander à Naomi
+  closeActionsPanel();
+  currentStep = 'option';
+  typewriterInput('Que me recommandes-tu comme stratégies pour\u00a0: ' + GAME_DATA.phases[phaseIndex].title + '\u00a0?', null);
+}
+
+/* ════════════════════════════════════════════
+   PANEL STRATÉGIES
+════════════════════════════════════════════ */
+function openStrategyPanel(phaseIndex) {
+  const phase   = GAME_DATA.phases[phaseIndex];
+  const panel   = document.getElementById('strategy-panel');
+  const list    = document.getElementById('sp-list');
+  const title   = document.getElementById('sp-title');
+
+  title.textContent = 'Stratégies disponibles pour\u00a0: ' + phase.title;
+  list.innerHTML    = '';
+
+  const actionOrder = shuffle(phase.actions.map(function(_, i) { return i; }));
+  pendingAction._actionOrder = actionOrder;
+  const band = getTourBand();
+
+  actionOrder.forEach(function(origIdx, visIdx) {
+    const a = phase.actions[origIdx];
+    const fx = a.effectsByTour ? a.effectsByTour[band] : (a.effects || {});
+    const resCost = fx.resources || 0;
+    const resChip = resCost !== 0
+      ? '<div class="option-res-chip ' + (resCost < 0 ? 'neg' : 'pos') + '">' +
+          '💶\u00a0Ressources\u00a0' + (resCost > 0 ? '+' : '') + resCost +
+        '</div>'
+      : '';
+
+    const card = document.createElement('div');
+    card.className = 'option-card';
+    card.dataset.orig = origIdx;
+    card.innerHTML =
+      '<div class="option-label">' +
+        '<span class="option-num">' + (visIdx + 1) + '</span>' +
+        a.label +
+      '</div>' +
+      '<div class="option-desc">' + a.description + '</div>' +
+      resChip;
+
+    card.addEventListener('click', function() { selectOptionFromPanel(card, origIdx, phaseIndex); });
+    list.appendChild(card);
+  });
+
+  panel.classList.add('open');
+
+  // Préparer la barre : champ vide désactivé + Send désactivé
+  const area    = document.getElementById('chat-input-area');
+  const inputEl = document.getElementById('chat-input-text');
+  const sendBtn = document.getElementById('chat-send-btn');
+  area.style.display    = 'flex';
+  area.classList.remove('dormant');
+  document.getElementById('chat-actions-btn').style.display = 'flex';
+  inputEl.style.display = 'block';
+  inputEl.innerHTML     = '<span style="color:var(--text-muted);opacity:.5;">Choisir une stratégie…</span>';
+  sendBtn.style.display = 'flex';
+  sendBtn.disabled      = true;
+  currentStep = 'action';
+  scrollToBottom();
+}
+
+function closeStrategyPanel() {
+  document.getElementById('strategy-panel').classList.remove('open');
+  document.getElementById('sp-list').innerHTML = '';
+}
+
+function selectOptionFromPanel(cardEl, origIdx, phaseIndex) {
+  // Désélectionner les autres
+  document.querySelectorAll('#sp-list .option-card').forEach(function(c) { c.classList.remove('selected'); });
+  cardEl.classList.add('selected');
+
+  pendingOption = origIdx;
+  const label = GAME_DATA.phases[phaseIndex].actions[origIdx].label;
+  const prefixes = ['Je propose l\u2019option\u00a0: ', 'Je sugg\u00e8re l\u2019option\u00a0: '];
+  pendingInputText = prefixes[Math.floor(Math.random() * prefixes.length)] + label;
+
+  // Afficher dans le champ
+  const inputEl = document.getElementById('chat-input-text');
+  inputEl.textContent     = pendingInputText;
+  inputEl.contentEditable = 'false';
+  enableSendBtn();
+  scrollToBottom();
 }
 
 /* ════════════════════════════════════════════
    BOUTON "ENVOYER À NAOMI"
 ════════════════════════════════════════════ */
 function sendMessage() {
-  if (currentStep === 'option') {
+  if (currentStep === 'merci') {
+    sendMerci();
+  } else if (currentStep === 'option') {
     sendPhaseChoice();
   } else if (currentStep === 'action') {
     sendActionChoice();
   }
 }
 
+function sendMerci() {
+  const inputEl = document.getElementById('chat-input-text');
+  const text = (inputEl.textContent || '').trim() || 'Merci Naomi\u00a0!';
+  document.getElementById('quick-replies').style.display = 'none';
+  currentStep = 'waiting';
+  showDormantInput();
+  playSound('760370__froey__message-sent.mp3');
+  addPlayerMessage(text);
+  scrollToBottom();
+  if (_pendingSend) {
+    const cb = _pendingSend;
+    _pendingSend = null;
+    cb();
+  }
+}
+
 function sendPhaseChoice() {
   const phaseIndex = pendingAction.phaseIndex;
   showDormantInput();
-  addPlayerMessage('Quelles sont les options pour\u00a0' + PHASE_ICONS[phaseIndex] + ' ' + GAME_DATA.phases[phaseIndex].title + '\u00a0?');
+  playSound('760370__froey__message-sent.mp3');
+  addPlayerMessage('Que me recommandes-tu comme stratégies pour\u00a0' + PHASE_ICONS[phaseIndex] + ' ' + GAME_DATA.phases[phaseIndex].title + '\u00a0?');
 
   setTimeout(function() {
     showTyping();
@@ -554,10 +775,18 @@ function showOptions(phaseIndex) {
   const phase       = GAME_DATA.phases[phaseIndex];
   const actionOrder = shuffle(phase.actions.map(function(_, i) { return i; }));
   pendingAction._actionOrder = actionOrder;
+  const band = getTourBand();
 
   let optionsHTML = '';
   actionOrder.forEach(function(origIdx, visIdx) {
     const a = phase.actions[origIdx];
+    const fx = a.effectsByTour ? a.effectsByTour[band] : (a.effects || {});
+    const resCost = fx.resources || 0;
+    const resChip = resCost !== 0
+      ? '<div class="option-res-chip' + (resCost < 0 ? ' neg' : ' pos') + '">' +
+          '💶\u00a0Ressources\u00a0' + (resCost > 0 ? '+' : '') + resCost +
+        '</div>'
+      : '';
     optionsHTML +=
       '<div class="option-card" data-orig="' + origIdx + '">' +
         '<div class="option-label">' +
@@ -565,6 +794,7 @@ function showOptions(phaseIndex) {
           a.label +
         '</div>' +
         '<div class="option-desc">' + a.description + '</div>' +
+        resChip +
       '</div>';
   });
 
@@ -599,7 +829,7 @@ function showOptions(phaseIndex) {
       pendingOption = null;
       pendingInputText = null;
       currentStep = 'pick';
-      openActionsOverlay();
+      openActionsPanel();
     });
   }
 
@@ -623,9 +853,6 @@ function selectOption(cardEl) {
   pendingInputText = prefix + label;
 
   typewriterInput(pendingInputText, null);
-
-  // Permettre l'envoi immédiatement sans attendre la fin de la frappe
-  document.getElementById('chat-send-btn').disabled = false;
 }
 
 function sendActionChoice() {
@@ -639,8 +866,16 @@ function sendActionChoice() {
   const inputText = (pendingInputText && pendingInputText.trim()) ? pendingInputText : action.label;
   pendingInputText = null;
 
+  // Capturer le band AVANT la mise à jour de playedPhases
+  const band = getTourBand();
+  const effects        = action.effectsByTour        ? action.effectsByTour[band]        : (action.effects        || {});
+  const counterEffects = action.counterEffectsByTour ? action.counterEffectsByTour[band] : (action.counterEffects || {});
+
+  closeStrategyPanel();
+  closeActionsPanel();
   freezeOptionCards();
   showDormantInput();
+  playSound('760370__froey__message-sent.mp3');
   addPlayerMessage(inputText);
 
   playedActions.push({ phase: phase.title, action: action.label });
@@ -648,27 +883,59 @@ function sendActionChoice() {
 
   pendingCounterData = {
     counterAttack:  action.counterAttack,
-    counterEffects: action.counterEffects
+    counterEffects: counterEffects
   };
 
   currentStep = 'result';
 
+  const goMsgs = [
+    'C\'est parti\u00a0! A+',
+    'Bien joué\u00a0! Je reviens vers toi pour les résultats. A+',
+    'J\'espère que cette stratégie sera payante. Je te tiens au courant. A+'
+  ];
+
   setTimeout(function() {
     showTyping();
-    setTimeout(function() { hideTyping(); showResult(action); }, 1600);
+    setTimeout(function() {
+      hideTyping();
+      addColleagueMessage(goMsgs[Math.floor(Math.random() * goMsgs.length)]);
+
+      // Naomi passe hors ligne
+      setTimeout(function() {
+        setNaomiOffline(true);
+        addDateSeparator('Naomi est hors ligne');
+
+        setTimeout(function() {
+          // Mettre à jour le séparateur "tour start" avec la date du tour
+          const ph = GAME_DATA.phases[playedPhases[playedPhases.length - 1]];
+          if (ph && ph.tourDate) {
+            // le séparateur "Naomi est hors ligne" reste tel quel ;
+            // le séparateur précédent (début de tour) prend la date du tour
+            const seps = getChatEl().querySelectorAll('.chat-date-sep');
+            if (seps.length >= 2) seps[seps.length - 2].textContent = formatTourDate(ph.tourDate);
+          }
+
+          setNaomiOffline(false);
+          addDateSeparator("Aujourd'hui");
+          showTyping();
+          setTimeout(function() { hideTyping(); showResult(action, effects); }, 1200);
+        }, 3000);
+      }, 2000);
+    }, 1000);
   }, 400);
 }
 
 /* ── Résultat - contre-attaque auto après 4s ── */
-function showResult(action) {
+function showResult(action, effects) {
+  effects = effects || action.effects || {};
   // Appliquer les effets au moment où le message de Naomi apparaît
-  applyEffects(action.effects);
-  updateScoreboard(changedKeys(action.effects));
-  showScoreDelta(action.effects);
+  applyEffects(effects);
+  updateScoreboard(changedKeys(effects));
+  showScoreDelta(effects);
 
   addColleagueMessage(
     '<div class="result-scenario-text">Coucou ! Voici les résultats de l\'action lancée !<br>' + action.scenario + ' 👍🏾</div>' +
-    '<div class="delta-row">' + buildDeltaChips(action.effects) + '</div>'
+    '<div class="delta-row">' + buildDeltaChips(effects) + '</div>'
   );
   scrollToBottom();
 
@@ -733,9 +1000,12 @@ function afterCounterAttack() {
     return;
   }
 
-  if (playedPhases.length === 5 && juridiqueLocked) {
-    setTimeout(function() { showUnlockMessage(); }, 600);
-    return;
+  const newlyUnlocked = GAME_DATA.phases.filter(function(p, i) {
+    return p.lockedUntil === playedPhases.length && !_unlockedShown.includes(i);
+  });
+  if (newlyUnlocked.length > 0) {
+    newlyUnlocked.forEach(function(p) { _unlockedShown.push(GAME_DATA.phases.indexOf(p)); });
+    _pendingUnlocks = newlyUnlocked; // annoncé au début du prochain tour
   }
 
   if (playedPhases.length % 2 === 0) {
@@ -753,9 +1023,9 @@ function askAction() {
   const remaining = GAME_DATA.phases.length - playedPhases.length;
   const s         = remaining > 1 ? 's' : '';
   const msgs      = [
-    'Quelle est ta <strong>prochaine action</strong>\u00a0? Il reste <strong>' + remaining + ' action' + s + '</strong> possible' + s + ' avant le vote final.',
-    'Il nous reste <strong>' + remaining + ' action' + s + '</strong>. Quelle action lances-tu\u00a0?',
-    'Ok, au suivant. <strong>' + remaining + ' action' + s + '</strong> restante' + s + '. Quelle est ta strat\u00e9gie\u00a0?',
+    'Coucou ! Quelle est ta <strong>prochaine action</strong>\u00a0? Il reste <strong>' + remaining + ' action' + s + '</strong> possible' + s + ' avant le vote final.',
+    'Salut ! Il nous reste <strong>' + remaining + ' action' + s + '</strong>. Quelle action lances-tu\u00a0?',
+    'Bonjour ! <strong>' + remaining + ' action' + s + '</strong> restante' + s + '. Quelle est ta strat\u00e9gie\u00a0?',
   ];
 
   if (playedPhases.length === 0) {
@@ -770,20 +1040,90 @@ function askAction() {
     return;
   }
 
-  // Tours suivants : incrémenter le tour, ouvrir le calendrier,
-  // puis afficher le message de Naomi à la fermeture
-  updateProgress();
-  const text = msgs[Math.floor(Math.random() * msgs.length)];
-  _calOnClose = function() {
-    showTyping();
-    setTimeout(() => {
-      hideTyping();
-      addColleagueMessage(text);
-      showPickerBtn();
-      scrollToBottom();
-    }, 900);
-  };
-  openCalendar();
+  // Tours suivants : d'abord "Merci Naomi" → calendrier → message Naomi
+  const prevPhase = GAME_DATA.phases[playedPhases[playedPhases.length - 1]];
+  const prevResultDateLabel = (prevPhase && prevPhase.tourDate)
+    ? formatTourDate(addDaysToTourDate(prevPhase.tourDate, 2))
+    : null;
+
+  // Étape 1 : afficher "Merci Naomi" pré-rempli, attendre l'envoi
+  showMerciInput(function() {
+    // Étape 2 : 1 s après l'envoi → incrémenter tour + ouvrir calendrier
+    setTimeout(function() {
+      updateProgress();
+      playSound('545495__ienba__notification.mp3');
+      _calOnClose = function() {
+        if (_lastDateSep && prevResultDateLabel) _lastDateSep.textContent = prevResultDateLabel;
+        addDateSeparator("Aujourd'hui");
+
+        // Construire le message Naomi, avec les déblocages éventuels intégrés
+        const base = msgs[Math.floor(Math.random() * msgs.length)];
+        const unlocks = _pendingUnlocks;
+        _pendingUnlocks = [];
+        let text = base;
+        if (unlocks.length === 1) {
+          text += '<br><br>Une nouvelle action peut être lancée si tu penses que c\'est pertinent\u00a0: <strong>' + unlocks[0].title + '</strong>.';
+        } else if (unlocks.length > 1) {
+          text += '<br><br>On peut lancer de nouvelles actions maintenant\u00a0:<br>'
+            + unlocks.map(function(p) { return '- <strong>' + p.title + '</strong>'; }).join('<br>');
+        }
+
+        showTyping();
+        setTimeout(function() {
+          hideTyping();
+          addColleagueMessage(text);
+          showPickerBtn();
+          scrollToBottom();
+        }, 900);
+      };
+      openCalendar();
+    }, 1000);
+  });
+}
+
+/* ── Affiche "Merci Naomi" pré-rempli + Send actif ── */
+const MERCI_SUGGESTIONS = [
+  { label: 'Merci', text: 'Merci Naomi\u00a0! A+' },
+  { label: 'Vu, on continue', text: 'Naomi, merci, vu, on continue... A+' },
+  { label: 'On se laisse pas démonter', text: 'Allez on se laisse pas démonter, merci pour les infos\u00a0!' },
+  { label: 'On va gagner', text: 'Tu m\'étonnes ! On va gagner, on peut y arriver ! A+' },
+];
+
+function showMerciInput(cb) {
+  const inputEl = document.getElementById('chat-input-text');
+  const area    = document.getElementById('chat-input-area');
+  area.style.display    = 'flex';
+  area.classList.remove('dormant');
+  document.getElementById('chat-actions-btn').style.display = 'none';
+  const sendBtn = document.getElementById('chat-send-btn');
+  sendBtn.style.display = 'flex';
+  inputEl.style.display = 'block';
+  const picked = shuffle(MERCI_SUGGESTIONS).slice(0, 2);
+  inputEl.textContent   = picked[0].text;
+  inputEl.contentEditable = 'false';
+  enableSendBtn();
+  _pendingSend = cb;
+  currentStep  = 'merci';
+
+  // Boutons de suggestion : 2 au hasard
+  const qr = document.getElementById('quick-replies');
+  qr.innerHTML = '';
+  picked.forEach(function(s) {
+    const btn = document.createElement('button');
+    btn.className   = 'qr-btn';
+    btn.textContent = s.label;
+    btn.addEventListener('click', function() {
+      inputEl.textContent = s.text;
+      qr.querySelectorAll('.qr-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+    qr.appendChild(btn);
+  });
+  // Marquer le premier comme actif par défaut
+  qr.querySelector('.qr-btn').classList.add('active');
+  qr.style.display = 'flex';
+
+  scrollToBottom();
 }
 
 /* ════════════════════════════════════════════
@@ -804,13 +1144,7 @@ function triggerEvent() {
 
   const notif = document.getElementById('push-notification');
 
-  // Appliquer les effets au moment où la notification apparaît
-  applyEffects(event.effects);
-  updateScoreboard(changedKeys(event.effects));
-  showScoreDelta(event.effects);
-
-  const zeroKey = checkZero();
-
+  playSound('545495__ienba__notification.mp3');
   notif.classList.add('show');
 
   if (pushTimer) clearTimeout(pushTimer);
@@ -819,12 +1153,17 @@ function triggerEvent() {
   notif._onClose = function() {
     document.body.classList.remove('notif-open');
 
+    // Appliquer les effets et animer les indicateurs à la fermeture
+    applyEffects(event.effects);
+    updateScoreboard(changedKeys(event.effects));
+    showScoreDelta(event.effects);
+
+    const zeroKey = checkZero();
+
     // Naomi commente l'outcome puis passe à la suite
     function afterOutcome() {
       if (zeroKey !== null) {
         setTimeout(function() { showEarlyEnd(zeroKey); }, 400);
-      } else if (playedPhases.length === 5 && juridiqueLocked) {
-        setTimeout(function() { showUnlockMessage(); }, 400);
       } else {
         setTimeout(function() { askAction(); }, 400);
       }
@@ -846,28 +1185,8 @@ function triggerEvent() {
 }
 
 /* ════════════════════════════════════════════
-   DÉBLOCAGE BATAILLE JURIDIQUE
+   DÉBLOCAGE DE NOUVELLES ACTIONS
 ════════════════════════════════════════════ */
-function showUnlockMessage() {
-  showTyping();
-  setTimeout(function() {
-    hideTyping();
-
-    addColleagueMessage(
-      '<strong>⚖️ La Bataille juridique est maintenant disponible\u00a0!</strong><br>' +
-      'Le d\u00e9bat parlementaire commence, la voie judiciaire s\'ouvre 😉<br>' +
-      'Tu peux d\u00e9sormais d\u00e9poser des recours, porter plainte et mobiliser des avocats pour faire pression par un autre canal.'
-    );
-
-    scrollToBottom();
-
-    // Poursuite automatique après 5 secondes
-    setTimeout(function() {
-      juridiqueLocked = false;
-      askAction();
-    }, 5000);
-  }, 900);
-}
 
 /* ════════════════════════════════════════════
    FIN PRÉMATURÉE
@@ -896,12 +1215,12 @@ function showEarlyEnd(zeroKey) {
    RÉSULTAT FINAL
 ════════════════════════════════════════════ */
 function showFinalResult() {
-  const total = scores.public + scores.political + scores.resources;
+  const s = scores.score || 0;
   let result;
-  if      (total >= 21) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'complete_win'; });
-  else if (total >= 15) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'partial_win'; });
-  else if (total >= 9)  result = GAME_DATA.finalResults.find(function(r) { return r.id === 'statu_quo'; });
-  else                  result = GAME_DATA.finalResults.find(function(r) { return r.id === 'lobby_win'; });
+  if      (s >= 90) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'complete_win'; });
+  else if (s >= 50) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'partial_win'; });
+  else if (s >= 20) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'statu_quo'; });
+  else              result = GAME_DATA.finalResults.find(function(r) { return r.id === 'lobby_win'; });
 
   document.getElementById('result-icon').textContent        = result.icon;
   document.getElementById('result-badge-span').textContent  = result.title;

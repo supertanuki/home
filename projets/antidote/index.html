@@ -30,7 +30,8 @@
         </p>
         <p style="margin-top:10px;">
           <strong>Naomi</strong>, ta collègue lobbyiste environnemental, va te guider.<br>
-          Tu disposes de <strong>10 actions</strong> à lancer avant le vote final au parlement.
+          Tu disposes de <strong>10 actions</strong> à lancer avant le vote final au parlement.<br>
+          Ton score final déterminera l'issue du vote.
         </p>
       </div>
     </div>
@@ -41,17 +42,17 @@
         <div class="indicator-chip">
           <span class="chip-icon">👥</span>
           <div class="chip-name">Soutien du Public</div>
-          <div class="chip-val">4</div>
+          <div class="chip-val">40</div>
         </div>
         <div class="indicator-chip">
           <span class="chip-icon">🏛️</span>
           <div class="chip-name">Influence Politique</div>
-          <div class="chip-val">3</div>
+          <div class="chip-val">60</div>
         </div>
         <div class="indicator-chip">
           <span class="chip-icon">💶</span>
           <div class="chip-name">Ressources</div>
-          <div class="chip-val">4</div>
+          <div class="chip-val">130</div>
         </div>
       </div>
     </div>
@@ -68,6 +69,19 @@
     <button class="btn btn-primary" onclick="startGame()" style="font-size:1.1rem; padding:16px 40px; margin-top:8px;">
       Commencer
     </button>
+
+    <div class="welcome-options">
+      <label class="welcome-toggle">
+        <input type="checkbox" id="opt-sound" checked>
+        <span class="wt-box"></span>
+        <span class="wt-label">Effets sonores</span>
+      </label>
+      <label class="welcome-toggle">
+        <input type="checkbox" id="opt-fullscreen" checked>
+        <span class="wt-box"></span>
+        <span class="wt-label">Plein écran</span>
+      </label>
+    </div>
   </div>
 </div>
 
@@ -105,7 +119,7 @@
         <span class="sp-icon">👥</span>
         <div class="sp-content">
           <div class="sp-label">Public</div>
-          <div class="sp-val" id="score-public">4</div>
+          <div class="sp-val" id="score-public">40</div>
           <div class="sp-bar-bg"><div class="sp-bar" id="bar-public"></div></div>
         </div>
       </div>
@@ -113,7 +127,7 @@
         <span class="sp-icon">🏛️</span>
         <div class="sp-content">
           <div class="sp-label">Politique</div>
-          <div class="sp-val" id="score-political">3</div>
+          <div class="sp-val" id="score-political">60</div>
           <div class="sp-bar-bg"><div class="sp-bar" id="bar-political"></div></div>
         </div>
       </div>
@@ -121,7 +135,7 @@
         <span class="sp-icon">💶</span>
         <div class="sp-content">
           <div class="sp-label">Ressources</div>
-          <div class="sp-val" id="score-resources">4</div>
+          <div class="sp-val" id="score-resources">130</div>
           <div class="sp-bar-bg"><div class="sp-bar" id="bar-resources"></div></div>
         </div>
       </div>
@@ -132,32 +146,44 @@
   <!-- Messages zone -->
   <div class="chat-messages" id="chat-messages"></div>
 
-  <!-- Input area - deux modes : picker ou saisie -->
-  <div class="chat-input-area" id="chat-input-area" style="display:none;">
-    <!-- Mode picker : bouton "Voir les actions" -->
-    <button class="chat-pick-btn" id="chat-pick-btn" onclick="openActionsOverlay()" style="display:none;">
-      Voir les actions disponibles
-    </button>
-    <!-- Mode saisie : texte + envoyer -->
-    <div class="chat-input-bubble" id="chat-input-text" style="display:none;"></div>
-    <button class="chat-send-btn" id="chat-send-btn" onclick="sendMessage()" style="display:none;">
-      <span>Envoyer</span>
-      <span class="send-icon">➤</span>
-    </button>
+  <!-- Zone basse sticky : panel + barre de saisie -->
+  <div class="chat-bottom">
+
+    <!-- Panel actions (glisse vers le haut au-dessus de la barre) -->
+    <div class="actions-panel" id="actions-panel">
+      <div class="ap-grid" id="ao-grid"></div>
+    </div>
+
+    <!-- Panel stratégies (s'ouvre sous le panel actions) -->
+    <div class="strategy-panel" id="strategy-panel">
+      <div class="sp-header">
+        <span class="sp-title" id="sp-title">Stratégies disponibles</span>
+      </div>
+      <div class="sp-list" id="sp-list"></div>
+    </div>
+
+    <!-- Suggestions rapides (mode merci) -->
+    <div class="quick-replies" id="quick-replies" style="display:none;"></div>
+
+    <!-- Barre de saisie -->
+    <div class="chat-input-area" id="chat-input-area" style="display:none;">
+      <!-- Bouton Actions -->
+      <button class="chat-actions-btn" id="chat-actions-btn" onclick="toggleActionsPanel()" style="display:none;" aria-label="Voir les actions">
+        <span class="cab-icon">+</span>
+        <span class="cab-label">Actions</span>
+      </button>
+      <!-- Texte + envoyer -->
+      <div class="chat-input-bubble" id="chat-input-text" style="display:none;"></div>
+      <button class="chat-send-btn" id="chat-send-btn" onclick="sendMessage()" style="display:none;">
+        <span>Envoyer</span>
+        <span class="send-icon">➤</span>
+      </button>
+    </div>
+
   </div>
 
 </div><!-- /screen-game -->
 
-<!-- ═══════════════════════════════════════════════
-     OVERLAY : Grille d'actions (plein écran)
-═══════════════════════════════════════════════ -->
-<div class="actions-overlay" id="actions-overlay">
-  <div class="ao-header">
-    <h2 class="ao-title" id="ao-title">Quelle action lances-tu ?</h2>
-    <button class="ao-close" onclick="closeActionsOverlay()">✕</button>
-  </div>
-  <div class="ao-grid" id="ao-grid"></div>
-</div>
 
 <!-- Overlay grisé pour la notification -->
 <div class="notif-overlay" id="notif-overlay"></div>
@@ -244,6 +270,9 @@
       <button class="pn-close" onclick="closeCalendar()" aria-label="Fermer">✕</button>
     </div>
     <div class="cal-inner" id="cal-inner"></div>
+    <div class="cal-footer">
+      <button class="btn btn-primary cal-ok-btn" onclick="closeCalendar()">Ok</button>
+    </div>
   </div>
 </div>
 
