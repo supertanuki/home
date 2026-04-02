@@ -787,6 +787,8 @@ body.notif-open .notif-overlay { display: block; }
 
 .result-scenario-text { font-size: .9rem; line-height: 1.6; margin-bottom: 4px; }
 
+.chat-img { display: block; width: 500px ;max-width: 100%; border-radius: 8px; margin-top: 8px; }
+
 /* ════════════════════════════════════════════
    CHAT INPUT AREA
 ════════════════════════════════════════════ */

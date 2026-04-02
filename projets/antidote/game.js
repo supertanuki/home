@@ -13,6 +13,9 @@ let _unlockedShown     = [];
 let pendingAction      = null;
 let pendingOption      = null;
 let pendingCounterData = null;
+let pendingEarlyEnd         = null;
+let pendingFinalResult      = false;
+let _resourcesWentNegative  = false;
 let pendingInputText   = null;   // texte complet destiné au message joueur
 let currentStep        = 'pick';
 let typingRowEl        = null;
@@ -111,7 +114,7 @@ function startGame() {
   setTimeout(function() {
     hideTyping();
     addColleagueMessage(
-      `Bienvenue dans l'équipe\u00a0🙂<br>Je suis <strong>Naomi</strong>, la directrice de l'association Antidote. Ravie de t'accueillir, même si, tu vas voir, le timing est… particulier.`
+      `Bienvenue dans l'équipe\u00a0🙂<br>Je suis <b>Naomi</b>, la directrice de l'association Antidote.<br>Ravie de t'accueillir, même si, tu vas voir, le timing est… particulier.`
     );
     showMerciInput(function() {
       showTyping();
@@ -120,10 +123,10 @@ function startGame() {
         addColleagueMessage('Es-tu prêt·e\u00a0?');
         showMerciInput(function() { showExplanations(); }, [
           { label: 'Voir les explications', text: 'Oui', cb: function() { showExplanations(); } },
-          { label: 'Passer les explications', text: 'On y va\u00a0!', cb: function() { askAction(); } },
+          { label: 'Passer...', text: 'On y va\u00a0!', cb: function() { askAction(); } },
         ]);
       }, 800);
-    }, [{ label: 'Merci\u00a0!', text: 'Merci\u00a0!' }]);
+    }, [{ label: 'Merci\u00a0!', text: 'Salut Naomi, merci\u00a0!' }]);
   }, 500);
 }
 
@@ -211,6 +214,10 @@ function openCalendar() {
   _calYear  = phase && phase.tourDate ? phase.tourDate.year  : 2025;
   renderCalendar();
   document.getElementById('cal-overlay').classList.add('open');
+  setTimeout(function() {
+    const okBtn = document.querySelector('.cal-overlay .cal-ok-btn');
+    if (okBtn) okBtn.focus();
+  }, 50);
 }
 
 function closeCalendar() {
@@ -313,7 +320,9 @@ function getTourBand() {
 function applyEffects(effects) {
   scores.public    = Math.max(0, scores.public    + (effects.public    || 0));
   scores.political = Math.max(0, scores.political + (effects.political || 0));
-  scores.resources = Math.max(0, scores.resources + (effects.resources || 0));
+  const newRes = scores.resources + (effects.resources || 0);
+  if (newRes < 0) _resourcesWentNegative = true;
+  scores.resources = Math.max(0, newRes);
   scores.score     = (scores.score || 0) + (effects.score || 0);
 }
 
@@ -351,7 +360,8 @@ function buildDeltaChips(effects) {
 function checkZero() {
   if (scores.public    <= 0) return 'public';
   if (scores.political <= 0) return 'political';
-  if (scores.resources <= 0) return 'resources';
+  const isLastTurn = playedPhases.length >= GAME_DATA.phases.length;
+  if (scores.resources <= 0 && (!isLastTurn || _resourcesWentNegative)) return 'resources';
   return null;
 }
 
@@ -402,7 +412,7 @@ function scrollToBottom() {
 function scrollToTop() {
   window.scrollTo({
     top: 0,
-    behavior: 'smooth'
+    behavior: 'instant'
   });
 }
 
@@ -472,30 +482,14 @@ function freezeOptionCards() {
   });
 }
 
-/* ── Typewriter dans la zone de saisie ── */
-function typewriterInput(text, cb) {
+/* ── Active la zone de saisie sans pré-remplir le champ ── */
+function typewriterInput(_text, cb) {
   const inputEl = document.getElementById('chat-input-text');
   showInputArea();
   inputEl.innerHTML = '';
   enableSendBtn();
-
-  let i = 0;
-  const SPEED = 14;
-
-  (function type() {
-    if (i < text.length) {
-      inputEl.textContent += text[i++];
-      setTimeout(type, SPEED);
-    } else {
-      const cursor = document.createElement('span');
-      cursor.className = 'cursor';
-      inputEl.appendChild(cursor);
-      scrollToBottom();
-      if (cb) cb();
-    }
-  })();
-
   scrollToBottom();
+  if (cb) cb();
 }
 
 /* ── Mode dormant : barre toujours visible mais inactive ── */
@@ -525,6 +519,7 @@ function showPickerBtn() {
   actBtn.classList.remove('pulse');
   void actBtn.offsetWidth; // force reflow pour relancer l'animation
   actBtn.classList.add('pulse');
+  actBtn.focus();
   actBtn.addEventListener('mouseenter', function stopPulse() {
     actBtn.classList.remove('pulse');
     actBtn.removeEventListener('mouseenter', stopPulse);
@@ -554,6 +549,7 @@ function enableSendBtn() {
   btn.classList.remove('pulse');
   void btn.offsetWidth;
   btn.classList.add('pulse');
+  btn.focus();
   btn.addEventListener('mouseenter', function stop() {
     btn.classList.remove('pulse');
     btn.removeEventListener('mouseenter', stop);
@@ -738,6 +734,10 @@ function sendMessage() {
     sendPhaseChoice();
   } else if (currentStep === 'action') {
     sendActionChoice();
+  } else if (currentStep === 'sorry') {
+    sendSorry();
+  } else if (currentStep === 'jarrive') {
+    sendJArrive();
   }
 }
 
@@ -797,7 +797,7 @@ function showOptions(phaseIndex) {
   });
 
   const row = addColleagueMessage(
-    'Voici les stratégies disponibles pour <strong>' + phase.title + '</strong>.' +
+    'Voici les stratégies disponibles pour <b>' + phase.title + '</b>.' +
     ' Dis moi quel est ton choix.' +
     '<div class="options-list">' + optionsHTML + '</div>' +
     '<button class="change-action-btn" id="change-action-btn">🔄 Changer d\'action</button>'
@@ -876,32 +876,30 @@ function sendActionChoice() {
   playSound('760370__froey__message-sent.mp3');
   addPlayerMessage(inputText);
 
+  _resourcesWentNegative = false;
   playedActions.push({ phase: phase.title, action: action.label });
   playedPhases.push(phaseIndex);
 
   pendingCounterData = {
-    counterAttack:  action.counterAttack,
+    naomiCounterMessages: action.naomiCounterMessages || [action.counterAttack || ''],
     counterEffects: counterEffects
   };
 
   currentStep = 'result';
 
-  const goMsgs = [
-    'C\'est parti\u00a0! A+',
-    'Bien joué\u00a0! Je reviens vers toi pour les résultats. A+',
-    'J\'espère que cette stratégie sera payante. Je te tiens au courant. A+'
-  ];
+  const firstMsg = (action.naomiMessages && action.naomiMessages[0]) || '';
 
   setTimeout(function() {
     showTyping();
     setTimeout(function() {
       hideTyping();
-      addColleagueMessage(goMsgs[Math.floor(Math.random() * goMsgs.length)]);
+      addColleagueMessage('<div class="result-scenario-text">' + firstMsg + '</div>');
 
       // Naomi passe hors ligne
       setTimeout(function() {
         setNaomiOffline(true);
         addDateSeparator('Naomi est hors ligne');
+        scrollToBottom();
 
         setTimeout(function() {
           // Mettre à jour le séparateur "tour start" avec la date du tour
@@ -916,32 +914,99 @@ function sendActionChoice() {
           setNaomiOffline(false);
           addDateSeparator("Aujourd'hui");
           showTyping();
-          setTimeout(function() { hideTyping(); showResult(action, effects); }, 1200);
+          setTimeout(function() { hideTyping(); showResult(action, effects, 1); }, 1200);
         }, 3000);
       }, 2000);
     }, 1000);
   }, 400);
 }
 
-/* ── Résultat - contre-attaque auto après 4s ── */
-function showResult(action, effects) {
+/* ── Vérifie si le scroll est en bas de page (±50px) ── */
+function isNearBottom() {
+  return (window.innerHeight + window.scrollY) >= document.body.scrollHeight - 50;
+}
+
+function waitForBottom(cb) {
+  if (isNearBottom()) { cb(); return; }
+  function onScroll() {
+    if (isNearBottom()) {
+      window.removeEventListener('scroll', onScroll);
+      cb();
+    }
+  }
+  window.addEventListener('scroll', onScroll);
+}
+
+/* ── Affiche plusieurs messages Naomi séquentiellement ── */
+function showSequentialNaomiMessages(msgs, onComplete) {
+  if (!msgs || msgs.length === 0) {
+    if (onComplete) onComplete();
+    return;
+  }
+  addColleagueMessage(msgs[0]);
+  scrollToBottom();
+  if (msgs.length === 1) {
+    if (onComplete) onComplete();
+    return;
+  }
+  var idx = 1;
+  function showNext() {
+    if (idx >= msgs.length) {
+      if (onComplete) onComplete();
+      return;
+    }
+    var msg = msgs[idx];
+    idx++;
+    var delay = msg.indexOf('chat-img') !== -1 ? 3000 : 1400;
+    setTimeout(function() {
+      waitForBottom(function() {
+        showTyping();
+        setTimeout(function() {
+          hideTyping();
+          addColleagueMessage(msg);
+          scrollToBottom();
+          showNext();
+        }, 1000);
+      });
+    }, delay);
+  }
+  showNext();
+}
+
+/* ── Résultat - contre-attaque auto après délai ── */
+function showResult(action, effects, fromIndex) {
   effects = effects || action.effects || {};
-  // Appliquer les effets au moment où le message de Naomi apparaît
   applyEffects(effects);
   updateScoreboard(changedKeys(effects));
   showScoreDelta(effects);
 
-  addColleagueMessage(
-    '<div class="result-scenario-text">Coucou ! Voici les résultats de l\'action lancée !<br>' + action.scenario + ' 👍🏾</div>' +
-    '<div class="delta-row">' + buildDeltaChips(effects) + '</div>'
-  );
-  scrollToBottom();
+  var allMsgs = action.naomiMessages || [action.scenario];
+  var rawMsgs = allMsgs.slice(fromIndex || 0);
 
-  if (counterTimer) clearTimeout(counterTimer);
-  counterTimer = setTimeout(function() {
-    counterTimer = null;
-    triggerCounterAttack();
-  }, 4000);
+  var scheduleCounter = function() {
+    if (counterTimer) clearTimeout(counterTimer);
+    counterTimer = setTimeout(function() {
+      counterTimer = null;
+      triggerCounterAttack();
+    }, 3000);
+  };
+
+  if (rawMsgs.length === 0) {
+    scheduleCounter();
+    return;
+  }
+
+  var imgIdx = rawMsgs.findIndex(function(m) { return m.indexOf('chat-img') !== -1; });
+  var deltaIdx = imgIdx !== -1 ? imgIdx : rawMsgs.length - 1;
+  var msgs = rawMsgs.map(function(m, i) {
+    if (i === deltaIdx) {
+      return '<div class="result-scenario-text">' + m + '</div>' +
+             '<div class="delta-row">' + buildDeltaChips(effects) + '</div>';
+    }
+    return '<div class="result-scenario-text">' + m + '</div>';
+  });
+
+  showSequentialNaomiMessages(msgs, scheduleCounter);
 }
 
 /* ════════════════════════════════════════════
@@ -949,8 +1014,8 @@ function showResult(action, effects) {
 ════════════════════════════════════════════ */
 function triggerCounterAttack() {
   if (!pendingCounterData) return;
-  const counterAttack  = pendingCounterData.counterAttack;
-  const counterEffects = pendingCounterData.counterEffects;
+  var naomiCounterMessages = pendingCounterData.naomiCounterMessages;
+  var counterEffects = pendingCounterData.counterEffects;
 
   showTyping();
   setTimeout(function() {
@@ -961,21 +1026,26 @@ function triggerCounterAttack() {
     updateScoreboard(changedKeys(counterEffects));
     showScoreDelta(counterEffects);
 
-    const zeroKey = checkZero();
+    var zeroKey = checkZero();
 
-    addColleagueMessage(
-      '<div class="result-scenario-text">😡 ' + counterAttack + '</div>' +
-      '<div class="delta-row">' + buildDeltaChips(counterEffects) + '</div>'
-    );
+    var imgIdx = naomiCounterMessages.findIndex(function(m) { return m.indexOf('chat-img') !== -1; });
+    var deltaIdx = imgIdx !== -1 ? imgIdx : naomiCounterMessages.length - 1;
+    var msgs = naomiCounterMessages.map(function(m, i) {
+      if (i === deltaIdx) {
+        return '<div class="result-scenario-text">' + m + '</div>' +
+               '<div class="delta-row">' + buildDeltaChips(counterEffects) + '</div>';
+      }
+      return '<div class="result-scenario-text">' + m + '</div>';
+    });
 
-    scrollToBottom();
-
-    // Quelques secondes plus tard, suite automatique
-    if (zeroKey !== null) {
-      setTimeout(function() { showEarlyEnd(zeroKey); }, 5000);
-    } else {
-      setTimeout(function() { afterCounterAttack(); }, 4000);
-    }
+    showSequentialNaomiMessages(msgs, function() {
+      // Suite automatique après les messages
+      if (zeroKey !== null) {
+        setTimeout(function() { showEarlyEnd(zeroKey); }, 3000);
+      } else {
+        setTimeout(function() { afterCounterAttack(); }, 3000);
+      }
+    });
   }, 1400);
 }
 
@@ -1007,7 +1077,7 @@ function afterCounterAttack() {
   }
 
   if (playedPhases.length % 2 === 0) {
-    setTimeout(function() { triggerEvent(); }, 600);
+    setTimeout(function() { waitForBottom(function() { triggerEvent(); }); }, 3000);
     return;
   }
 
@@ -1021,9 +1091,9 @@ function askAction() {
   const remaining = GAME_DATA.phases.length - playedPhases.length;
   const s         = remaining > 1 ? 's' : '';
   const msgs      = [
-    'Coucou ! Quelle est ta <strong>prochaine action</strong>\u00a0? Il reste <strong>' + remaining + ' action' + s + '</strong> possible' + s + ' avant le vote final.',
-    'Salut ! Il nous reste <strong>' + remaining + ' action' + s + '</strong>. Quelle action lances-tu\u00a0?',
-    'Bonjour ! <strong>' + remaining + ' action' + s + '</strong> restante' + s + '. Quelle est ta strat\u00e9gie\u00a0?',
+    'Coucou !<br>Il nous reste <b>' + remaining + ' action' + s + '</b> possible' + s + ' avant le vote final.(new_actions)<br>👉 <b>Quelle est ta prochaine action\u00a0?</b>',
+    'Salut !<br>Nous avons encore <b>' + remaining + ' action' + s + '</b>.(new_actions)<br>👉 <b>Quelle action lances-tu\u00a0?</b>',
+    'Bonjour !<br>Encore <b>' + remaining + ' action' + s + '</b> restante' + s + '.(new_actions)<br>👉 <b>Quelle est ta stratégie pour la suite\u00a0?</b>',
   ];
 
   if (playedPhases.length === 0) {
@@ -1031,11 +1101,11 @@ function askAction() {
     showTyping();
     setTimeout(function() {
       hideTyping();
-      addColleagueMessage(`On entre dans la première phase.<br>Le texte vient d'être inscrit à l'ordre du jour. Et un rapporteur vient d'être désigné.<br><br>C'est lui qui va organiser les auditions, structurer le débat… et orienter une bonne partie de la suite.`);
+      addColleagueMessage(`On entre dans la première phase.<br>Le texte vient d'être inscrit à l'ordre du jour. Et un rapporteur vient d'être désigné.<br>C'est lui qui va organiser les auditions, structurer le débat…<br>et orienter une bonne partie de la suite.`);
       showTyping();
       setTimeout(function() {
         hideTyping();
-        addColleagueMessage(`Si on arrive à exister maintenant, on peut peser.<br>Sinon, on subira. On a plusieurs options pour démarrer.<br>Mais on ne pourra pas toutes les activer.<br><br>Qu'est-ce que tu proposes de lancer en premier\u00a0?`);
+        addColleagueMessage(`Si on arrive à exister maintenant, on peut peser.<br>Sinon, on subira. On a plusieurs options pour démarrer.<br>Mais on ne pourra pas toutes les activer.<br><b>Qu'est-ce que tu proposes de lancer en premier\u00a0?</b>`);
         showPickerBtn();
         scrollToBottom();
       }, 3500);
@@ -1059,16 +1129,25 @@ function askAction() {
         if (_lastDateSep && prevResultDateLabel) _lastDateSep.textContent = prevResultDateLabel;
         addDateSeparator("Aujourd'hui");
 
-        // Construire le message Naomi, avec les déblocages éventuels intégrés
-        const base = msgs[Math.floor(Math.random() * msgs.length)];
-        const unlocks = _pendingUnlocks;
-        _pendingUnlocks = [];
-        let text = base;
-        if (unlocks.length === 1) {
-          text += '<br><br>Une nouvelle action peut être lancée si tu penses que c\'est pertinent\u00a0: <strong>' + unlocks[0].title + '</strong>.';
-        } else if (unlocks.length > 1) {
-          text += '<br><br>On peut lancer de nouvelles actions maintenant\u00a0:<br>'
-            + unlocks.map(function(p) { return '- <strong>' + p.title + '</strong>'; }).join('<br>');
+        let text = '';
+
+        if (remaining === 1) {
+          text = 'Hello !<br>Nous avons encore <b>une dernière action à lancer !</b>'
+        } else {
+          // Construire le message Naomi, avec les déblocages éventuels intégrés
+          const base = msgs[Math.floor(Math.random() * msgs.length)];
+          const unlocks = _pendingUnlocks;
+          _pendingUnlocks = [];
+          let unlockedActionsText = '';
+
+          if (unlocks.length === 1) {
+            unlockedActionsText += '<br>🔥 Une nouvelle action peut être lancée si tu penses que c\'est pertinent\u00a0: <b>' + unlocks[0].title + '</b>.';
+          } else if (unlocks.length > 1) {
+            unlockedActionsText += '<br>🔥 On peut lancer de nouvelles actions maintenant\u00a0:<br>'
+              + unlocks.map(function(p) { return '- ' + p.title; }).join('<br>');
+          }
+
+          text = base.replace('(new_actions)', unlockedActionsText);
         }
 
         showTyping();
@@ -1088,7 +1167,7 @@ function askAction() {
 const MERCI_SUGGESTIONS = [
   { label: 'Merci', text: 'Merci Naomi\u00a0! A+' },
   { label: 'Vu, on continue', text: 'Naomi, merci, vu, on continue... A+' },
-  { label: 'On se laisse pas démonter', text: 'Allez on se laisse pas démonter, merci pour les infos\u00a0!' },
+  { label: 'On se laisse pas démonter', text: 'Allez, on se laisse pas démonter, merci pour les infos\u00a0!' },
   { label: 'On va gagner', text: 'Tu m\'étonnes ! On va gagner, on peut y arriver ! A+' },
 ];
 
@@ -1147,12 +1226,18 @@ function showSequentialMessages(messages, onComplete) {
 
 function showExplanations() {
   showSequentialMessages([
-    `Tu arrives au moment où on entre dans une bataille assez tendue.<br><br>Une proposition de loi, qui a été adoptée au Sénat, arrive à l'Assemblée nationale.<br>Officiellement, elle vise à "simplifier" les règles pour les agriculteurs.<br>Dans les faits, elle permettrait de réintroduire plusieurs pesticides qui avaient été interdits.<br><br>Et sans surprise, le lobby des pesticides est déjà très mobilisé pour la faire passer.`,
-    `De notre côté, on va devoir construire une campagne rapidement. On ne doit pas se laisser faire\u00a0!<br>Tu vas piloter ça avec moi.`,
-    `Avant de démarrer, il faut que tu saches que le timing est serré.<br><br>La proposition de loi va suivre son parcours classique\u00a0: commission, débats, séance… puis vote.<br>On a donc une fenêtre très limitée pour agir.`,
-    `Concrètement, tu disposes de <strong>10 tours</strong> avant le vote final.<br>Chaque tour correspond à une étape d'avancée du texte.`,
-    `À chaque tour, tu vas devoir choisir une action à lancer.<br>Sensibilisation des médias, mobilisation militante, sollicitation de scientifiques…<br>C'est toi qui décide de la stratégie.<br><br>Mais tu ne pourras pas tout faire. Nous sommes une petite association avec des ressources limitées.<br>Et chaque action aura un impact soit\u00a0:<br>→ sur nos ressources économiques<br>→ sur notre crédibilité<br>→ sur le soutien du public`,
-    `Et surtout fais attention à ça, car chaque action compte. Si on épuise complètement nos ressources, nous perdons la campagne et le lobby des pesticides aura le champ libre, sans mauvais jeu de mot.<br><br>Et évidemment, le lobby ne va pas rester passif. À chaque fois qu'on fera quelque chose, il réagit. Et ça peut nous fragiliser.<br><br>On y va\u00a0?`,
+    `Tu arrives au moment où on entre dans une bataille assez tendue.`,
+    `Une proposition de loi, qui a été adoptée au Sénat, arrive à l'Assemblée nationale.<br>Officiellement, elle vise à "simplifier" les règles pour les agriculteurs.<br>Dans les faits, elle permettrait de réintroduire plusieurs pesticides qui avaient été interdits.`,
+    `Et sans surprise, l'AIPP, le lobby des pesticides est déjà très mobilisé pour la faire passer.`,
+    `De notre côté, on va devoir construire une campagne rapidement.<br>On ne doit pas se laisser faire\u00a0!<br>Tu vas piloter ça avec moi.`,
+    `Avant de démarrer, il faut que tu saches que le timing est serré.`,
+    `La proposition de loi va suivre son parcours classique\u00a0: commission, débats, séance… puis vote.<br>On a donc une fenêtre très limitée pour agir.`,
+    `Concrètement, tu disposes de <b>10 tours</b> avant le vote final.<br>Chaque tour correspond à une étape d'avancée du texte.`,
+    `À chaque tour, tu vas devoir choisir une action à lancer.<br>Sensibilisation des médias, mobilisation militante, sollicitation de scientifiques…<br>C'est toi qui décide de la stratégie.`,
+    `Mais tu ne pourras pas tout faire. Nous sommes une petite association avec des ressources limitées.<br>Et chaque action aura un impact soit\u00a0:<br>→ sur nos ressources économiques<br>→ sur notre crédibilité<br>→ sur le soutien du public`,
+    `Et surtout fais attention à ça, car chaque action compte.<br>Si on épuise complètement nos ressources, nous perdons la campagne et l'AIPP aura le champ libre, sans mauvais jeu de mot.`,
+    `Et évidemment, le lobby ne va pas rester passif.<br>À chaque fois qu'on fera quelque chose, il réagit. Et ça peut nous fragiliser.`,
+    `On y va\u00a0?`,
   ], function() {
     showMerciInput(function() { askAction(); }, [
       { label: 'On y va\u00a0!', text: 'On y va\u00a0!' },
@@ -1180,6 +1265,10 @@ function triggerEvent() {
 
   playSound('545495__ienba__notification.mp3');
   notif.classList.add('show');
+  setTimeout(function() {
+    const closeBtn = notif.querySelector('.pn-close');
+    if (closeBtn) closeBtn.focus();
+  }, 50);
 
   if (pushTimer) clearTimeout(pushTimer);
   pushTimer = null;
@@ -1226,6 +1315,30 @@ function triggerEvent() {
    FIN PRÉMATURÉE
 ════════════════════════════════════════════ */
 function showEarlyEnd(zeroKey) {
+  const naomiMsgs = {
+    public:    'Oops\u00a0!<br>On a perdu tout le soutien du public.',
+    political: 'Oops\u00a0!<br>On n\'a plus aucun soutien politique.',
+    resources: 'Oops on a consommé toutes nos ressources\u00a0!'
+  };
+
+  pendingEarlyEnd = zeroKey;
+  currentStep = 'sorry';
+
+  hideInputArea();
+  showTyping();
+  setTimeout(function() {
+    hideTyping();
+    addColleagueMessage(naomiMsgs[zeroKey]);
+    scrollToBottom();
+    setTimeout(function() {
+      typewriterInput('Désolé 😞', function() {
+        enableSendBtn();
+      });
+    }, 800);
+  }, 1000);
+}
+
+function _doShowEarlyEnd(zeroKey) {
   const map = {
     public:    GAME_DATA.endConditions.publicZero,
     political: GAME_DATA.endConditions.politicalZero,
@@ -1245,10 +1358,41 @@ function showEarlyEnd(zeroKey) {
   setTimeout(() => showScreen('screen-end'), 60);
 }
 
+function sendSorry() {
+  const inputEl = document.getElementById('chat-input-text');
+  const text = (inputEl.textContent || '').trim() || 'Désolé';
+  currentStep = 'waiting';
+  showDormantInput();
+  playSound('760370__froey__message-sent.mp3');
+  addPlayerMessage(text);
+  scrollToBottom();
+  const zeroKey = pendingEarlyEnd;
+  pendingEarlyEnd = null;
+  setTimeout(function() { _doShowEarlyEnd(zeroKey); }, 1000);
+}
+
 /* ════════════════════════════════════════════
    RÉSULTAT FINAL
 ════════════════════════════════════════════ */
 function showFinalResult() {
+  pendingFinalResult = true;
+  currentStep = 'jarrive';
+
+  hideInputArea();
+  showTyping();
+  setTimeout(function() {
+    hideTyping();
+    addColleagueMessage('C\'est fini, on va voir ce que va donner le vote\u00a0!<br>Rejoins-moi au bar en face du bureau pour… fêter (ou pas) le résultat\u00a0!');
+    scrollToBottom();
+    setTimeout(function() {
+      typewriterInput('J\'arrive\u00a0!', function() {
+        enableSendBtn();
+      });
+    }, 800);
+  }, 1000);
+}
+
+function _doShowFinalResult() {
   const s = scores.score || 0;
   let result;
   if      (s >= 90) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'complete_win'; });
@@ -1266,7 +1410,22 @@ function showFinalResult() {
   document.getElementById('result-scores').innerHTML        = buildScoresSummary();
   document.getElementById('result-actions').innerHTML       = buildActionsList();
 
-  setTimeout(() => showScreen('screen-result'), 60);
+  setTimeout(() => {
+    showScreen('screen-result');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, 60);
+}
+
+function sendJArrive() {
+  const inputEl = document.getElementById('chat-input-text');
+  const text = (inputEl.textContent || '').trim() || 'J\'arrive\u00a0!';
+  currentStep = 'waiting';
+  pendingFinalResult = false;
+  showDormantInput();
+  playSound('760370__froey__message-sent.mp3');
+  addPlayerMessage(text);
+  scrollToBottom();
+  setTimeout(function() { _doShowFinalResult(); }, 1000);
 }
 
 /* ════════════════════════════════════════════

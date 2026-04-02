@@ -5,7 +5,7 @@ const GAME_DATA = {
     publicZero: {
       title: "Fin de Partie - Soutien du Public à 0",
       subtitle: "La mobilisation citoyenne s'est effondrée",
-      description: "Sans soutien populaire, ANTIDOTE n'a plus de poids dans le débat. Les médias ont tourné le dos à la cause, les élus ne voient plus de pression citoyenne suffisante pour résister aux industriels. Le lobby des pesticides a réussi à décrédibiliser la mobilisation et à isoler l'association. La proposition de loi avance sans opposition effective.",
+      description: "Sans soutien populaire, ANTIDOTE n'a plus de poids dans le débat. Les médias ont tourné le dos à la cause, les élus ne voient plus de pression citoyenne suffisante pour résister aux industriels. L'AIPP, le lobby des pesticides a réussi à décrédibiliser la mobilisation et à isoler l'association. La proposition de loi avance sans opposition effective.",
       conclusion: "Ce résultat montre à quel point le soutien du public est le carburant des campagnes de plaidoyer. Rejouez en privilégiant les actions qui renforcent la mobilisation citoyenne et en contrant les offensives médiatiques du lobby.",
       cta: "La bataille contre les pesticides est réelle. Informez-vous sur les actions des associations environnementales et comment vous pouvez les soutenir."
     },
@@ -62,7 +62,7 @@ const GAME_DATA = {
       badgeClass: "badge-complete-win",
       title: "Victoire complète d'ANTIDOTE",
       description: "La loi est rejetée. La mobilisation citoyenne et scientifique coordonnée par ANTIDOTE a réussi à faire reculer les décideurs politiques. La coalition construite au fil des tours a rendu politiquement coûteux le soutien à la réautorisation. Les parlementaires n'ont pas pu ignorer la pression populaire, scientifique et médiatique combinée.",
-      conclusion: "Mais le lobby des pesticides reste puissant. La bataille continue. Cette victoire démontre qu'une stratégie de plaidoyer bien construite peut contrebalancer des moyens financiers considérables. C'est une leçon précieuse pour toutes les campagnes à venir.",
+      conclusion: "Mais l'AIPP, le lobby des pesticides reste puissant. La bataille continue. Cette victoire démontre qu'une stratégie de plaidoyer bien construite peut contrebalancer des moyens financiers considérables. C'est une leçon précieuse pour toutes les campagnes à venir.",
       cta: "Cette victoire est possible. Elle se construit dans la réalité grâce à des milliers de bénévoles, de scientifiques engagés et de citoyens mobilisés. Rejoignez-les.",
       threshold: { min: 90 }
     }
@@ -74,15 +74,15 @@ const GAME_DATA = {
       icon: "🔬",
       title: "Publication de nouvelles données sanitaires",
       description: "Une agence publique publie de nouvelles données sur l'exposition aux pesticides dans les zones agricoles. Le débat prend une dimension sanitaire inattendue.",
-      outcome: "Les données appuient les arguments d'ANTIDOTE. Les médias s'emparent du sujet, plusieurs parlementaires demandent un moratoire.",
+      outcome: "Les données appuient les arguments d'ANTIDOTE.<br>Les médias s'emparent du sujet, plusieurs parlementaires demandent un moratoire.",
       effects: { public: 10, political: 10, resources: 0, score: 10 }
     },
     {
       id: "journalism",
       icon: "📰",
       title: "Enquête journalistique",
-      description: "Un grand média publie une enquête révélant les liens étroits entre plusieurs responsables de l'industrie des pesticides et des décideurs politiques.",
-      outcome: "L'enquête fragilise publiquement la position du lobby. Les parlementaires les plus proches des industriels sont sur la défensive.",
+      description: "Publication d'une enquête révélant les liens étroits entre plusieurs responsables de l'industrie des pesticides et des décideurs politiques.",
+      outcome: "L'enquête publiée fragilise publiquement la position du lobby.<br>Les parlementaires les plus proches des industriels sont sur la défensive.",
       effects: { public: 15, political: 10, resources: 0, score: 15 }
     },
     {
@@ -90,7 +90,7 @@ const GAME_DATA = {
       icon: "🚜",
       title: "Mobilisation agricole nationale",
       description: "Un grand syndicat agricole appelle à soutenir la réautorisation des pesticides et organise une journée nationale de mobilisation.",
-      outcome: "La mobilisation met les parlementaires ruraux sous forte pression. Le rapport de force se durcit en faveur du lobby.",
+      outcome: "La mobilisation des agriculteurs met les parlementaires ruraux sous forte pression.<br>Le rapport de force se durcit en faveur du lobby.",
       effects: { public: -15, political: -5, resources: 0, score: -10 }
     },
     {
@@ -98,7 +98,7 @@ const GAME_DATA = {
       icon: "🏛️",
       title: "Arbitrage du gouvernement",
       description: "La ministre de l'Agriculture prend position publiquement dans le débat sur la réautorisation des pesticides, invoquant l'intérêt économique du monde agricole.",
-      outcome: "La prise de position ministérielle fragilise la coalition parlementaire opposée à la loi. ANTIDOTE doit redoubler d'efforts pour maintenir ses alliés.",
+      outcome: "La prise de position de la ministre fragilise la coalition parlementaire opposée à la loi.<br>Nous devons redoubler d'efforts pour maintenir nos alliés.",
       effects: { public: -5, political: -15, resources: 0, score: -15 }
     }
   ],
@@ -115,13 +115,19 @@ const GAME_DATA = {
         {
           label: "Rassembler des associations environnementales",
           description: "Coordonner plusieurs ONG environnementales pour dénoncer publiquement la réautorisation. Un communiqué commun, une prise de parole unitaire - la coalition envoie un signal fort aux médias et aux élus.",
-          scenario: "ANTIDOTE rassemble plusieurs associations environnementales pour dénoncer publiquement la réautorisation de pesticides dangereux. La coalition publie un communiqué commun et alerte les médias.",
+          naomiMessages: [
+            "OK. On active notre réseau.",
+            "On a réussi à rassembler plusieurs ONG environnementales.<br>On sort une note de position commune.<br>Ça donne du poids à notre position… mais on reste entre convaincus."
+          ],
           effectsByTour: [
             { resources: -10, political: 10, public: 10, score: 10 },
             { resources: -10, political: 10, public: 5,  score: 10 },
             { resources: -10, political: 5,  public: 10, score: 10 },
           ],
-          counterAttack: "Les industriels dénoncent une campagne idéologique menée par des ONG déconnectées de la réalité agricole. Ils multiplient les interventions dans les médias pour défendre les pesticides.",
+          naomiCounterMessages: [
+            "Wow, tu as vu le communiqué de l'AIPP\u00a0?<br>Il évoque une \"offensive idéologique des ONG\".<br>L'info est reprise dans plusieurs médias.<br><img src=\"images/image17.png\" class=\"chat-img\">",
+            "Ça affaiblit un peu notre crédibilité auprès de certains décideurs."
+          ],
           counterEffectsByTour: [
             { political: -5, public: -5, score: -10 },
             { political: -5, public: -5, score: -10 },
@@ -131,13 +137,18 @@ const GAME_DATA = {
         {
           label: "Alliance avec des associations de santé",
           description: "Nouer une alliance avec des associations de médecins et de patients permet de faire sortir le débat du seul cadre environnemental. Les arguments sanitaires touchent un public plus large et sont plus difficiles à contester politiquement.",
-          scenario: "ANTIDOTE travaille avec des associations de médecins et de patients pour mettre en lumière les risques sanitaires des pesticides. Le débat commence à dépasser le cadre strictement environnemental.",
+          naomiMessages: [
+            "Bravo\u00a0!<br>Je viens de recevoir la confirmation\u00a0: on a réussi à embarquer des associations de médecins et de patients.<br>On change complètement le cadre du débat\u00a0: on ne parle plus seulement d'environnement, mais de santé publique."
+          ],
           effectsByTour: [
             { resources: -10, political: 20, public: 10, score: 15 },
             { resources: -10, political: 15, public: 10, score: 15 },
             { resources: -10, political: 10, public: 10, score: 15 },
           ],
-          counterAttack: "L'industrie conteste les données scientifiques et affirme que les pesticides sont utilisés en toute sécurité. Elle finance ses propres experts pour contre-attaquer.",
+          naomiCounterMessages: [
+            "Bon. L'AIPP, le lobby des pesticides vient de contester les données et mettent en avant leurs propres experts.",
+            "C'est assez classique\u00a0: ils créent du doute pour ralentir le débat.<br>Espérons que ces chiffres biaisés ne circulent pas trop."
+          ],
           counterEffectsByTour: [
             { political: -10, public: -10, score: -10 },
             { political: -10, public: -10, score: -10 },
@@ -147,13 +158,19 @@ const GAME_DATA = {
         {
           label: "Mobiliser des scientifiques et chercheurs",
           description: "Mobiliser des chercheurs pour soutenir publiquement la position d'ANTIDOTE renforce la légitimité scientifique de la campagne. Une communauté scientifique unie est difficile à ignorer pour les décideurs.",
-          scenario: "Des chercheurs et experts scientifiques apportent leur soutien public à ANTIDOTE. La prise de position de la communauté scientifique renforce le poids de l'association dans le débat.",
+          naomiMessages: [
+            "Bonne nouvelle\u00a0!<br>Les chercheurs acceptent de soutenir publiquement notre position.<br>Une tribune est en cours de préparation.<br>Ça renforce clairement notre crédibilité, surtout côté parlementaire.",
+            "Ah, on vient de m'envoyer la tribune.<br>Bravo\u00a0!<br><img src=\"images/image14.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -10, political: 20, score: 10 },
             { resources: -10, political: 15, score: 10 },
             { resources: -10, political: 10, public: 5, score: 10 },
           ],
-          counterAttack: "Le lobby des pesticides finance rapidement une contre-expertise pour semer le doute sur les conclusions scientifiques. Il s'appuie sur quelques chercheurs dissidents pour brouiller le message.",
+          naomiCounterMessages: [
+            "Ils ne vont jamais nous lâcher.<br>Le lobby des pesticides vient de produire une contre-expertise.<br>Une étude publiée par un \"cabinet indépendant\" (alors que l'étude est financée par l'industrie…) vient de sortir.",
+            "Elle montre que les pesticides concernés ne présentent pas de risque significatif dans les conditions d'utilisation prévue par le texte actuel.<br>Et que leur interdiction fragiliserait fortement certaines filières agricoles.<br><img src=\"images/image18.png\" class=\"chat-img\">"
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -10, score: -10 },
@@ -173,13 +190,19 @@ const GAME_DATA = {
         {
           label: "Convaincre des députés écologistes et de gauche",
           description: "Les groupes écologistes et de gauche sont souvent les alliés naturels des associations environnementales. Les convaincre d'entrer dans la bataille permet d'organiser une opposition structurée à la proposition de loi.",
-          scenario: "Des députés écologistes et de gauche s'engagent publiquement contre la proposition de loi. Une opposition parlementaire organisée commence à se structurer autour d'ANTIDOTE.",
+          naomiMessages: [
+            "OK, tu as raison<br>Il faut déjà s'assurer que les députés écologistes et de gauche qui sont les plus favorables naturellement à nos propositions, vont bien se mobiliser.",
+            "Notes transmises aux députés !"
+          ],
           effectsByTour: [
             { resources: -10, political: 10, score: 5 },
             { resources: -10, political: 15, score: 10 },
             { resources: -10, political: 10, score: 5 },
           ],
-          counterAttack: "Le lobby des pesticides riposte en finançant une campagne accusant ces parlementaires de s'attaquer au monde agricole et à l'emploi rural.",
+          naomiCounterMessages: [
+            "Arg.<br>Mauvaise nouvelle\u00a0: le lobby des pesticides AIPP a transmis une note aux députés du centre, de la droite et de l'extrême droite.",
+            "J'ai récupérée cette note.<br>Elle présente notre sujet comme un clivage classique\u00a0: écologie contre agriculture.<br>On va avoir du mal à convaincre de façon transpartisane en dehors de la gauche.<br><img src=\"images/image2.png\" class=\"chat-img\">"
+          ],
           counterEffectsByTour: [
             { political: -5, score: -10 },
             { political: -10, score: -10 },
@@ -189,13 +212,20 @@ const GAME_DATA = {
         {
           label: "Construire une coalition transpartisane",
           description: "Une coalition qui dépasse les clivages partisans a beaucoup plus de poids politique. Convaincre des parlementaires de droite, de centre et de gauche de s'unir contre la réautorisation envoie un signal fort - mais cela demande des compromis.",
-          scenario: "ANTIDOTE parvient à convaincre des parlementaires de différents bords politiques. Une coalition transpartisane se forme pour bloquer la réautorisation des pesticides.",
+          naomiMessages: [
+            "C'est ambitieux, mais tu as raison.<br>Il ne faut pas que seuls les députés écologistes et de gauche se sentent concernés par le sujet.<br>Plusieurs parlementaires ont répondu à notre sollicitation et on a réussi à convaincre quelques députés hors de notre camp habituel.",
+            "Centre, majorité, parfois même des profils inattendus.<br>Les députés sont prêts à faire une coalition.<br>Bravo\u00a0!<br>Ça change la donne\u00a0: le sujet devient politique… pas seulement idéologique."
+          ],
           effectsByTour: [
             { resources: -20, political: 20, score: 15 },
             { resources: -20, political: 25, score: 20 },
             { resources: -20, political: 15, public: 5, score: 15 },
           ],
-          counterAttack: "Le lobby des pesticides exerce une pression intense sur les parlementaires du centre et de la droite pour les faire sortir de la coalition. Plusieurs hésitent.",
+          naomiCounterMessages: [
+            "Réaction rapide du lobby.",
+            "Pour info, l'AIPP active ses relais pour casser notre coalition.<br>Je viens d'apprendre qu'ils avaient mobilisé leurs cabinets de conseil en affaires publiques pour multiplier les échanges avec les parlementaires.",
+            "Je viens d'avoir au téléphone l'un des députés du centre que nous avions réussi à convaincre.<br>Il hésite désormais à rejoindre la coalition…"
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -15, score: -15 },
@@ -205,13 +235,19 @@ const GAME_DATA = {
         {
           label: "Obtenir une audition en commission parlementaire",
           description: "Être entendu officiellement en commission parlementaire, c'est être reconnu comme un acteur légitime du débat. ANTIDOTE peut présenter ses arguments directement aux décideurs qui examinent le texte.",
-          scenario: "ANTIDOTE obtient une audition officielle lors de l'examen du texte en commission parlementaire. L'association présente ses arguments directement aux élus qui vont voter sur la loi.",
+          naomiMessages: [
+            "Tu as raison, il faut qu'on sollicite une audition auprès du rapporteur.",
+            "Bonne nouvelle\u00a0!<br>On sera auditionné par les parlementaires dès demain\u00a0!<br>On va pouvoir présenter directement nos arguments aux députés."
+          ],
           effectsByTour: [
             { resources: -10, political: 15, score: 10 },
             { resources: -10, political: 20, score: 15 },
             { resources: -10, political: 10, score: 5 },
           ],
-          counterAttack: "L'industrie obtient elle aussi une audition et mobilise ses experts pour contrecarrer les arguments d'ANTIDOTE.",
+          naomiCounterMessages: [
+            "Évidemment, on ne sera pas les seuls.",
+            "L'AIPP est auditionné aussi.",
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -15, score: -10 },
@@ -231,13 +267,19 @@ const GAME_DATA = {
         {
           label: "Tribune de scientifiques dans la presse",
           description: "Organiser la publication d'une tribune signée par plusieurs chercheurs reconnus permet de donner une visibilité médiatique à l'alerte scientifique sur les risques des pesticides.",
-          scenario: "Plusieurs chercheurs publient une tribune dans un grand quotidien national dénonçant les risques des pesticides concernés par la loi. Le sujet gagne en légitimité dans le débat public.",
+          naomiMessages: [
+            "Plusieurs chercheurs se mobilisent. Je te tiens au courant.",
+            "Les chercheurs viennent de cosigner et publier une tribune qui alerte sur les risques des pesticides.<br>Ça crédibilise clairement notre position, surtout auprès des médias et des députés.<br>Bravo pour ton travail de mobilisation et de coordination\u00a0!<br><img src=\"images/image14.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -10, political: 15, public: 5,  score: 10 },
             { resources: -10, political: 10, public: 5,  score: 10 },
             { resources: -10, political: 10, public: 10, score: 10 },
           ],
-          counterAttack: "Le lobby des industriels finance rapidement une contre-tribune signée par des experts qu'il rémunère pour semer le doute sur les conclusions scientifiques.",
+          naomiCounterMessages: [
+            "On vient de m'envoyer ça\u00a0!<br>Une tribune \"concurrente\" est sortie dans la foulée.<br>Avec d'autres scientifiques… ou présentés comme tels.<br><img src=\"images/image8.png\" class=\"chat-img\">",
+            "Le débat devient technique.<br>Et surtout, il devient confus."
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -10, score: -10 },
@@ -247,13 +289,19 @@ const GAME_DATA = {
         {
           label: "Publier une méta-analyse scientifique",
           description: "Une méta-analyse rassemblant des centaines d'études existantes est un argument scientifique difficile à contester. C'est un travail coûteux mais très solide pour appuyer le plaidoyer.",
-          scenario: "ANTIDOTE publie une méta-analyse scientifique compilant l'ensemble des études sur les effets des pesticides concernés. C'est un argument de poids pour les parlementaires et les médias.",
+          naomiMessages: [
+            "Tu as raison, il faut qu'on rassemble les données scientifiques dont on dispose et qu'on produise une analyse solide.<br>Ce sera difficilement attaquable frontalement.",
+            "La méta-analyse est publiée !",
+          ],
           effectsByTour: [
             { resources: -20, political: 25, score: 15 },
             { resources: -20, political: 20, score: 15 },
             { resources: -10, political: 15, public: 5, score: 15 },
           ],
-          counterAttack: "L'industrie finance immédiatement sa propre étude pour contester les conclusions. Elle soulève des questions méthodologiques pour brouiller le message.",
+          naomiCounterMessages: [
+            "L'AIPP vient de contre-attaquer.",
+            "Dans une note d'analyse publié sur son blog, le lobby attaque la méthodologie…"
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -10, score: -10 },
@@ -263,13 +311,19 @@ const GAME_DATA = {
         {
           label: "Prise de position d'une société savante",
           description: "Obtenir la prise de position officielle d'une société savante reconnue - une académie, un collège de médecins - donne un poids institutionnel à la mobilisation scientifique.",
-          scenario: "Une société savante de renom prend officiellement position contre la réautorisation des pesticides dangereux. Cette prise de position institutionnelle est difficile à ignorer.",
+          naomiMessages: [
+            "Très bon levier.<br>Une société savante prend rarement position publiquement.<br>Si on y arrive, on gagnera en crédibilité.<br>Car ils seront plus difficilement contestables que nous.",
+            "Bravo\u00a0!<br>J'ai eu un échange avec la présidente de la société savante sur le Cancer.<br>Ils devraient prendre position publiquement.",
+            "Voilà leur communiqué officiel.<br>Bravo\u00a0!<br><img src=\"images/image11.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -10, political: 20, score: 10 },
             { resources: -10, political: 15, score: 10 },
             { resources: -10, political: 15, public: 5, score: 10 },
           ],
-          counterAttack: "Le lobby des pesticides tente de discréditer la société savante en la présentant comme proche des milieux militants. Il finance des tribunes de dissidence.",
+          naomiCounterMessages: [
+            "Et voilà, comme par hasard, on vient d'avoir une autre réaction de pseudos autres institutions…"
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -10, score: -10 },
@@ -289,13 +343,20 @@ const GAME_DATA = {
         {
           label: "Tribune dans un grand journal national",
           description: "Publier une tribune dans un quotidien national permet de toucher à la fois le grand public et les décideurs. Un texte bien argumenté peut avoir un impact durable sur le débat.",
-          scenario: "Une tribune d'ANTIDOTE est publiée dans un grand quotidien national. Le sujet des pesticides revient au centre du débat public. Plusieurs parlementaires réagissent.",
+          naomiMessages: [
+            "Bonne idée\u00a0!",
+            "C'est bon, j'ai Le Monde d'Aujourd'hui.<br>Notre tribune va être publiée dans les colonnes du journal.<br>La rédaction devrait par ailleurs en profiter pour consacrer la Une du journal à notre sujet\u00a0!<br>C'est dingue\u00a0!",
+            "Et voilà\u00a0!<br><img src=\"images/image13.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -10, public: 10, score: 10 },
             { resources: -10, public: 15, score: 10 },
             { resources: -10, public: 20, score: 15 },
           ],
-          counterAttack: "Des représentants de l'industrie publient une tribune concurrente pour défendre la loi et présenter la réautorisation comme une nécessité économique.",
+          naomiCounterMessages: [
+            "Une tribune concurrente vient de sortir dans les médias détenus par Vincent Bolloray, le multipropriétaire des médias privés.<br>On se demande bien qui est derrière…",
+            "On est en train de rentrer dans une bataille d'opinion."
+          ],
           counterEffectsByTour: [
             { public: -10, score: -10 },
             { public: -10, score: -10 },
@@ -305,13 +366,19 @@ const GAME_DATA = {
         {
           label: "Organiser une conférence de presse",
           description: "Une conférence de presse bien préparée, avec des chiffres solides et des témoignages percutants, peut déclencher une vague d'articles et de reportages favorables à la cause.",
-          scenario: "ANTIDOTE organise une conférence de presse réunissant scientifiques, lanceurs d'alerte et victimes de pesticides. Les médias couvrent largement l'événement.",
+          naomiMessages: [
+            "OK, on passe en mode offensif.<br>On organise une conférence de presse avec nos partenaires.",
+            "Les journalistes sont là, les prises de parole s'enchaînent.<br>Tu viens\u00a0?<br><img src=\"images/image24.png\" class=\"chat-img\">",
+            "J'ai eu un échange avec L'Agence des Français de la Presse.<br>Une dépêche va sortir demain, avec nos chiffres et nos analyses.<br>Ca devrait être repris dans plusieurs médias.<br>Bien joué\u00a0!"
+          ],
           effectsByTour: [
             { resources: -20, public: 15, score: 10 },
             { resources: -20, public: 20, score: 15 },
             { resources: -20, public: 25, score: 20 },
           ],
-          counterAttack: "L'industrie organise le lendemain sa propre conférence de presse avec ses experts pour tenter de noyer le message.",
+          naomiCounterMessages: [
+            "Regarde\u00a0!<br>Y'a une grosse campagne de communication menée par l'AIPP.<br>Leurs représentants sont partout sur les plateaux des chaînes et radios privées…<br>Le directeur général de l'AIPP était ce matin sur CNAZE.<br><img src=\"images/image7.png\" class=\"chat-img\">"
+          ],
           counterEffectsByTour: [
             { public: -10, score: -10 },
             { public: -15, score: -15 },
@@ -321,13 +388,20 @@ const GAME_DATA = {
         {
           label: "Révéler un scandale industriel",
           description: "ANTIDOTE dispose de documents montrant les liens entre certains industriels et des responsables politiques. Les révéler peut provoquer une onde de choc médiatique - mais cela coûte cher en ressources et l'industrie contre-attaquera violemment.",
-          scenario: "ANTIDOTE révèle des documents montrant les liens étroits entre l'industrie des pesticides et des responsables politiques. L'affaire fait grand bruit dans les médias. Les parlementaires sont embarrassés.",
+          naomiMessages: [
+            "Tu es sur.e que tu veux aller sur ce terrain\u00a0?<br>Ok.<br>On a des éléments solides.<br>Ce n'est pas encore officiel, mais on sait de source sûre que le nouveau conseiller de la ministre est l'ancien… chargé des relations institutionnelles de l'AIPP.",
+            "On va rendre ça public, je transmets l'info à Mediapote.",
+            "Et voilà\u00a0!<br><img src=\"images/image16.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -20, political: -10, public: 10 },
             { resources: -20, political: 10,  public: 20, score: 20 },
             { resources: -20, political: 5,   public: 25, score: 20 },
           ],
-          counterAttack: "Le lobby industriel accuse ANTIDOTE de manipulation et de faire de la politique. Il tente de décrédibiliser l'enquête et menace l'association de poursuites judiciaires.",
+          naomiCounterMessages: [
+            "Ça sent pas bon.<br>Les chaînes d'infos continues privées qui appartiennent à Vincent Bolloray, le multipropriétaire des médias privées, tournent en boucle sur cette affaire pour dénoncer \"une manipulation politique\"....",
+            "L'édito de Pascal Prout ce matin parlait même de \"grand n'importe quoi de la presse indépendante\"....."
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -15, score: -15 },
@@ -342,18 +416,25 @@ const GAME_DATA = {
       tourDescription: "La commission examine le texte et vote sur les amendements.",
       tourDate: { day: 6, month: 5, year: 2026 },
       title: "Dialoguer avec les agriculteurs",
-      description: "Le lobby des pesticides s'appuie massivement sur la figure de l'agriculteur pour légitimer ses positions. Aller à la rencontre des agriculteurs, notamment ceux qui travaillent sans pesticides dangereux, permet de casser ce monopole de représentation.",
+      description: "L'AIPP, le lobby des pesticides s'appuie massivement sur la figure de l'agriculteur pour légitimer ses positions. Aller à la rencontre des agriculteurs, notamment ceux qui travaillent sans pesticides dangereux, permet de casser ce monopole de représentation.",
       actions: [
         {
           label: "Témoignages d'agriculteurs bio",
           description: "Mettre en avant des agriculteurs qui travaillent sans pesticides dangereux est un contre-récit puissant face à l'argument que \"les agriculteurs ont besoin de ces produits\". Des voix agricoles dans le débat changent la donne.",
-          scenario: "Des agriculteurs expliquent publiquement qu'il est possible et rentable de produire sans pesticides dangereux. Le débat devient plus nuancé et sort du clivage ONG vs. agriculture.",
+          naomiMessages: [
+            "Tu as raison.<br>Il faut absolument éviter que notre mobilisation \"contre\" la réintroduction des pesticides interdits soit perçue comme une mobilisation \"contre\" les agriculteurs.<br>D'ailleurs nous ne sommes pas contre l'agriculture mais contre une forme d'agriculture intensive.<br>On va publier des témoignages d'agriculteurs qui travaillent au contact des pesticides dangereux.<br>Après tout, ce sont eux les premières victimes.",
+            "Et voilà<br><img src=\"images/image23.png\" class=\"chat-img\">",
+          ],
           effectsByTour: [
             { resources: -10, political: 10, public: 10, score: 10 },
             { resources: -10, political: 10, public: 10, score: 10 },
             { resources: -10, political: 5,  public: 10, score: 10 },
           ],
-          counterAttack: "Le syndicat agricole majoritaire organise une mobilisation pour défendre les pesticides et présenter les agriculteurs bio comme des exceptions non représentatives.",
+          naomiCounterMessages: [
+            "L'AIPP vient de convaincre à priori le syndicat agricole majoritaire qui va entrer dans la danse.",
+            "D'après mes infos, ils vont faire intervenir plusieurs de leurs représentants et agriculteurs sur les plateaux télés…",
+            "Bah voilà, regarde le cadrage…<br>Ils parlent de contraintes, de rendements, de survie économique.<br><img src=\"images/image19.png\" class=\"chat-img\">"
+          ],
           counterEffectsByTour: [
             { public: -5,  score: -10 },
             { public: -10, score: -10 },
@@ -363,13 +444,19 @@ const GAME_DATA = {
         {
           label: "Tribune commune d'agriculteurs",
           description: "Une tribune signée par plusieurs dizaines d'agriculteurs opposés à la réautorisation montre que le monde agricole n'est pas monolithique et que le lobby des pesticides ne parle pas en son nom.",
-          scenario: "Des agriculteurs cosignent une tribune publique s'opposant à la réautorisation. Cette prise de parole déstabilise le discours du lobby et oblige les médias à nuancer leur traitement.",
+          naomiMessages: [
+            "Ok bonne idée.<br>Je vais proposer la tribune que tu as rédigée à co-signature auprès de plusieurs paysans et agriculteurs en agriculture biologique.",
+            "Bonne nouvelle\u00a0!<br>On a plus de 100 co-signatures\u00a0!<br>La tribune sera publiée demain.<br>Ça montre qu'il y a pas qu'une seule agriculture mais \"des\" agricultures, et ça compte."
+          ],
           effectsByTour: [
             { resources: -10, political: 10, public: 10, score: 10 },
             { resources: -10, political: 10, public: 15, score: 10 },
             { resources: -10, political: 5,  public: 15, score: 10 },
           ],
-          counterAttack: "Le syndicat agricole majoritaire contre-attaque en présentant ces agriculteurs comme des militants déguisés en paysans.",
+          naomiCounterMessages: [
+            "L'AIPP, en lien avec le syndicat majoritaire, a réagi vite\u00a0!",
+            "Leurs représentants font le tour des plateaux pour continuer à défendre la proposition de loi.<br>On ne va plus parler de la tribune…"
+          ],
           counterEffectsByTour: [
             { public: -10, score: -10 },
             { public: -10, score: -10 },
@@ -379,13 +466,19 @@ const GAME_DATA = {
         {
           label: "Rencontres terrain avec les agriculteurs",
           description: "Organiser des rencontres directes sur le terrain permet de construire des relations de confiance avec des agriculteurs qui ne sont pas convaincus par les pesticides. Ce travail de fond prend du temps mais construit des alliances solides.",
-          scenario: "ANTIDOTE organise des rencontres sur le terrain avec des agriculteurs en quête d'alternatives aux pesticides dangereux. Des liens se créent qui pourraient devenir de futurs relais.",
+          naomiMessages: [
+            "Tu as raison, se rencontrer c'est toujours bien.<br>C'est plus long… mais plus solide.<br>On organise des échanges sur le terrain avec des agriculteurs et on travaille sur des pistes de collaboration.",
+            "Bon, c'est complètement passé inaperçu.",
+          ],
           effectsByTour: [
             { resources: -20, political: 15, public: 10, score: 10 },
             { resources: -20, political: 15, public: 10, score: 10 },
             { resources: -20, political: 10, public: 10, score: 10 },
           ],
-          counterAttack: "Le syndicat agricole majoritaire mobilise ses réseaux locaux pour dissuader les agriculteurs de participer aux rencontres d'ANTIDOTE.",
+          naomiCounterMessages: [
+            "L'AIPP en lien avec le syndicat agricole majoritaire continue de conduire des actions de communication à destination de la presse et des chambres d'agriculture au niveau local.",
+            "On est invisibilisé\u00a0!"
+          ],
           counterEffectsByTour: [
             { political: -5,  public: -5,  score: -10 },
             { political: -5,  public: -10, score: -10 },
@@ -406,13 +499,20 @@ const GAME_DATA = {
         {
           label: "Lancer une pétition nationale",
           description: "Une pétition massive est un signal fort envoyé aux parlementaires : des milliers de citoyens regardent comment ils voteront. C'est un outil classique mais toujours efficace pour créer de la pression.",
-          scenario: "ANTIDOTE lance une pétition nationale contre la réautorisation des pesticides. Des milliers de citoyens la signent en quelques jours. Le sujet commence à inquiéter certains élus.",
+          naomiMessages: [
+            "Bonne idée.<br>On lance une pétition nationale.",
+            "Wow\u00a0!<br>Les signatures commencent à monter rapidement.<br>On voit que le sujet parle aux gens.",
+            "1 million de signatures\u00a0!<br>C'est dingue\u00a0!<br><img src=\"images/image3.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -10, public: 20, score: 10 },
             { resources: -10, public: 20, score: 10 },
             { resources: -10, public: 20, score: 10 },
           ],
-          counterAttack: "Les industriels financent un sondage affirmant que la majorité des agriculteurs ont besoin de ces produits. Les médias relaient les deux chiffres.",
+          naomiCounterMessages: [
+            "Un sondage vient d'être publié et montre que \"78% Français soutiennent les agriculteurs et sont favorables à la simplification des normes\".",
+            "Devine qui est derrière cette opération…<br>C'est une façon de décrédibiliser la pétition.<br><img src=\"images/image20.png\" class=\"chat-img\">"
+          ],
           counterEffectsByTour: [
             { public: -10, score: -10 },
             { public: -10, score: -10 },
@@ -422,13 +522,20 @@ const GAME_DATA = {
         {
           label: "Campagne d'interpellation des élus",
           description: "Organiser une campagne où des milliers de citoyens écrivent directement à leurs élus est un outil de pression politique direct. Cela oblige les parlementaires à prendre position.",
-          scenario: "Des milliers de citoyens contactent leurs députés pour leur demander de rejeter la loi. Les élus qui hésitaient ressentent la pression dans leurs circonscriptions.",
+          naomiMessages: [
+            "Bonne idée\u00a0!<br>On va mettre en place une plateforme d'interpellations des élus.<br>Les personnes qui le souhaitent pourront directement envoyer un message à leurs parlementaires avec un message type.",
+            "Les parlementaires commencent à recevoir des dizaines de messages.<br>Certains reviennent vers nous.",
+            "On sent que ça bouge.<br><img src=\"images/image25.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -10, political: 10, public: 10, score: 10 },
             { resources: -10, political: 10, public: 10, score: 10 },
             { resources: -10, political: 10, public: 15, score: 15 },
           ],
-          counterAttack: "Le lobby des pesticides réplique en mobilisant ses réseaux agricoles pour une contre-campagne d'interpellation en sens inverse.",
+          naomiCounterMessages: [
+            "Une attachée parlementaire que je connais bien vient de m'appeler.<br>Apparemment beaucoup de députés reçoivent des sollicitations pour des demandes d'entretiens avec les représentants de l'AIPP.<br>Ils recevaient aussi des demandes de la part du cabinet de conseil en affaires publiques qui travaille pour eux.",
+            "Ils ont sorti l'artillerie lourde."
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -10, score: -10 },
@@ -438,13 +545,20 @@ const GAME_DATA = {
         {
           label: "Lettre ouverte de personnalités publiques",
           description: "Une lettre ouverte signée par des acteurs connus, des sportifs, des artistes engagés peut toucher un public bien au-delà des cercles militants et donner une visibilité nouvelle à la cause.",
-          scenario: "Des personnalités publiques signent une lettre ouverte contre la réautorisation des pesticides. La médiatisation de leur engagement touche un large public et crée un effet de légitimité.",
+          naomiMessages: [
+            "Bonne stratégie.",
+            "On a réussi à mobiliser plusieurs personnalités.<br>Artistes, scientifiques, figures publiques…<br>Y'a notamment Pierre Ninais qui a signé\u00a0!",
+            "Ca y est, la lettre est publiée et reprise dans les médias.<br>Bravo pour ton travail de coordination, ça donne une visibilité supplémentaire au sujet.<br><img src=\"images/image21.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -10, public: 15, score: 10 },
             { resources: -10, public: 15, score: 10 },
             { resources: -10, public: 20, score: 15 },
           ],
-          counterAttack: "L'industrie instrumentalise des agriculteurs pour dénoncer l'ingérence des « célébrités parisiennes » dans leurs affaires.",
+          naomiCounterMessages: [
+            "Bon… Karine Lamarchande, la célèbre présentatrice de \"L'amour est prêt\" vient de prendre position en faveur du texte.",
+            "<img src=\"images/image22.png\" class=\"chat-img\">"
+          ],
           counterEffectsByTour: [
             { public: -10, score: -10 },
             { public: -10, score: -10 },
@@ -465,13 +579,20 @@ const GAME_DATA = {
         {
           label: "Mobiliser des influenceurs",
           description: "Des créateurs de contenu engagés peuvent toucher des millions de personnes jeunes peu habituées aux canaux traditionnels du militantisme. Mais cette visibilité peut attirer la critique sur le sérieux de la campagne.",
-          scenario: "Des influenceurs relaient la campagne d'ANTIDOTE sur les réseaux sociaux. La question des pesticides devient virale et touche un public nouveau, particulièrement les 18-35 ans.",
+          naomiMessages: [
+            "OK, on propose à plusieurs \"influ\" de diffuser du contenu.",
+            "Bonne nouvelle\u00a0!<br>Le trauma accepte de relayer notre campagne.<br>Il est quand même suivi par 500k followers sur insta\u00a0!<br><img src=\"images/image10.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -10, public: 20, score: 10 },
             { resources: -10, public: 20, score: 10 },
             { resources: -10, public: 25, score: 15 },
           ],
-          counterAttack: "L'industrie finance à son tour des campagnes sponsorisées massives pour contrecarrer le message et noyer la visibilité d'ANTIDOTE.",
+          naomiCounterMessages: [
+            "Je suis dégoûtée, regarde ça",
+            "Brout vient de publier une vidéo \"reportage\".... sponsorisée par l'AIPP.<br><img src=\"images/image12.png\" class=\"chat-img\">",
+            "Ils se moquent vraiment du monde.<br>Un \"reportage vrai / faux\" sur les \"caricatures\" autour des pesticides.<br>Je rêve."
+          ],
           counterEffectsByTour: [
             { public: -10, score: -10 },
             { public: -10, score: -10 },
@@ -481,13 +602,19 @@ const GAME_DATA = {
         {
           label: "Lancer une vidéo virale",
           description: "Une vidéo percutante, pédagogique et émotionnellement engageante peut propager la sensibilisation bien au-delà des cercles convaincus. Format idéal pour les réseaux sociaux.",
-          scenario: "ANTIDOTE publie une vidéo expliquant simplement les risques liés aux pesticides concernés. Elle est massivement partagée et génère de nombreuses réactions publiques.",
+          naomiMessages: [
+            "Bonne idée.<br>Ça va nous prendre du temps mais c'est efficace.<br>On publie une vidéo courte, pédagogique.",
+            "La vidéo commence à circuler rapidement.<br>Les vues montent, les partages aussi.<br>C'est bien qu'on arrive à rendre le sujet accessible."
+          ],
           effectsByTour: [
             { resources: -10, public: 20, score: 10 },
             { resources: -10, public: 20, score: 10 },
             { resources: -10, public: 25, score: 15 },
           ],
-          counterAttack: "Le lobby des pesticides produit sa propre vidéo mettant en scène des agriculteurs défendant leur travail et présentant les ONG comme des ennemis du monde rural.",
+          naomiCounterMessages: [
+            "C'est dingue\u00a0!<br>Y'a des centaines de contenus en faveur de la loi qui circulent sur les réseaux.",
+            "Ce sont des contenus générés avec l'IA.<br>Regarde ce faux podcast…<br><img src=\"images/image1.png\" class=\"chat-img\">"
+          ],
           counterEffectsByTour: [
             { public: -10, score: -10 },
             { public: -10, score: -10 },
@@ -497,13 +624,21 @@ const GAME_DATA = {
         {
           label: "Campagne pédagogique numérique",
           description: "Diffuser une campagne de fond, factuelle et pédagogique, sur les réseaux sociaux : infographies, fils de discussion, explications scientifiques accessibles. Moins spectaculaire mais plus durable.",
-          scenario: "ANTIDOTE diffuse une série de contenus pédagogiques sur les réseaux sociaux. L'audience engagée grandit, la qualité des échanges s'améliore et la campagne gagne en profondeur.",
+          naomiMessages: [
+            "On part sur quelque chose de plus structuré.<br>On publie une série de contenus pédagogiques.<br>Explications, chiffres, visuels…<br>C'est moins spectaculaire, mais plus solide.",
+            "C'est en ligne !",
+          ],
           effectsByTour: [
             { resources: -10, political: 5, public: 10, score: 10 },
             { resources: -10, political: 5, public: 10, score: 10 },
             { resources: -10, political: 5, public: 15, score: 10 },
           ],
-          counterAttack: "L'industrie intensifie sa présence numérique avec des publicités ciblées contredisant les informations d'ANTIDOTE.",
+          naomiCounterMessages: [
+            "C'est dingue\u00a0!",
+            "Y'a des centaines de contenus en faveur de la loi qui circulent sur les réseaux.",
+            "Ce sont des contenus générés avec l'IA.<br>Nos messages sont complètement dilués.",
+            "Regarde ce faux podcast…<br><img src=\"images/image1.png\" class=\"chat-img\">"
+          ],
           counterEffectsByTour: [
             { public: -5,  score: -10 },
             { public: -5,  score: -10 },
@@ -524,13 +659,20 @@ const GAME_DATA = {
         {
           label: "Organiser une manifestation nationale",
           description: "Une grande manifestation dans la rue montre la réalité de la mobilisation. Des milliers de personnes dans les rues envoient un signal fort aux décideurs politiques et aux médias.",
-          scenario: "Plusieurs milliers de personnes manifestent contre la réautorisation des pesticides. Les images font le tour des médias. Des parlementaires prennent note de l'ampleur de la mobilisation.",
+          naomiMessages: [
+            "Ok. On va mobiliser nos militants.<br>J'envoie un message d'appel à manifestation.<br>Et à relayer l'information, sur notre newsletter et sur nos réseaux sociaux.",
+            "On vient d'obtenir l'autorisation en préfecture\u00a0!<br>Rendez-vous confirmé pour la manifestation près de l'Assemblée nationale.",
+            "On est plein\u00a0!<br>Ça fait plaisir\u00a0!<br><img src=\"images/image4.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -20, political: -10, public: 20, score: 10 },
             { resources: -20, political: -10, public: 20, score: 10 },
             { resources: -20, political: -5,  public: 20, score: 10 },
           ],
-          counterAttack: "Le lobby des industriels accuse les ONG de s'attaquer au monde agricole et mobilise des syndicats agricoles pour organiser une contre-manifestation.",
+          naomiCounterMessages: [
+            "Une partie des médias privés reprennent les éléments de langage de l'AIPP et parlent d'une mobilisation \"idéologique\".",
+            "Certains éditos insistent sur le fait qu'on s'attaque aux agriculteurs.<br>Ca me rend dingue\u00a0!"
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -10, score: -10 },
@@ -540,13 +682,19 @@ const GAME_DATA = {
         {
           label: "Action symbolique devant l'Assemblée nationale",
           description: "Une action symbolique, bien scénarisée, devant l'Assemblée nationale ou un ministère peut générer des images fortes qui circulent dans les médias. L'objectif : rendre visible l'enjeu politique.",
-          scenario: "ANTIDOTE mène une action symbolique percutante devant l'Assemblée nationale. Les images circulent dans la presse et sur les réseaux sociaux, rappelant aux élus que la société civile les observe.",
+          naomiMessages: [
+            "Ok. On va mobiliser nos militants.<br>J'envoie un message d'appel à manifestation, et à relayer l'information, sur notre newsletter et sur nos réseaux sociaux.",
+            "On vient d'obtenir l'autorisation en préfecture\u00a0!<br>Rendez-vous confirmé pour la manifestation près de l'Assemblée nationale.",
+            "On est plein\u00a0!<br>Ça fait plaisir\u00a0!<br><img src=\"images/image4.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -10, public: 15, score: 10 },
             { resources: -10, public: 15, score: 10 },
             { resources: -10, public: 20, score: 10 },
           ],
-          counterAttack: "L'industrie et ses alliés agricoles dénoncent l'action comme provocatrice et hors-sol. Ils tentent de retourner l'opinion contre les militants.",
+          naomiCounterMessages: [
+            "Bon… j'ai eu au téléphone une copine attachée parlementaire.<br>Elle a entendu dire de la bouche d'un député que les parlementaires parlaient d'une \"manifestation symbolique\".<br>Quand ils en ont entendu parler…"
+          ],
           counterEffectsByTour: [
             { public: -5,  score: -10 },
             { public: -5,  score: -10 },
@@ -556,13 +704,19 @@ const GAME_DATA = {
         {
           label: "Happening médiatique",
           description: "Un happening créatif et surprenant peut créer un buzz médiatique important. Mais son impact dépend beaucoup de l'exécution et du contexte - et la réaction du public peut être imprévisible.",
-          scenario: "ANTIDOTE organise un happening médiatique percutant qui dénonce l'influence du lobby des pesticides. L'action est largement commentée sur les réseaux sociaux et dans la presse.",
+          naomiMessages: [
+            "C'est ambitieux, mais d'accord\u00a0!<br>On tente quelque chose de plus marquant.<br>On va mettre en scène une action rigolote pensée pour les médias.<br>Je propose qu'on manifeste avec des faux cercueils devant le siège de l'AIPP\u00a0!<br>C'est bien, cela va attirer l'attention.",
+            "Elle claque cette opération\u00a0!<br><img src=\"images/image6.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -20, political: -10, public: 20, score: 10 },
             { resources: -20, political: -10, public: 20, score: 10 },
             { resources: -20, political: -5,  public: 20, score: 10 },
           ],
-          counterAttack: "Le lobby des pesticides et certains médias ironisent sur l'action, la présentant comme du théâtre militant sans contenu sérieux.",
+          naomiCounterMessages: [
+            "Bon l'AIPP n'a pas apprécié.",
+            "Ils viennent de publier un communiqué pour dénoncer une \"manipulation émotionnelle\" faite par, tiens toi bien...<br>de \"dangereux écologistes qui ont mis en danger l'intégrité physique du siège\"..."
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -10, score: -10 },
@@ -583,13 +737,20 @@ const GAME_DATA = {
         {
           label: "Rédiger et transmettre des amendements",
           description: "Rédiger des amendements techniques en collaboration avec des parlementaires alliés et les transmettre officiellement avant la séance publique. Modifier le texte directement est l'objectif final de tout plaidoyer législatif.",
-          scenario: "ANTIDOTE rédige des amendements précis avec l'appui de parlementaires alliés. Plusieurs amendements sont officiellement déposés et défendus en séance. Le texte commence à être modifié dans le bon sens.",
+          naomiMessages: [
+            "Bonne idée.<br>Je te suggère de rédiger un amendement précis de suppression pour la proposition de loi tombe assez rapidement, s'il était adopté.",
+            "Le voici, on les transmet ensemble directement à plusieurs députés.<br><img src=\"images/image5.png\" class=\"chat-img\">"
+          ],
           effectsByTour: [
             { resources: -10, political: 20, score: 15 },
             { resources: -10, political: 20, score: 15 },
             { resources: -10, political: 20, score: 20 },
           ],
-          counterAttack: "Le lobby des pesticides fait pression sur les groupes politiques pour rejeter les amendements. Plusieurs élus qui semblaient acquis reculent sous la pression des industriels.",
+          naomiCounterMessages: [
+            "Tu as regardé la liasse des amendements qui circulent\u00a0?<br>Beaucoup proviennent de l'AIPP…<br>Mais très peu sont \"sourcés\", comme d'habitude.",
+            "Au moins 7 députés ont déposé le même amendement pour soutenir et renforcer le texte.<br>C'est dingue\u00a0!",
+            "Le rapport de force n'est pas bon pour nous."
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -10, score: -10 },
@@ -599,13 +760,19 @@ const GAME_DATA = {
         {
           label: "Rencontrer directement des parlementaires clés",
           description: "Rencontrer en face à face les parlementaires indécis ou influents dans les commissions pour les convaincre de voter contre la réautorisation. Un échange direct permet de lever les doutes et de bâtir une confiance que les courriers ne permettent pas.",
-          scenario: "Des réunions discrètes mais décisives permettent à ANTIDOTE de présenter ses arguments directement aux parlementaires clés. Plusieurs élus jusqu'alors hésitants s'engagent à voter contre la réautorisation.",
+          naomiMessages: [
+            "Bonne approche.<br>Je t'aide à organiser des rendez-vous ciblés avec les principaux responsables de textes\u00a0: rapporteur, responsables du texte…<br>On ne pourra pas faire tellement plus, on manque de temps pour aller les voir.",
+            "Bon… Voici le message de la collaboratrice parlementaire du rapporteur du texte.<br>Je pense que c'est assez explicite. <br><img src=\"images/image9.png\" class=\"chat-img\">",
+          ],
           effectsByTour: [
             { resources: -10, political: 15, score: 15 },
             { resources: -10, political: 15, score: 15 },
             { resources: -10, political: 15, score: 20 },
           ],
-          counterAttack: "Le lobby des pesticides apprend les contacts d'ANTIDOTE et organise une contre-offensive auprès des mêmes parlementaires, multipliant les rendez-vous et les arguments économiques.",
+          naomiCounterMessages: [
+            "L'AIPP a bien fait le travail en lien avec son cabinet de conseil en affaires publiques.",
+            "J'ai l'impression qu'ils ont eu le temps de rencontrer déjà tout le monde\u00a0!"
+          ],
           counterEffectsByTour: [
             { political: -10, score: -10 },
             { political: -10, score: -10 },
@@ -615,13 +782,19 @@ const GAME_DATA = {
         {
           label: "Transmettre des notes d'analyse aux cabinets",
           description: "Préparer et transmettre des notes de synthèse factuelles aux cabinets ministériels et à l'administration pour alimenter leur réflexion avec une expertise indépendante. Influencer l'administration, c'est influencer les arbitrages en amont du vote.",
-          scenario: "Des notes de synthèse circulent dans les cabinets ministériels et chez les hauts fonctionnaires. L'administration intègre progressivement les arguments d'ANTIDOTE dans ses propres analyses et recommandations.",
+          naomiMessages: [
+            "Tu as raison, on peut aussi tenter de convaincre l'administration et les différents cabinets ministériels concernés.<br>Il doit y avoir une note dans le drive commun.<br>Je te laisse la mettre à jour et ensuite, on l'enverra au ministère de la Transition écologique ainsi qu'au Ministère de l'agriculture et leurs administrations.",
+            "Bon…",
+          ],
           effectsByTour: [
             { resources: -10, political: 10, score: 10 },
             { resources: -10, political: 10, score: 10 },
             { resources: -10, political: 15, score: 15 },
           ],
-          counterAttack: "Les représentants de l'industrie transmettent à leur tour leurs propres analyses et font valoir leurs relais dans l'administration pour minimiser l'impact des notes d'ANTIDOTE.",
+          naomiCounterMessages: [
+            "L'AIPP a fait la même chose, appuyé par une \"note économique sur l'impact sur les filières\" produite par un grand cabinet de conseil…",
+            "Apparemment, le ministre de l'Economie et des Finances pousse en faveur du texte auprès des parlementaires…<br><img src=\"images/image15.png\" class=\"chat-img\">"
+          ],
           counterEffectsByTour: [
             { political: -5, score: -10 },
             { political: -5, score: -10 },
@@ -642,13 +815,19 @@ const GAME_DATA = {
         {
           label: "Déposer un recours juridique",
           description: "Contester juridiquement la réautorisation de certains pesticides devant les tribunaux administratifs peut bloquer ou retarder le processus. C'est coûteux mais potentiellement très efficace.",
-          scenario: "ANTIDOTE dépose un recours juridique pour contester la réautorisation de pesticides dont les risques sanitaires sont documentés. Le débat s'installe aussi sur le terrain judiciaire.",
+          naomiMessages: [
+            "Tu as raison.<br>On dépose un recours.<br>On conteste la réautorisation sur des bases juridiques solides auprès du Conseil constitutionnel.",
+            "Ça ne fera pas la une, mais ça pèse.<br>On ouvre un nouveau front."
+          ],
           effectsByTour: [
             { resources: -20, political: 20, score: 20 },
             { resources: -20, political: 20, score: 20 },
             { resources: -20, political: 20, score: 20 },
           ],
-          counterAttack: "Les industriels mobilisent leurs propres équipes juridiques pour contester le recours et faire traîner la procédure.",
+          naomiCounterMessages: [
+            "Mais l'AIPP ne va pas se laisser faire.<br>D'après les informations de notre avocate, ils mobilisent leurs équipes juridiques et font appel à un cabinet d'expert.",
+            "Ils sont bien équipés désormais… et vont chercher à ralentir la procédure… et à la décrédibiliser."
+          ],
           counterEffectsByTour: [
             { resources: -10, political: -10, score: -10 },
             { resources: -10, political: -10, score: -10 },
@@ -658,13 +837,20 @@ const GAME_DATA = {
         {
           label: "Déposer une plainte environnementale",
           description: "Une plainte pour atteinte à l'environnement ou mise en danger d'autrui met en lumière la responsabilité des acteurs de l'industrie et peut contraindre des enquêtes officielles.",
-          scenario: "ANTIDOTE dépose une plainte environnementale dénonçant les impacts sanitaires des pesticides concernés. L'affaire est prise en charge par la justice et fait l'objet d'une couverture médiatique.",
+          naomiMessages: [
+            "Bonne idée\u00a0!<br>On porte plainte contre X en lien avec Notre Affaire à Toutes et tous.<br>Ça peut créer une pression supplémentaire.<br>Et alimenter le débat public en parallèle.",
+            "Notre plainte a bien été transmise.",
+          ],
           effectsByTour: [
             { resources: -20, political: 15, public: 5, score: 15 },
             { resources: -20, political: 15, public: 5, score: 15 },
             { resources: -20, political: 15, public: 5, score: 15 },
           ],
-          counterAttack: "L'industrie minimise la portée de la plainte et tente d'intimider l'association avec des menaces de contre-poursuites.",
+          naomiCounterMessages: [
+            "L'AIPP ne va pas se laisser faire.<br>D'après les informations de notre avocate, ils mobilisent leurs équipes juridiques et font appel à un cabinet d'expert.",
+            "Ils sont bien équipés désormais…<br>et vont chercher à ralentir la procédure…<br>et à la décrédibiliser.",
+            "Et surtout, ça va prendre des années avant que le dossier ne soit instruit…"
+          ],
           counterEffectsByTour: [
             { resources: -10, political: -10, score: -10 },
             { resources: -10, political: -10, score: -10 },
@@ -674,13 +860,20 @@ const GAME_DATA = {
         {
           label: "Mobiliser un collectif d'avocats",
           description: "Rassembler un collectif d'avocats spécialisés en droit de l'environnement permet de construire une stratégie judiciaire robuste sans dépenser immédiatement des ressources importantes.",
-          scenario: "ANTIDOTE réunit un collectif d'avocats spécialisés en droit de l'environnement pour préparer une stratégie judiciaire complète. Ce dispositif renforce la crédibilité de l'association dans le débat.",
+          naomiMessages: [
+            "Bonne stratégie.<br>On va structurer une réponse juridique solide auprès du conseil constitutionnel.",
+            "J'ai contacté notre avocate qui doit consulter plusieurs de ses confrères et sœurs sur ce sujet."
+          ],
           effectsByTour: [
             { resources: -20, political: 20, score: 15 },
             { resources: -20, political: 20, score: 15 },
             { resources: -20, political: 20, score: 15 },
           ],
-          counterAttack: "L'industrie fait pression sur les cabinets d'avocats pour décourager certains d'entre eux de travailler avec ANTIDOTE.",
+          naomiCounterMessages: [
+            "Nos observations ont été bien transmises.",
+            "Mais l'AIPP ne va pas se laisser faire.<br>D'après les informations de notre avocate, ils mobilisent leurs équipes juridiques et font appel à un cabinet d'expert.",
+            "Ils sont bien équipés désormais…<br>et vont chercher à ralentir la procédure…<br>et à la décrédibiliser."
+          ],
           counterEffectsByTour: [
             { resources: -10, political: -10, score: -10 },
             { resources: -10, political: -10, score: -10 },
