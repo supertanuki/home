@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Woman Chroma Key – Phaser 3</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+    <script>
+    // ─── Paramètres chroma key ────────────────────────────────────────────────
+    const KEY_R = 0x33;
+    const KEY_G = 0x33;
+    const KEY_B = 0x33;
+    const COLOR_THRESHOLD = 55;   // tolérance (distance RGB euclidienne)
+
+    // ─── Paramètres de l'animation bg ─────────────────────────────────────────
+    const BG_SCROLL_AMPLITUDE = 50;  // pixels max déplacement gauche/droite
+    const BG_MARGIN           = 10;  // marge haut/bas pour éviter la répétition
+
+    // ─── Dimensions de la femme (841 × 2090) ──────────────────────────────────
+    const WOMAN_W = 841;
+    const WOMAN_H = 2090;
+
+    // ─── Scène principale ─────────────────────────────────────────────────────
+    class MainScene extends Phaser.Scene {
+
+        preload() {
+            // Barre de chargement simple
+            const bar = this.add.graphics();
+            this.load.on('progress', p => {
+                bar.clear();
+                bar.fillStyle(0x3eff00, 1);
+                bar.fillRect(0, this.scale.height / 2 - 10,
+                             this.scale.width * p, 20);
+            });
+            this.load.on('complete', () => bar.destroy());
+
+            this.load.image('woman', 'woman.png');
+            this.load.image('bg', 'bg.png');
+        }
+
+        create() {
+            // 1. Décomposer woman.png en deux textures canvas
+            this._processWomanTexture();
+
+            this._build();
+
+            // Repositionner tous les objets si la fenêtre est redimensionnée
+            this.scale.on('resize', () => this._layout(), this);
+        }
+
+        _womanScale() {
+            const { height } = this.scale;
+            return (height * 0.80) / WOMAN_H;
+        }
+
+        // tileScale tel qu'une seule tuile couvre toute la zone de scroll
+        // (amplitude × 4 en X, marge × 4 en Y) → jamais de répétition visible
+        _bgTileScale() {
+            const { width, height } = this.scale;
+            const bgSrc = this.textures.get('bg').getSourceImage();
+            const scaleX = (width  + BG_SCROLL_AMPLITUDE * 4) / bgSrc.width;
+            const scaleY = (height + BG_MARGIN * 4)           / bgSrc.height;
+            return Math.max(scaleX, scaleY);
+        }
+
+        _build() {
+            const { width, height } = this.scale;
+            const cx = width / 2, cy = height / 2;
+
+            // TileSprite bg : tilePositionX/Y scrolle sans déplacer l'objet
+            // → le masque reste parfaitement aligné
+            this.bgTile = this.add.tileSprite(cx, cy, width, height, 'bg');
+            this.bgTile.setTileScale(this._bgTileScale());
+
+            // Masque bitmap (zones vertes) — même scale que la femme
+            this.maskImg = this.make.image({ x: cx, y: cy, key: 'womanMask', add: false });
+            this.maskImg.setScale(this._womanScale());
+            this.bgTile.setMask(this.maskImg.createBitmapMask());
+
+            // Femme propre centrée
+            this.womanImg = this.add.image(cx, cy, 'womanClean');
+            this.womanImg.setScale(this._womanScale());
+        }
+
+        _layout() {
+            const { width, height } = this.scale;
+            const cx = width / 2, cy = height / 2;
+
+            this.bgTile.setPosition(cx, cy);
+            this.bgTile.setSize(width, height);
+            this.bgTile.setTileScale(this._bgTileScale());
+
+            this.maskImg.setPosition(cx, cy);
+            this.maskImg.setScale(this._womanScale());
+
+            this.womanImg.setPosition(cx, cy);
+            this.womanImg.setScale(this._womanScale());
+        }
+
+        update() {
+            const ptr = this.input.activePointer;
+            const { width, height } = this.scale;
+            const nx = Phaser.Math.Clamp(ptr.x / width,  0, 1);
+            const ny = Phaser.Math.Clamp(ptr.y / height, 0, 1);
+            // Scroll de la texture (pas de déplacement de l'objet) → masque fixe
+            this.bgTile.tilePositionX = (nx - 0.5) * 2 * BG_SCROLL_AMPLITUDE;
+            this.bgTile.tilePositionY = (ny - 0.5) * 2 * BG_MARGIN;
+        }
+
+        // ── Traitement pixel par pixel de woman.png ──────────────────────────
+        _processWomanTexture() {
+            const src = this.textures.get('woman').getSourceImage();
+            const W   = src.width;
+            const H   = src.height;
+
+            // Canvas temporaire pour lire les pixels
+            const tmpCanvas = document.createElement('canvas');
+            tmpCanvas.width  = W;
+            tmpCanvas.height = H;
+            const tmpCtx = tmpCanvas.getContext('2d');
+            tmpCtx.drawImage(src, 0, 0);
+            const pixels = tmpCtx.getImageData(0, 0, W, H).data;
+
+            // Canvas du masque (blanc là où c'est vert, transparent ailleurs)
+            const maskCanvas = document.createElement('canvas');
+            maskCanvas.width  = W;
+            maskCanvas.height = H;
+            const maskCtx  = maskCanvas.getContext('2d');
+            const maskData = maskCtx.createImageData(W, H);
+
+            // Canvas de la femme propre (transparent là où c'était vert)
+            const cleanCanvas = document.createElement('canvas');
+            cleanCanvas.width  = W;
+            cleanCanvas.height = H;
+            const cleanCtx  = cleanCanvas.getContext('2d');
+            const cleanData = cleanCtx.createImageData(W, H);
+
+            for (let i = 0; i < pixels.length; i += 4) {
+                const r = pixels[i], g = pixels[i+1], b = pixels[i+2], a = pixels[i+3];
+
+                // Pixel complètement transparent → ignorer
+                if (a < 10) continue;
+
+                // Distance euclidienne à la couleur clé
+                const dist = Math.sqrt(
+                    (r - KEY_R) ** 2 +
+                    (g - KEY_G) ** 2 +
+                    (b - KEY_B) ** 2
+                );
+
+                if (dist < COLOR_THRESHOLD) {
+                    // Pixel vert → masque blanc opaque, cleanData laissé transparent
+                    maskData.data[i]     = 255;
+                    maskData.data[i + 1] = 255;
+                    maskData.data[i + 2] = 255;
+                    maskData.data[i + 3] = 255;
+                } else {
+                    // Pixel normal → femme propre, masque laissé transparent
+                    cleanData.data[i]     = r;
+                    cleanData.data[i + 1] = g;
+                    cleanData.data[i + 2] = b;
+                    cleanData.data[i + 3] = a;
+                }
+            }
+
+            maskCtx.putImageData(maskData, 0, 0);
+            cleanCtx.putImageData(cleanData, 0, 0);
+
+            this.textures.addCanvas('womanMask',  maskCanvas);
+            this.textures.addCanvas('womanClean', cleanCanvas);
+        }
+    }
+
+    // ─── Lancement Phaser ─────────────────────────────────────────────────────
+    new Phaser.Game({
+        type:            Phaser.AUTO,
+        backgroundColor: '#cccccc',
+        scene:           MainScene,
+        scale: {
+            mode:       Phaser.Scale.RESIZE,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
+        }
+    });
+    </script>
+</body>
+</html>
