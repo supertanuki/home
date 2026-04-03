@@ -389,7 +389,7 @@ const GAME_DATA = {
           label: "Révéler un scandale industriel",
           description: "ANTIDOTE dispose de documents montrant les liens entre certains industriels et des responsables politiques. Les révéler peut provoquer une onde de choc médiatique - mais cela coûte cher en ressources et l'industrie contre-attaquera violemment.",
           naomiMessages: [
-            "Tu es sur.e que tu veux aller sur ce terrain\u00a0?<br>Ok.<br>On a des éléments solides.<br>Ce n'est pas encore officiel, mais on sait de source sûre que le nouveau conseiller de la ministre est l'ancien… chargé des relations institutionnelles de l'AIPP.",
+            "Tu es sur.e que tu veux aller sur ce terrain\u00a0?<br>Ok.<br>On a des éléments solides.<br>Ce n'est pas encore officiel, mais on sait de source sûre que le nouveau conseiller de la ministre est l'ancien…<br>chargé des relations institutionnelles de l'AIPP.",
             "On va rendre ça public, je transmets l'info à Mediapote.",
             "Et voilà\u00a0!<br><img src=\"images/image16.png\" class=\"chat-img\">"
           ],
@@ -399,7 +399,7 @@ const GAME_DATA = {
             { resources: -20, political: 5,   public: 25, score: 20 },
           ],
           naomiCounterMessages: [
-            "Ça sent pas bon.<br>Les chaînes d'infos continues privées qui appartiennent à Vincent Bolloray, le multipropriétaire des médias privées, tournent en boucle sur cette affaire pour dénoncer \"une manipulation politique\"....",
+            "Ça sent pas bon.<br>Les chaînes d'infos continues privées qui appartiennent à Vincent Bolloray,<br>tu sais, le multipropriétaire des médias privées,<br>tournent en boucle sur cette affaire pour dénoncer \"une manipulation politique\"....",
             "L'édito de Pascal Prout ce matin parlait même de \"grand n'importe quoi de la presse indépendante\"....."
           ],
           counterEffectsByTour: [

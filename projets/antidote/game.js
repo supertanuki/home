@@ -144,6 +144,8 @@ function showScreen(id) {
 /* ════════════════════════════════════════════
    SCOREBOARD
 ════════════════════════════════════════════ */
+const SCORE_LABELS = { public: 'Soutien du public', political: 'Influence politique', resources: 'Ressources' };
+
 function updateScoreboard(animateKeys) {
   ['public','political','resources'].forEach(key => {
     const val = scores[key];
@@ -158,8 +160,12 @@ function updateScoreboard(animateKeys) {
 
     elB.classList.remove('danger','warning');
     pill.classList.remove('danger','warning');
-    if (val <= ref * 0.10)      { elB.classList.add('danger');  pill.classList.add('danger'); }
-    else if (val <= ref * 0.20) { elB.classList.add('warning'); pill.classList.add('warning'); }
+    let status = '';
+    if (val <= ref * 0.10)      { elB.classList.add('danger');  pill.classList.add('danger');  status = ' — niveau critique'; }
+    else if (val <= ref * 0.20) { elB.classList.add('warning'); pill.classList.add('warning'); status = ' — niveau faible'; }
+
+    // Mettre à jour l'aria-label du pill pour refléter valeur et état (RGAA 3.1)
+    if (pill) pill.setAttribute('aria-label', SCORE_LABELS[key] + '\u00a0: ' + val + status);
 
     if (animateKeys && animateKeys.includes(key)) {
       elV.style.color = '#f5c842';
@@ -222,6 +228,9 @@ function openCalendar() {
 
 function closeCalendar() {
   document.getElementById('cal-overlay').classList.remove('open');
+  // Retour du focus sur l'élément déclencheur (RGAA 7.1)
+  const trigger = document.getElementById('chp-label');
+  if (trigger) trigger.focus();
   if (_calOnClose) {
     const cb = _calOnClose;
     _calOnClose = null;
@@ -262,9 +271,9 @@ function renderCalendar() {
 
   // En-tête du mois + navigation
   let html = '<div class="cal-month-header">'
-    + '<button class="cal-nav-btn" onclick="calNav(-1)">‹</button>'
-    + '<span class="cal-month-title">' + CAL_MONTH_NAMES[_calMonth] + ' ' + _calYear + '</span>'
-    + '<button class="cal-nav-btn" onclick="calNav(1)">›</button>'
+    + '<button class="cal-nav-btn" onclick="calNav(-1)" aria-label="Mois précédent">‹</button>'
+    + '<span class="cal-month-title" aria-live="polite">' + CAL_MONTH_NAMES[_calMonth] + ' ' + _calYear + '</span>'
+    + '<button class="cal-nav-btn" onclick="calNav(1)" aria-label="Mois suivant">›</button>'
     + '</div>';
 
   // Grille jours
@@ -422,11 +431,11 @@ function addColleagueMessage(htmlContent) {
   const row  = document.createElement('div');
   row.className = 'msg-row naomi';
   row.innerHTML =
-    '<div class="msg-avatar">👩🏽‍💼</div>' +
+    '<div class="msg-avatar" aria-hidden="true">👩🏽‍💼</div>' +
     '<div class="msg-bubble">' +
-      '<div class="msg-sender">Naomi</div>' +
+      '<div class="msg-sender" aria-hidden="true">Naomi</div>' +
       '<div class="msg-body">' + htmlContent + '</div>' +
-      '<span class="msg-time">' + getTime() + '</span>' +
+      '<span class="msg-time" aria-hidden="true">' + getTime() + '</span>' +
     '</div>';
   chat.appendChild(row);
   scrollToBottom();
@@ -440,7 +449,7 @@ function addPlayerMessage(text) {
   row.innerHTML =
     '<div class="msg-bubble">' +
       '<div class="msg-body">' + text + '</div>' +
-      '<span class="msg-time">' + getTime() + ' ✓</span>' +
+      '<span class="msg-time" aria-hidden="true">' + getTime() + ' ✓</span>' +
     '</div>';
   chat.appendChild(row);
   scrollToBottom();
@@ -452,9 +461,10 @@ function showTyping() {
   const chat = getChatEl();
   const row  = document.createElement('div');
   row.className = 'msg-row naomi typing-row';
+  row.setAttribute('aria-label', 'Naomi est en train d\'écrire…');
   row.innerHTML =
-    '<div class="msg-avatar">👩🏽‍💼</div>' +
-    '<div class="typing-bubble">' +
+    '<div class="msg-avatar" aria-hidden="true">👩🏽‍💼</div>' +
+    '<div class="typing-bubble" aria-hidden="true">' +
       '<div class="typing-dot"></div>' +
       '<div class="typing-dot"></div>' +
       '<div class="typing-dot"></div>' +
@@ -482,11 +492,50 @@ function freezeOptionCards() {
   });
 }
 
-/* ── Active la zone de saisie sans pré-remplir le champ ── */
-function typewriterInput(_text, cb) {
+/* ── Saisie progressive dans le champ (typewriter) ── */
+let _inputTypingTimer = null;
+let _inputFullText    = '';
+
+function animateInputText(text) {
   const inputEl = document.getElementById('chat-input-text');
+  if (_inputTypingTimer) { clearTimeout(_inputTypingTimer); _inputTypingTimer = null; }
+  _inputFullText = text || '';
+  inputEl.textContent     = '';
+  inputEl.contentEditable = 'false';
+  if (!text) return;
+  const SPEED = 24; // ms par caractère
+  let i = 0;
+  function type() {
+    i++;
+    inputEl.textContent = text.slice(0, i);
+    if (i < text.length) {
+      _inputTypingTimer = setTimeout(type, SPEED);
+    } else {
+      _inputTypingTimer = null;
+    }
+  }
+  type();
+}
+
+/* Termine l'animation instantanément (appelé avant d'envoyer) */
+function finishInputAnimation() {
+  if (_inputTypingTimer) {
+    clearTimeout(_inputTypingTimer);
+    _inputTypingTimer = null;
+    document.getElementById('chat-input-text').textContent = _inputFullText;
+  }
+}
+
+/* Annule l'animation sans appliquer le texte final (reset du champ) */
+function cancelInputAnimation() {
+  if (_inputTypingTimer) { clearTimeout(_inputTypingTimer); _inputTypingTimer = null; }
+  _inputFullText = '';
+}
+
+/* ── Active la zone de saisie et anime le texte dans le champ ── */
+function typewriterInput(text, cb) {
   showInputArea();
-  inputEl.innerHTML = '';
+  animateInputText(text);
   enableSendBtn();
   scrollToBottom();
   if (cb) cb();
@@ -494,6 +543,7 @@ function typewriterInput(_text, cb) {
 
 /* ── Mode dormant : barre toujours visible mais inactive ── */
 function showDormantInput() {
+  cancelInputAnimation();
   const area = document.getElementById('chat-input-area');
   area.style.display = 'flex';
   area.classList.add('dormant');
@@ -503,7 +553,7 @@ function showDormantInput() {
   inputEl.innerHTML     = '';
   const sendBtn = document.getElementById('chat-send-btn');
   sendBtn.style.display = 'flex';
-  sendBtn.disabled      = true;
+  disableSendBtn();
   scrollToBottom();
 }
 
@@ -527,7 +577,7 @@ function showPickerBtn() {
   inputEl.style.display = 'block';
   inputEl.innerHTML     = '<span style="color:var(--text-muted);opacity:.5;">Message…</span>';
   sendBtn.style.display = 'flex';
-  sendBtn.disabled      = true;
+  disableSendBtn();
   scrollToBottom();
 }
 
@@ -541,6 +591,12 @@ function showInputArea() {
   document.getElementById('chat-input-text').style.display  = 'block';
   document.getElementById('chat-send-btn').style.display    = 'flex';
   scrollToBottom();
+}
+
+function disableSendBtn() {
+  const btn = document.getElementById('chat-send-btn');
+  btn.disabled = true;
+  btn.classList.remove('pulse');
 }
 
 function enableSendBtn() {
@@ -557,13 +613,14 @@ function enableSendBtn() {
 }
 
 function hideInputArea() {
+  cancelInputAnimation();
   closeStrategyPanel();
   closeActionsPanel();
   document.getElementById('quick-replies').style.display   = 'none';
   document.getElementById('chat-input-area').style.display = 'none';
   document.getElementById('chat-input-area').classList.remove('dormant');
   document.getElementById('chat-input-text').innerHTML     = '';
-  document.getElementById('chat-send-btn').disabled        = true;
+  disableSendBtn();
   document.getElementById('chat-actions-btn').style.display = 'none';
 }
 
@@ -592,11 +649,18 @@ function openActionsPanel() {
     card.disabled  = isPlayed || locked;
 
     let badge = '';
-    if (isPlayed)    badge = '<span class="ao-card-played-badge">✓ Tour ' + (playedPhases.indexOf(i) + 1) + '</span>';
-    else if (locked) badge = '<span class="ao-card-locked-badge">🔒</span>';
+    let ariaLabel = phase.title;
+    if (isPlayed) {
+      badge = '<span class="ao-card-played-badge" aria-hidden="true">✓ Tour ' + (playedPhases.indexOf(i) + 1) + '</span>';
+      ariaLabel = phase.title + ' — joué au tour ' + (playedPhases.indexOf(i) + 1);
+    } else if (locked) {
+      badge = '<span class="ao-card-locked-badge" aria-hidden="true">🔒</span>';
+      ariaLabel = phase.title + ' — verrouillé';
+    }
+    card.setAttribute('aria-label', ariaLabel);
 
     card.innerHTML = badge +
-      '<div class="ao-card-icon-wrap">' + icon + '</div>' +
+      '<div class="ao-card-icon-wrap" aria-hidden="true">' + icon + '</div>' +
       '<div class="ao-card-title">' + phase.title + '</div>';
 
     if (!isPlayed && !locked) {
@@ -608,13 +672,18 @@ function openActionsPanel() {
   });
 
   document.getElementById('actions-panel').classList.add('open');
-  document.getElementById('chat-actions-btn').classList.add('active');
+  const actBtn = document.getElementById('chat-actions-btn');
+  actBtn.classList.add('active');
+  actBtn.setAttribute('aria-expanded', 'true');
 }
 
 function closeActionsPanel() {
   document.getElementById('actions-panel').classList.remove('open');
   const btn = document.getElementById('chat-actions-btn');
-  if (btn) btn.classList.remove('active');
+  if (btn) {
+    btn.classList.remove('active');
+    btn.setAttribute('aria-expanded', 'false');
+  }
 }
 
 function toggleActionsPanel() {
@@ -672,15 +741,24 @@ function openStrategyPanel(phaseIndex) {
     const card = document.createElement('div');
     card.className = 'option-card';
     card.dataset.orig = origIdx;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', 'Stratégie ' + (visIdx + 1) + ' : ' + a.label);
     card.innerHTML =
       '<div class="option-label">' +
-        '<span class="option-num">' + (visIdx + 1) + '</span>' +
+        '<span class="option-num" aria-hidden="true">' + (visIdx + 1) + '</span>' +
         a.label +
       '</div>' +
       '<div class="option-desc">' + a.description + '</div>' +
       resChip;
 
     card.addEventListener('click', function() { selectOptionFromPanel(card, origIdx, phaseIndex); });
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectOptionFromPanel(card, origIdx, phaseIndex);
+      }
+    });
     list.appendChild(card);
   });
 
@@ -696,7 +774,7 @@ function openStrategyPanel(phaseIndex) {
   inputEl.style.display = 'block';
   inputEl.innerHTML     = '<span style="color:var(--text-muted);opacity:.5;">Choisir une stratégie…</span>';
   sendBtn.style.display = 'flex';
-  sendBtn.disabled      = true;
+  disableSendBtn();
   currentStep = 'action';
   scrollToBottom();
 }
@@ -716,10 +794,7 @@ function selectOptionFromPanel(cardEl, origIdx, phaseIndex) {
   const prefixes = ['Je propose l\u2019option\u00a0: ', 'Je sugg\u00e8re l\u2019option\u00a0: '];
   pendingInputText = prefixes[Math.floor(Math.random() * prefixes.length)] + label;
 
-  // Afficher dans le champ
-  const inputEl = document.getElementById('chat-input-text');
-  inputEl.textContent     = pendingInputText;
-  inputEl.contentEditable = 'false';
+  animateInputText(pendingInputText);
   enableSendBtn();
   scrollToBottom();
 }
@@ -742,6 +817,7 @@ function sendMessage() {
 }
 
 function sendMerci() {
+  finishInputAnimation();
   const inputEl = document.getElementById('chat-input-text');
   const text = (inputEl.textContent || '').trim() || 'Merci Naomi\u00a0!';
   document.getElementById('quick-replies').style.display = 'none';
@@ -786,9 +862,9 @@ function showOptions(phaseIndex) {
         '</div>'
       : '';
     optionsHTML +=
-      '<div class="option-card" data-orig="' + origIdx + '">' +
+      '<div class="option-card" data-orig="' + origIdx + '" role="button" tabindex="0" aria-label="Stratégie ' + (visIdx + 1) + '\u00a0: ' + a.label + '">' +
         '<div class="option-label">' +
-          '<span class="option-num">' + (visIdx + 1) + '</span>' +
+          '<span class="option-num" aria-hidden="true">' + (visIdx + 1) + '</span>' +
           a.label +
         '</div>' +
         '<div class="option-desc">' + a.description + '</div>' +
@@ -806,6 +882,12 @@ function showOptions(phaseIndex) {
   row.querySelectorAll('.option-card').forEach(function(card) {
     card.addEventListener('click', function() {
       if (!card.classList.contains('done') && currentStep === 'action') {
+        selectOption(card);
+      }
+    });
+    card.addEventListener('keydown', function(e) {
+      if ((e.key === 'Enter' || e.key === ' ') && !card.classList.contains('done') && currentStep === 'action') {
+        e.preventDefault();
         selectOption(card);
       }
     });
@@ -855,6 +937,7 @@ function selectOption(cardEl) {
 
 function sendActionChoice() {
   if (pendingOption === null) return;
+  finishInputAnimation();
 
   const phaseIndex = pendingAction.phaseIndex;
   const phase  = GAME_DATA.phases[phaseIndex];
@@ -1181,8 +1264,7 @@ function showMerciInput(cb, customSuggestions) {
   sendBtn.style.display = 'flex';
   inputEl.style.display = 'block';
   const suggestions = customSuggestions || shuffle(MERCI_SUGGESTIONS).slice(0, 2);
-  inputEl.textContent   = suggestions[0].text;
-  inputEl.contentEditable = 'false';
+  animateInputText(suggestions[0].text);
   enableSendBtn();
   _pendingSend = cb;
   currentStep  = 'merci';
@@ -1195,7 +1277,7 @@ function showMerciInput(cb, customSuggestions) {
     btn.className   = 'qr-btn';
     btn.textContent = s.label;
     btn.addEventListener('click', function() {
-      inputEl.textContent = s.text;
+      animateInputText(s.text);
       qr.querySelectorAll('.qr-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       if (s.cb) { _pendingSend = s.cb; }
@@ -1359,6 +1441,7 @@ function _doShowEarlyEnd(zeroKey) {
 }
 
 function sendSorry() {
+  finishInputAnimation();
   const inputEl = document.getElementById('chat-input-text');
   const text = (inputEl.textContent || '').trim() || 'Désolé';
   currentStep = 'waiting';
@@ -1417,6 +1500,7 @@ function _doShowFinalResult() {
 }
 
 function sendJArrive() {
+  finishInputAnimation();
   const inputEl = document.getElementById('chat-input-text');
   const text = (inputEl.textContent || '').trim() || 'J\'arrive\u00a0!';
   currentStep = 'waiting';
@@ -1441,7 +1525,32 @@ function buildActionsList() {
 }
 
 function buildScoresSummary() {
-  return '<div class="summary-item"><div class="si-icon">👥</div><div class="si-label">Soutien du Public</div><div class="si-val">' + scores.public + '</div></div>' +
-    '<div class="summary-item"><div class="si-icon">🏛️</div><div class="si-label">Influence Politique</div><div class="si-val">' + scores.political + '</div></div>' +
-    '<div class="summary-item"><div class="si-icon">💶</div><div class="si-label">Ressources</div><div class="si-val">' + scores.resources + '</div></div>';
+  return '<div class="summary-item"><div class="si-icon" aria-hidden="true">👥</div><div class="si-label">Soutien du Public</div><div class="si-val">' + scores.public + '</div></div>' +
+    '<div class="summary-item"><div class="si-icon" aria-hidden="true">🏛️</div><div class="si-label">Influence Politique</div><div class="si-val">' + scores.political + '</div></div>' +
+    '<div class="summary-item"><div class="si-icon" aria-hidden="true">💶</div><div class="si-label">Ressources</div><div class="si-val">' + scores.resources + '</div></div>';
 }
+
+/* ════════════════════════════════════════════
+   ACCESSIBILITÉ : gestion clavier globale
+════════════════════════════════════════════ */
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  // Fermer le calendrier si ouvert
+  const cal = document.getElementById('cal-overlay');
+  if (cal && cal.classList.contains('open')) {
+    closeCalendar();
+    return;
+  }
+  // Fermer la push notification si visible
+  const notif = document.getElementById('push-notification');
+  if (notif && notif.classList.contains('show')) {
+    closePushNotif();
+    return;
+  }
+  // Fermer le panel actions si ouvert
+  const panel = document.getElementById('actions-panel');
+  if (panel && panel.classList.contains('open')) {
+    closeStrategyPanel();
+    closeActionsPanel();
+  }
+});

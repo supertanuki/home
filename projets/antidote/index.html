@@ -9,17 +9,19 @@
 </head>
 <body>
 
+<a class="skip-link" href="#chat-messages">Aller au contenu principal</a>
+
 <!-- ═══════════════════════════════════════════════
      SCREEN : WELCOME
 ═══════════════════════════════════════════════ -->
 <div id="screen-welcome" class="screen active">
   <div class="welcome-box">
-    <span class="big-icon">☣️</span>
-    <h2>ANTIDOTE</h2>
+    <span class="big-icon" aria-hidden="true">☣️</span>
+    <h1>ANTIDOTE</h1>
     <p class="tagline">Bataille contre le lobby des pesticides</p>
 
     <div class="welcome-card avatar-card">
-      <span class="wc-avatar">👩🏽‍💼</span>
+      <span class="wc-avatar" aria-hidden="true">👩🏽‍💼</span>
       <div class="wc-content">
         <h3>Votre mission</h3>
         <p>
@@ -40,17 +42,17 @@
       <h3>Vos indicateurs de départ</h3>
       <div class="indicators-preview">
         <div class="indicator-chip">
-          <span class="chip-icon">👥</span>
+          <span class="chip-icon" aria-hidden="true">👥</span>
           <div class="chip-name">Soutien du Public</div>
           <div class="chip-val">40</div>
         </div>
         <div class="indicator-chip">
-          <span class="chip-icon">🏛️</span>
+          <span class="chip-icon" aria-hidden="true">🏛️</span>
           <div class="chip-name">Influence Politique</div>
           <div class="chip-val">60</div>
         </div>
         <div class="indicator-chip">
-          <span class="chip-icon">💶</span>
+          <span class="chip-icon" aria-hidden="true">💶</span>
           <div class="chip-name">Ressources</div>
           <div class="chip-val">130</div>
         </div>
@@ -96,8 +98,8 @@
     <!-- Ligne 1 : avatar + infos -->
     <div class="chat-header-row1">
       <div class="chat-avatar-wrap">
-        <span class="chat-avatar-emoji">👩🏽‍💼</span>
-        <span class="chat-online-dot"></span>
+        <span class="chat-avatar-emoji" aria-hidden="true">👩🏽‍💼</span>
+        <span class="chat-online-dot" aria-hidden="true"></span>
       </div>
       <div class="chat-header-info">
         <div class="chat-header-name">Naomi</div>
@@ -108,34 +110,34 @@
     <!-- Ligne 2 : tour + indicateurs de score sur la même ligne -->
     <div class="chat-header-scores">
       <button class="chp-tour-pill" id="chp-label" onclick="openCalendar()" aria-label="Voir le calendrier">
-        <span class="sp-icon">📅</span>
+        <span class="sp-icon" aria-hidden="true">📅</span>
         <div class="sp-content">
           <div class="chp-tour-num sp-label" id="chp-tour-num">Tour 1&nbsp;/&nbsp;10</div>
           <div class="chp-tour-name" id="chp-tour-name">—</div>
           <div class="chp-bar-bg"><div class="chp-bar" id="chp-bar"></div></div>
         </div>
       </button>
-      <div class="score-pill" id="pill-public">
-        <span class="sp-icon">👥</span>
+      <div class="score-pill" id="pill-public" aria-label="Soutien du public : 40">
+        <span class="sp-icon" aria-hidden="true">👥</span>
         <div class="sp-content">
-          <div class="sp-label">Public</div>
-          <div class="sp-val" id="score-public">40</div>
+          <div class="sp-label" aria-hidden="true">Public</div>
+          <div class="sp-val" id="score-public" aria-live="polite" aria-atomic="true">40</div>
           <div class="sp-bar-bg"><div class="sp-bar" id="bar-public"></div></div>
         </div>
       </div>
-      <div class="score-pill" id="pill-political">
-        <span class="sp-icon">🏛️</span>
+      <div class="score-pill" id="pill-political" aria-label="Influence politique : 60">
+        <span class="sp-icon" aria-hidden="true">🏛️</span>
         <div class="sp-content">
-          <div class="sp-label">Politique</div>
-          <div class="sp-val" id="score-political">60</div>
+          <div class="sp-label" aria-hidden="true">Politique</div>
+          <div class="sp-val" id="score-political" aria-live="polite" aria-atomic="true">60</div>
           <div class="sp-bar-bg"><div class="sp-bar" id="bar-political"></div></div>
         </div>
       </div>
-      <div class="score-pill" id="pill-resources">
-        <span class="sp-icon">💶</span>
+      <div class="score-pill" id="pill-resources" aria-label="Ressources : 130">
+        <span class="sp-icon" aria-hidden="true">💶</span>
         <div class="sp-content">
-          <div class="sp-label">Ressources</div>
-          <div class="sp-val" id="score-resources">130</div>
+          <div class="sp-label" aria-hidden="true">Ressources</div>
+          <div class="sp-val" id="score-resources" aria-live="polite" aria-atomic="true">130</div>
           <div class="sp-bar-bg"><div class="sp-bar" id="bar-resources"></div></div>
         </div>
       </div>
@@ -144,7 +146,7 @@
   </div><!-- /chat-header -->
 
   <!-- Messages zone -->
-  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-messages" id="chat-messages" tabindex="-1" aria-live="polite" aria-label="Fil de discussion avec Naomi"></div>
 
   <!-- Zone basse sticky : panel + barre de saisie -->
   <div class="chat-bottom">
@@ -168,15 +170,15 @@
     <!-- Barre de saisie -->
     <div class="chat-input-area" id="chat-input-area" style="display:none;">
       <!-- Bouton Actions -->
-      <button class="chat-actions-btn" id="chat-actions-btn" onclick="toggleActionsPanel()" style="display:none;" aria-label="Voir les actions">
-        <span class="cab-icon">+</span>
+      <button class="chat-actions-btn" id="chat-actions-btn" onclick="toggleActionsPanel()" style="display:none;" aria-label="Voir les actions" aria-expanded="false" aria-controls="actions-panel">
+        <span class="cab-icon" aria-hidden="true">+</span>
         <span class="cab-label">Actions</span>
       </button>
       <!-- Texte + envoyer -->
       <div class="chat-input-bubble" id="chat-input-text" style="display:none;"></div>
       <button class="chat-send-btn" id="chat-send-btn" onclick="sendMessage()" style="display:none;">
         <span>Envoyer</span>
-        <span class="send-icon">➤</span>
+        <span class="send-icon" aria-hidden="true">➤</span>
       </button>
     </div>
 
@@ -186,16 +188,16 @@
 
 
 <!-- Overlay grisé pour la notification -->
-<div class="notif-overlay" id="notif-overlay"></div>
+<div class="notif-overlay" id="notif-overlay" aria-hidden="true"></div>
 
 <!-- ═══════════════════════════════════════════════
      NOTIFICATION : Contre-attaque
 ═══════════════════════════════════════════════ -->
-<div class="push-notification" id="push-notification">
+<div class="push-notification" id="push-notification" role="alertdialog" aria-modal="true" aria-labelledby="pn-title-text" aria-describedby="pn-text">
   <div class="pn-header">
-    <span class="pn-app-icon">🗞️</span>
-    <span class="pn-app-name">Breaking News</span>
-    <button class="pn-close" onclick="closePushNotif()">✕</button>
+    <span class="pn-app-icon" aria-hidden="true">🗞️</span>
+    <span class="pn-app-name" aria-hidden="true">Breaking News</span>
+    <button class="pn-close" onclick="closePushNotif()" aria-label="Fermer la notification">✕</button>
   </div>
   <div class="pn-body">
     <div class="pn-content">
@@ -211,16 +213,16 @@
 ═══════════════════════════════════════════════ -->
 <div id="screen-end" class="screen">
   <div class="end-box">
-    <span class="end-icon" id="end-icon">❌</span>
+    <span class="end-icon" id="end-icon" aria-hidden="true">❌</span>
     <h2 id="end-title"></h2>
     <p class="end-subtitle" id="end-subtitle"></p>
     <div class="end-card"><p id="end-description"></p></div>
     <div class="end-card">
-      <h3>📊 Résumé de la Partie</h3>
+      <h3><span aria-hidden="true">📊</span> Résumé de la Partie</h3>
       <div class="scores-summary" id="end-scores"></div>
     </div>
     <div class="end-card">
-      <h3>👩🏽‍💼 Vos actions</h3>
+      <h3><span aria-hidden="true">👩🏽‍💼</span> Vos actions</h3>
       <div id="end-actions"></div>
     </div>
     <div class="end-card">
@@ -238,17 +240,17 @@
 ═══════════════════════════════════════════════ -->
 <div id="screen-result" class="screen">
   <div class="end-box">
-    <span class="end-icon" id="result-icon">🏆</span>
+    <span class="end-icon" id="result-icon" aria-hidden="true">🏆</span>
     <div class="result-type-badge"><span id="result-badge-span">Résultat</span></div>
     <h2 id="result-title"></h2>
     <p class="end-subtitle">Résultat du vote final</p>
     <div class="end-card"><p id="result-description"></p></div>
     <div class="end-card">
-      <h3>📊 Résumé de la Partie</h3>
+      <h3><span aria-hidden="true">📊</span> Résumé de la Partie</h3>
       <div class="scores-summary" id="result-scores"></div>
     </div>
     <div class="end-card">
-      <h3>👩🏽‍💼 Vos actions</h3>
+      <h3><span aria-hidden="true">👩🏽‍💼</span> Vos actions</h3>
       <div id="result-actions"></div>
     </div>
     <div class="end-card">
@@ -262,12 +264,12 @@
 </div>
 
 <!-- Calendrier -->
-<div class="cal-overlay" id="cal-overlay" onclick="onCalOverlayClick(event)">
-  <div class="cal-modal" id="cal-modal">
+<div class="cal-overlay" id="cal-overlay" onclick="onCalOverlayClick(event)" role="presentation">
+  <div class="cal-modal" id="cal-modal" role="dialog" aria-modal="true" aria-labelledby="cal-modal-title">
     <div class="pn-header">
-      <span class="pn-app-icon">📅</span>
-      <span class="pn-app-name">Calendrier</span>
-      <button class="pn-close" onclick="closeCalendar()" aria-label="Fermer">✕</button>
+      <span class="pn-app-icon" aria-hidden="true">📅</span>
+      <span class="pn-app-name" id="cal-modal-title">Calendrier</span>
+      <button class="pn-close" onclick="closeCalendar()" aria-label="Fermer le calendrier">✕</button>
     </div>
     <div class="cal-inner" id="cal-inner"></div>
     <div class="cal-footer">
