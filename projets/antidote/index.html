@@ -74,12 +74,12 @@
 
     <div class="welcome-options">
       <label class="welcome-toggle">
-        <input type="checkbox" id="opt-sound" checked>
+        <input type="checkbox" id="opt-sound">
         <span class="wt-box"></span>
         <span class="wt-label">Effets sonores</span>
       </label>
       <label class="welcome-toggle">
-        <input type="checkbox" id="opt-fullscreen" checked>
+        <input type="checkbox" id="opt-fullscreen">
         <span class="wt-box"></span>
         <span class="wt-label">Plein écran</span>
       </label>
@@ -141,6 +141,7 @@
           <div class="sp-bar-bg"><div class="sp-bar" id="bar-resources"></div></div>
         </div>
       </div>
+      <button class="settings-btn" id="settings-btn" onclick="openSettings()" aria-label="Paramètres" title="Paramètres">⚙️</button>
     </div>
 
   </div><!-- /chat-header -->
@@ -274,6 +275,46 @@
     <div class="cal-inner" id="cal-inner"></div>
     <div class="cal-footer">
       <button class="btn btn-primary cal-ok-btn" onclick="closeCalendar()">Ok</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODALE : Paramètres
+═══════════════════════════════════════════════ -->
+<div class="cal-overlay" id="settings-overlay" onclick="onSettingsOverlayClick(event)" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <div class="cal-modal settings-modal">
+    <div class="pn-header">
+      <span class="pn-app-icon" aria-hidden="true">⚙️</span>
+      <span id="settings-title" class="pn-app-name">Paramètres</span>
+      <button class="pn-close" onclick="closeSettings()" aria-label="Fermer les paramètres">✕</button>
+    </div>
+    <div class="cal-inner settings-inner">
+
+      <label class="welcome-toggle settings-toggle">
+        <input type="checkbox" id="set-fullscreen">
+        <span class="wt-box"></span>
+        <span class="wt-label">Plein écran</span>
+      </label>
+
+      <label class="welcome-toggle settings-toggle">
+        <input type="checkbox" id="set-sound">
+        <span class="wt-box"></span>
+        <span class="wt-label">Effets sonores</span>
+      </label>
+
+      <div class="settings-row">
+        <span class="settings-row-label">Taille des textes</span>
+        <div class="settings-zoom-group" role="group" aria-label="Taille des textes">
+          <label class="zoom-opt"><input type="radio" name="zoom" value="100" checked>Moyenne</label>
+          <label class="zoom-opt"><input type="radio" name="zoom" value="120">Grande</label>
+          <label class="zoom-opt"><input type="radio" name="zoom" value="140">Très grande</label>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:18px;">
+        <button class="btn btn-primary" onclick="closeSettings()">Ok</button>
+      </div>
     </div>
   </div>
 </div>

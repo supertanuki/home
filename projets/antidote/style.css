@@ -444,7 +444,7 @@ body.notif-open .notif-overlay { display: block; }
 /* Ligne 2 : indicateurs */
 .chat-header-scores {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
   gap: 5px;
 }
 
@@ -1245,6 +1245,76 @@ body.notif-open .chat-header {
   user-select: none;
 }
 
+/* ════════════════════════════════════════════
+   BOUTON PARAMÈTRES
+════════════════════════════════════════════ */
+.settings-btn {
+  background: rgba(255,255,255,.08);
+  border: none;
+  border-radius: 8px;
+  color: var(--white);
+  cursor: pointer;
+  font-size: 1.1rem;
+  width: 38px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s;
+  align-self: center;
+}
+.settings-btn:hover { background: rgba(255,255,255,.18); }
+
+/* ════════════════════════════════════════════
+   MODALE PARAMÈTRES
+════════════════════════════════════════════ */
+.settings-modal { min-width: 280px; max-width: 360px; width: 92vw; }
+
+.settings-inner { display: flex; flex-direction: column; gap: 14px; }
+
+.settings-toggle { color: var(--white); }
+
+.settings-row { display: flex; flex-direction: column; gap: 8px; margin-top: 1rem; }
+
+.settings-row-label {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: rgba(255,255,255,.55);
+}
+
+.settings-zoom-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.zoom-opt {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+}
+.zoom-opt input { display: none; }
+.zoom-opt {
+  font-size: .85rem;
+  color: rgba(255,255,255,.85);
+  background: rgba(255,255,255,.08);
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 5px 11px;
+  transition: background .15s, border-color .15s;
+  user-select: none;
+}
+.zoom-opt:has(input:checked) {
+  background: rgba(76,172,175,.2);
+  border-color: var(--green-light);
+  color: var(--green-light);
+  font-weight: 700;
+}
+.zoom-opt:hover { background: rgba(255,255,255,.14); }
+
 /* ─── Responsive ─── */
 @media (max-width: 480px) {
   .chat-header-role   { display: none; }
@@ -1270,7 +1340,7 @@ body.notif-open .chat-header {
   .chat-header-scores {
     flex-shrink: 0;
     gap: 10px;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
   }
   .chp-tour-pill {
     height: 70px;
