@@ -1554,3 +1554,31 @@ document.addEventListener('keydown', function(e) {
     closeActionsPanel();
   }
 });
+
+/* ════════════════════════════════════════════
+   DEBUG : accès direct aux écrans de résultat
+   ?lobby_win | ?partial_win | ?statu_quo | ?complete_win
+   ?resourcesZero | ?publicZero | ?politicalZero
+════════════════════════════════════════════ */
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const finalIds = ['lobby_win', 'partial_win', 'statu_quo', 'complete_win'];
+  const endKeys  = { resourcesZero: 'resources', publicZero: 'public', politicalZero: 'political' };
+
+  const finalId = finalIds.find(function(id) { return params.has(id); });
+  const endParam = Object.keys(endKeys).find(function(k) { return params.has(k); });
+
+  if (!finalId && !endParam) return;
+
+  scores        = { ...GAME_DATA.initialScores, score: 0 };
+  playedPhases  = [];
+  playedActions = [];
+
+  if (finalId) {
+    const scoreMap = { complete_win: 95, partial_win: 70, statu_quo: 35, lobby_win: 5 };
+    scores.score = scoreMap[finalId];
+    _doShowFinalResult();
+  } else {
+    _doShowEarlyEnd(endKeys[endParam]);
+  }
+})();
