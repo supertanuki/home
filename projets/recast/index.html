@@ -25,9 +25,9 @@
       <input type="text" id="input-name" placeholder="ex : Marie" maxlength="30" autocomplete="off">
     </div>
 
-    <div class="card">
-      <h2>Quel est votre rôle ?</h2>
-      <div class="role-grid">
+    <div class="card" id="role-card">
+      <h2 id="role-heading">Quel est votre rôle ?</h2>
+      <div class="role-grid" id="role-grid">
         <div class="role-card" id="role-host" onclick="selectRole('host')">
           <div class="icon">🎙️</div>
           <div class="title">Animateur</div>
@@ -38,6 +38,9 @@
           <div class="title">Invité</div>
           <div class="desc">Vous rejoignez une session existante</div>
         </div>
+      </div>
+      <div id="guest-join-notice" class="hidden">
+        <div class="alert alert-info">🎧 Vous êtes invité à rejoindre une session. Entrez votre prénom et cliquez sur Continuer.</div>
       </div>
       <div class="mt-16">
         <button class="btn btn-primary btn-full" id="btn-continue" disabled onclick="goToSetup()">
@@ -130,6 +133,17 @@
 
   <!-- ══ SCREEN 3 : Studio ══ -->
   <div class="screen" id="screen-studio">
+
+    <!-- Lien d'invitation (animateur, mode PeerJS uniquement) -->
+    <div class="card hidden" id="share-link-card">
+      <h2>Lien d'invitation</h2>
+      <div class="share-link-row">
+        <input type="text" id="share-link-input" readonly>
+        <button class="btn btn-ghost" onclick="copyShareLink()">Copier le lien</button>
+      </div>
+      <small>Partagez ce lien — vos invités rejoindront automatiquement</small>
+    </div>
+
     <div class="card">
       <h2>Participants</h2>
       <div class="participants" id="studio-participants"></div>

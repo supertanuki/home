@@ -123,6 +123,19 @@ function selectRole(role) {
 document.getElementById('input-name').addEventListener('input', updateContinueBtn);
 loadRecordingsUI();
 
+// ─── URL-based guest detection ────────────────────────────────────────────────
+
+{
+  const urlHostId = new URLSearchParams(location.search).get('h');
+  if (urlHostId) {
+    state.role       = 'guest';
+    state.hostPeerId = urlHostId;
+    document.getElementById('role-grid').classList.add('hidden');
+    document.getElementById('guest-join-notice').classList.remove('hidden');
+    document.getElementById('role-heading').textContent = 'Rejoindre la session';
+  }
+}
+
 function updateContinueBtn() {
   const name = document.getElementById('input-name').value.trim();
   document.getElementById('btn-continue').disabled = !(name && state.role);
@@ -131,52 +144,54 @@ function updateContinueBtn() {
 async function goToSetup() {
   state.name = document.getElementById('input-name').value.trim();
 
-  // Request microphone permission early
   const ok = await state.recorder.requestPermission();
   if (!ok) {
     alert('Accès au microphone requis pour enregistrer. Veuillez autoriser dans votre navigateur.');
     return;
   }
 
-  if (state.role === 'host') {
-    showScreen('screen-host-setup');
-    await initSignaling('host');
-  } else {
-    showScreen('screen-guest-setup');
-    await initSignaling('guest');
-  }
-}
-
-// ─── Signaling init ──────────────────────────────────────────────────────────
-
-async function initSignaling(role) {
-  const statusEl = document.getElementById(
-    role === 'host' ? 'peerjs-status' : 'peerjs-status-guest'
-  );
-
-  const { signaling, mode } = await createSignaling(() => {
-    statusEl.textContent = '⚠️ PeerJS indisponible — mode manuel activé';
-    statusEl.className = 'alert alert-warning';
-  });
-
+  const { signaling, mode } = await createSignaling(null);
   state.signaling = signaling;
   state.sigMode   = mode;
   state.myPeerId  = signaling.myId;
+  signaling.onDataChannel = (conn, peerId) => setupPeerConnection(conn, peerId);
+  addSelfToParticipants();
 
   if (mode === 'peerjs') {
-    statusEl.textContent = '✓ Connecté via PeerJS';
-    statusEl.className = 'alert alert-success';
-  }
+    setupFileReceiver();
 
-  // Common: handle incoming connections/messages
-  signaling.onDataChannel = (conn, peerId) => {
-    setupPeerConnection(conn, peerId);
-  };
-
-  if (role === 'host') {
-    setupHostUI(mode);
+    if (state.role === 'host') {
+      const shareUrl = `${location.origin}${location.pathname}?h=${state.myPeerId}`;
+      window.history.replaceState({}, '', `?h=${state.myPeerId}`);
+      document.getElementById('share-link-card').classList.remove('hidden');
+      document.getElementById('share-link-input').value = shareUrl;
+      showScreen('screen-studio');
+    } else {
+      // Connect to host automatically (peer ID comes from URL)
+      const conn = state.signaling.connect(state.hostPeerId);
+      setupPeerConnection(conn, state.hostPeerId);
+      showScreen('screen-studio');
+      document.getElementById('btn-record').classList.add('hidden');
+      document.getElementById('rec-info').textContent =
+        'L\'animateur démarrera l\'enregistrement pour tout le monde.';
+    }
   } else {
-    setupGuestUI(mode);
+    // Manual mode: existing SDP setup screens
+    const fallbackMsg = '⚠️ PeerJS indisponible — mode manuel activé';
+    if (state.role === 'host') {
+      showScreen('screen-host-setup');
+      const s = document.getElementById('peerjs-status');
+      s.textContent = fallbackMsg; s.className = 'alert alert-warning';
+      document.getElementById('manual-host-panel').classList.remove('hidden');
+      addGuestSlot();
+      document.getElementById('btn-go-studio').disabled = false;
+    } else {
+      showScreen('screen-guest-setup');
+      const s = document.getElementById('peerjs-status-guest');
+      s.textContent = fallbackMsg; s.className = 'alert alert-warning';
+      document.getElementById('manual-guest-panel').classList.remove('hidden');
+      setupManualGuestSteps();
+    }
   }
 }
 
@@ -292,29 +307,13 @@ function handleCmd(cmd, fromPeerId) {
 
 // ─── Host UI ─────────────────────────────────────────────────────────────────
 
-function setupHostUI(mode) {
-  addSelfToParticipants();
-
-  if (mode === 'peerjs') {
-    document.getElementById('peerjs-host-panel').classList.remove('hidden');
-    document.getElementById('room-code').textContent = state.myPeerId;
-    // Host is ready when at least 1 guest connects
-    document.getElementById('btn-go-studio').textContent = 'Ouvrir le studio →';
-    document.getElementById('btn-go-studio').disabled = false; // host can open alone
-  } else {
-    document.getElementById('manual-host-panel').classList.remove('hidden');
-    addGuestSlot(); // add first slot automatically
-    document.getElementById('btn-go-studio').disabled = false;
-  }
-}
-
-function copyRoomCode() {
-  const code = state.myPeerId;
-  navigator.clipboard.writeText(code).then(() => {
-    const el = document.getElementById('room-code');
-    const original = el.textContent;
-    el.textContent = 'Copié !';
-    setTimeout(() => el.textContent = original, 1500);
+function copyShareLink() {
+  const input = document.getElementById('share-link-input');
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = input.nextElementSibling;
+    const t = btn.textContent;
+    btn.textContent = 'Copié !';
+    setTimeout(() => btn.textContent = t, 1500);
   });
 }
 
@@ -368,25 +367,6 @@ async function hostAcceptAnswer(label) {
 }
 
 // ─── Guest UI ────────────────────────────────────────────────────────────────
-
-function setupGuestUI(mode) {
-  if (mode === 'peerjs') {
-    document.getElementById('peerjs-guest-panel').classList.remove('hidden');
-  } else {
-    document.getElementById('manual-guest-panel').classList.remove('hidden');
-    setupManualGuestSteps();
-  }
-}
-
-function guestJoinPeerJS() {
-  const code = document.getElementById('input-room-code').value.trim();
-  if (!code) return;
-  state.hostPeerId = code;
-  const conn = state.signaling.connect(code);
-  setupPeerConnection(conn, code);
-  document.getElementById('guest-waiting-panel').classList.remove('hidden');
-  addSelfToParticipants();
-}
 
 function setupManualGuestSteps() {
   const container = document.getElementById('manual-guest-steps');
