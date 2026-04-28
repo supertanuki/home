@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recast — Enregistrement Podcast</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">Re<span>cast</span></div>
+  <div class="badge" id="connection-badge">non connecté</div>
+</header>
+
+<div class="app">
+
+  <!-- ══ SCREEN 1 : Welcome ══ -->
+  <div class="screen active" id="screen-welcome">
+    <div class="card">
+      <h2>Bienvenue</h2>
+      <label for="input-name">Votre prénom (affiché aux autres)</label>
+      <input type="text" id="input-name" placeholder="ex : Marie" maxlength="30" autocomplete="off">
+    </div>
+
+    <div class="card">
+      <h2>Quel est votre rôle ?</h2>
+      <div class="role-grid">
+        <div class="role-card" id="role-host" onclick="selectRole('host')">
+          <div class="icon">🎙️</div>
+          <div class="title">Animateur</div>
+          <div class="desc">Vous créez la session et lancez l'enregistrement</div>
+        </div>
+        <div class="role-card" id="role-guest" onclick="selectRole('guest')">
+          <div class="icon">🎧</div>
+          <div class="title">Invité</div>
+          <div class="desc">Vous rejoignez une session existante</div>
+        </div>
+      </div>
+      <div class="mt-16">
+        <button class="btn btn-primary btn-full" id="btn-continue" disabled onclick="goToSetup()">
+          Continuer →
+        </button>
+      </div>
+    </div>
+
+    <div class="card" id="recordings-card">
+      <div class="recordings-header">
+        <h2>Mes enregistrements</h2>
+        <span class="recordings-count hidden" id="recordings-count"></span>
+      </div>
+      <div id="recordings-list">
+        <p class="recordings-empty">Aucun enregistrement sauvegardé dans ce navigateur.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 2a : Host Setup ══ -->
+  <div class="screen" id="screen-host-setup">
+    <div class="alert alert-info" id="peerjs-status">
+      ⏳ Connexion au service de signalisation…
+    </div>
+
+    <!-- PeerJS mode -->
+    <div class="card hidden" id="peerjs-host-panel">
+      <h2>Code de session</h2>
+      <div class="room-code" id="room-code" onclick="copyRoomCode()" title="Cliquez pour copier">
+        ···
+      </div>
+      <p class="room-code-hint mt-8">Cliquez pour copier · Partagez ce code à vos invités</p>
+    </div>
+
+    <!-- Manual mode -->
+    <div class="card hidden" id="manual-host-panel">
+      <h2>Connexion manuelle</h2>
+      <div class="alert alert-warning mb-8">
+        ⚠️ PeerJS indisponible. Échangez les codes ci-dessous via chat/email.
+      </div>
+      <div id="manual-guest-slots"></div>
+      <button class="btn btn-ghost mt-16" onclick="addGuestSlot()">+ Ajouter un invité</button>
+    </div>
+
+    <!-- Participants -->
+    <div class="card">
+      <h2>Participants</h2>
+      <div class="participants" id="participants-list"></div>
+      <div class="mt-16">
+        <button class="btn btn-primary" id="btn-go-studio" onclick="goToStudio()" disabled>
+          Ouvrir le studio →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 2b : Guest Setup ══ -->
+  <div class="screen" id="screen-guest-setup">
+    <div class="alert alert-info" id="peerjs-status-guest">
+      ⏳ Connexion au service de signalisation…
+    </div>
+
+    <!-- PeerJS mode -->
+    <div class="card hidden" id="peerjs-guest-panel">
+      <h2>Rejoindre une session</h2>
+      <label for="input-room-code">Code de session (donné par l'animateur)</label>
+      <input type="text" id="input-room-code" placeholder="ex : ABC123" maxlength="20" autocomplete="off"
+             oninput="this.value = this.value.toUpperCase()">
+      <div class="mt-16">
+        <button class="btn btn-primary btn-full" onclick="guestJoinPeerJS()">Rejoindre →</button>
+      </div>
+    </div>
+
+    <!-- Manual mode -->
+    <div class="card hidden" id="manual-guest-panel">
+      <h2>Connexion manuelle</h2>
+      <div class="alert alert-warning">
+        ⚠️ PeerJS indisponible. Suivez les étapes ci-dessous.
+      </div>
+      <div class="sdp-steps mt-16" id="manual-guest-steps"></div>
+    </div>
+
+    <div class="card hidden" id="guest-waiting-panel">
+      <div class="alert alert-success">
+        ✓ Connecté à l'animateur. En attente du démarrage de l'enregistrement…
+      </div>
+      <div class="participants mt-16" id="guest-participants-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 3 : Studio ══ -->
+  <div class="screen" id="screen-studio">
+    <div class="card">
+      <h2>Participants</h2>
+      <div class="participants" id="studio-participants"></div>
+    </div>
+
+    <div class="card">
+      <h2>Enregistrement</h2>
+      <div class="rec-controls">
+        <button class="btn btn-danger" id="btn-record" onclick="toggleRecording()">
+          ⏺ Démarrer
+        </button>
+        <div class="rec-indicator">
+          <div class="rec-dot" id="rec-dot"></div>
+          <span id="rec-timer">00:00:00</span>
+        </div>
+      </div>
+      <div class="alert alert-info mt-16" id="rec-info">
+        Cliquez sur "Démarrer" pour lancer l'enregistrement sur tous les participants.
+      </div>
+    </div>
+
+    <div class="card hidden" id="studio-tracks-card">
+      <h2>Pistes audio</h2>
+      <div id="studio-tracks-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>Chat</h2>
+      <div class="chat-box">
+        <div id="chat-messages"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Message…" maxlength="500"
+                 onkeydown="if(event.key==='Enter') sendChat()">
+          <button class="btn btn-ghost" onclick="sendChat()">Envoyer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCREEN 4 : Transfer ══ -->
+  <div class="screen" id="screen-transfer">
+    <div class="card">
+      <h2>Transfert des pistes audio</h2>
+      <div class="alert alert-info">
+        Chaque participant envoie sa piste à l'animateur via la connexion P2P.
+        Aucune donnée ne transite par un serveur externe.
+      </div>
+      <div class="track-list mt-16" id="transfer-list"></div>
+    </div>
+
+    <div class="card hidden" id="transfer-done-panel">
+      <h2>Pistes reçues</h2>
+      <div class="track-list" id="tracks-list"></div>
+      <div class="row mt-16">
+        <button class="btn btn-primary" onclick="downloadAll()">⬇ Tout télécharger</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.app -->
+
+<script src="signaling.js"></script>
+<script src="recorder.js"></script>
+<script src="transfer.js"></script>
+<script src="storage.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
