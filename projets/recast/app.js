@@ -1,3 +1,10 @@
+// ─── Version (SemVer: MAJOR.MINOR.PATCH) ─────────────────────────────────────
+// MAJOR — refonte ou rupture de compatibilité
+// MINOR — nouvelle fonctionnalité
+// PATCH — correction de bug
+const APP_VERSION = '0.3.1';
+document.getElementById('app-version').textContent = `v${APP_VERSION}`;
+
 // ─── State ───────────────────────────────────────────────────────────────────
 
 const state = {
@@ -228,7 +235,6 @@ function setupPeerConnection(conn, peerId) {
     switch (msg.type) {
       case 'hello':
         state.peers[peerId].name = msg.name;
-        updateBadge(peerId, 'connected');
         refreshParticipantsUI();
         if (state.role === 'host') broadcastParticipants();
         break;
@@ -259,9 +265,10 @@ function setupPeerConnection(conn, peerId) {
   // PeerJS DataConnection uses .on('data') / Manual uses conn.onmessage
   if (conn.on) {
     conn.on('data', handleMsg);
-    conn.on('open', () => sendHello(peerId));
     conn.on('close', () => handleDisconnect(peerId));
     conn.on('error', () => handleDisconnect(peerId));
+    // Connection is already open here (onDataChannel fires on 'open') — send immediately
+    sendHello(peerId);
   } else {
     // Manual mode: channel is already wired; wire message handler
     const entry = state.signaling.connections[peerId];
@@ -478,11 +485,6 @@ function participantHTML(name, status) {
     </div>`;
 }
 
-function updateBadge(peerId, status) {
-  if (state.peers[peerId]) state.peers[peerId].status = status;
-  document.getElementById('connection-badge').textContent =
-    Object.keys(state.peers).length > 1 ? 'connecté' : 'en attente';
-}
 
 function broadcastParticipants() {
   const list = Object.entries(state.peers)
