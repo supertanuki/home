@@ -21,7 +21,10 @@ class PeerJSSignaling {
   constructor() {
     this.peer = null;
     this.connections = {}; // peerId → DataConnection
-    this.onDataChannel = null; // callback(conn, peerId)
+    this.onDataChannel = null;  // callback(conn, peerId)
+    this.onRemoteStream = null; // callback(peerId, MediaStream)
+    this._localStream = null;
+    this._audioCalls = {};      // peerId → MediaConnection (outgoing only)
   }
 
   async init() {
@@ -44,6 +47,29 @@ class PeerJSSignaling {
       this.peer.on('connection', (conn) => {
         this._setupConn(conn);
       });
+      // Auto-answer any incoming audio calls
+      this.peer.on('call', (call) => {
+        if (this._localStream) call.answer(this._localStream);
+        call.on('stream', (remoteStream) => {
+          if (this.onRemoteStream) this.onRemoteStream(call.peer, remoteStream);
+        });
+      });
+    });
+  }
+
+  // Set the local audio stream and enable audio answering
+  setupAudio(localStream) {
+    this._localStream = localStream;
+  }
+
+  // Initiate an outgoing audio call to a peer
+  callPeer(remotePeerId) {
+    if (!this._localStream || this._audioCalls[remotePeerId]) return;
+    const call = this.peer.call(remotePeerId, this._localStream);
+    if (!call) return;
+    this._audioCalls[remotePeerId] = call;
+    call.on('stream', (remoteStream) => {
+      if (this.onRemoteStream) this.onRemoteStream(remotePeerId, remoteStream);
     });
   }
 

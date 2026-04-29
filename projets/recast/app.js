@@ -158,6 +158,9 @@ async function goToSetup() {
   addSelfToParticipants();
 
   if (mode === 'peerjs') {
+    // Wire audio: auto-answer incoming calls + play remote streams
+    signaling.setupAudio(state.recorder.stream);
+    signaling.onRemoteStream = (peerId, stream) => playRemoteAudio(peerId, stream);
     setupFileReceiver();
 
     if (state.role === 'host') {
@@ -167,9 +170,10 @@ async function goToSetup() {
       document.getElementById('share-link-input').value = shareUrl;
       showScreen('screen-studio');
     } else {
-      // Connect to host automatically (peer ID comes from URL)
-      const conn = state.signaling.connect(state.hostPeerId);
-      setupPeerConnection(conn, state.hostPeerId);
+      // DataConnection: let onDataChannel handle setupPeerConnection (avoids double-registration)
+      state.signaling.connect(state.hostPeerId);
+      // Audio call to host (host auto-answers, bidirectional stream established)
+      state.signaling.callPeer(state.hostPeerId);
       showScreen('screen-studio');
       document.getElementById('btn-record').classList.add('hidden');
       document.getElementById('rec-info').textContent =
@@ -239,8 +243,15 @@ function setupPeerConnection(conn, peerId) {
         break;
 
       case 'participants':
-        // Guest receives updated participant list from host
         renderGuestParticipants(msg.list);
+        // Call any new peer for audio (guest-to-guest, each side calls only peers with larger ID)
+        if (state.sigMode === 'peerjs' && msg.list) {
+          msg.list.forEach(p => {
+            if (p.peerId && p.peerId !== state.myPeerId && p.peerId > state.myPeerId) {
+              state.signaling.callPeer(p.peerId);
+            }
+          });
+        }
         break;
     }
   };
@@ -474,7 +485,10 @@ function updateBadge(peerId, status) {
 }
 
 function broadcastParticipants() {
-  const list = Object.values(state.peers).map(p => ({ name: p.name }));
+  const list = Object.entries(state.peers)
+    .filter(([pid]) => pid !== '__self__')
+    .map(([pid, p]) => ({ name: p.name, peerId: pid }));
+  list.push({ name: state.name, peerId: state.myPeerId });
   broadcast({ type: 'participants', list });
 }
 
@@ -509,8 +523,9 @@ function startRecordingLocal() {
   state.recorder.start();
   state.isRecording = true;
   document.getElementById('rec-dot').classList.add('active');
-  document.getElementById('btn-record').textContent = '⏹ Arrêter';
-  document.getElementById('btn-record').className = 'btn btn-ghost';
+  const btnRec1 = document.getElementById('btn-record');
+  btnRec1.textContent = '⏹ Arrêter';
+  btnRec1.classList.replace('btn-danger', 'btn-ghost');
   document.getElementById('rec-info').classList.add('hidden');
   startRecTimer();
   appendSystemMsg('Enregistrement démarré');
@@ -520,8 +535,9 @@ async function stopRecordingLocal() {
   const blob = await state.recorder.stop();
   state.isRecording = false;
   document.getElementById('rec-dot').classList.remove('active');
-  document.getElementById('btn-record').textContent = '⏺ Démarrer';
-  document.getElementById('btn-record').className = 'btn btn-danger';
+  const btnRec2 = document.getElementById('btn-record');
+  btnRec2.textContent = '⏺ Démarrer';
+  btnRec2.classList.replace('btn-ghost', 'btn-danger');
   stopRecTimer();
   appendSystemMsg('Enregistrement terminé');
 
@@ -728,6 +744,18 @@ function downloadStudioTrack(participantName) {
 
 function safeDomId(str) {
   return str.replace(/[^a-zA-Z0-9]/g, '_');
+}
+
+function playRemoteAudio(peerId, stream) {
+  const id = 'remote-audio-' + safeDomId(peerId);
+  let audio = document.getElementById(id);
+  if (!audio) {
+    audio = document.createElement('audio');
+    audio.id = id;
+    audio.autoplay = true;
+    document.body.appendChild(audio);
+  }
+  audio.srcObject = stream;
 }
 
 function addTransferRow(filename, fromName) {
