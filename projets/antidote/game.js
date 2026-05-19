@@ -24,7 +24,7 @@ let counterTimer       = null;
 
 // Référence d'affichage des barres : valeur initiale × 2 = 50 % au départ
 const BAR_REF = { public: 80, political: 120, resources: 200 };
-const PHASE_ICONS = ['🤝','🏛️','🔬','📺','🌾','📣','📱','✊','📋','⚖️'];
+const PHASE_ICONS = ['🤝','🏛️','🔬','📺','🌾','📣','📱','⚖️'];
 
 /* ── Sons ── */
 let _soundEnabled = false;
@@ -172,23 +172,24 @@ function startGame() {
   closeActionsPanel();
   updateScoreboard();
   updateProgress();
-  showScreen('screen-game');
-  showDormantInput();
-  showTyping();
+  flashToScreen('screen-game', function() {
+    showDormantInput();
+    showTyping();
+  });
 
   setTimeout(function() {
     hideTyping();
     addColleagueMessage(
-      `Bienvenue dans l'équipe\u00a0🙂<br>Je suis <b>Naomi</b>, la directrice de l'association Antidote.<br>Ravie de t'accueillir, même si, tu vas voir, le timing est… particulier.`
+      `Bienvenue dans l'équipe\u00a0🙂<br>Je suis <b>Naomi</b>, directrice d'Antidote.<br>Ravie de t'accueillir, même si, le timing est, disons… serré.`
     );
     showMerciInput(function() {
       showTyping();
       setTimeout(function() {
         hideTyping();
-        addColleagueMessage('Es-tu prêt·e\u00a0?');
+        addColleagueMessage('On entre directement dans le vif du sujet.<br>Tu veux d\'abord quelques explications, ou on y va ?');
         showMerciInput(function() { showExplanations(); }, [
-          { label: 'Voir les explications', text: 'Oui', cb: function() { showExplanations(); } },
-          { label: 'Passer...', text: 'On y va\u00a0!', cb: function() { askAction(); } },
+          { label: 'Explique-moi', text: 'Explique-moi', cb: function() { showExplanations(); } },
+          { label: 'Passer...', text: 'On y va directement !', cb: function() { askAction(); } },
         ]);
       }, 800);
     }, [{ label: 'Merci\u00a0!', text: 'Salut Naomi, merci\u00a0!' }]);
@@ -204,6 +205,24 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   setTimeout(() => scrollToTop(), 60);
+}
+
+function flashToScreen(id, cb) {
+  const overlay = document.getElementById('flash-overlay');
+  if (!overlay) { showScreen(id); if (cb) cb(); return; }
+  overlay.classList.add('visible');
+  setTimeout(function() {
+    showScreen(id);
+    if (cb) cb();
+    requestAnimationFrame(function() {
+      overlay.style.transition = 'opacity 250ms ease';
+      overlay.classList.remove('visible');
+      overlay.addEventListener('transitionend', function reset() {
+        overlay.style.transition = '';
+        overlay.removeEventListener('transitionend', reset);
+      });
+    });
+  }, 150);
 }
 
 /* ════════════════════════════════════════════
@@ -226,8 +245,8 @@ function updateScoreboard(animateKeys) {
     elB.classList.remove('danger','warning');
     pill.classList.remove('danger','warning');
     let status = '';
-    if (val <= ref * 0.10)      { elB.classList.add('danger');  pill.classList.add('danger');  status = ' — niveau critique'; }
-    else if (val <= ref * 0.20) { elB.classList.add('warning'); pill.classList.add('warning'); status = ' — niveau faible'; }
+    if (val <= ref * 0.10)      { elB.classList.add('danger');  pill.classList.add('danger');  status = ' - niveau critique'; }
+    else if (val <= ref * 0.20) { elB.classList.add('warning'); pill.classList.add('warning'); status = ' - niveau faible'; }
 
     // Mettre à jour l'aria-label du pill pour refléter valeur et état (RGAA 3.1)
     if (pill) pill.setAttribute('aria-label', SCORE_LABELS[key] + '\u00a0: ' + val + status);
@@ -259,7 +278,7 @@ function updateProgress() {
 
   if (label) label.dataset.phaseIdx = currentPhaseIdx;
   if (num)   num.textContent  = 'Tour\u00a0' + (currentPhaseIdx + 1) + '\u00a0/\u00a0' + total;
-  if (name)  name.textContent = phase && phase.tourLabel ? phase.tourLabel : '—';
+  if (name)  name.textContent = phase && phase.tourLabel ? phase.tourLabel : '-';
 }
 
 /* ════════════════════════════════════════════
@@ -446,7 +465,7 @@ function showScoreDelta(effects) {
     el.className  = 'score-delta-float ' + (delta > 0 ? 'pos' : 'neg');
     el.textContent = (delta > 0 ? '+' : '') + delta;
     el.style.left = (rect.left + rect.width / 2) + 'px';
-    el.style.top  = rect.bottom + 'px';
+    el.style.top  = (rect.top + rect.height / 2) + 'px';
     document.body.appendChild(el);
     setTimeout(function() { if (el.parentNode) el.remove(); }, 2200);
   });
@@ -746,10 +765,10 @@ function openActionsPanel() {
     let ariaLabel = phase.title;
     if (isPlayed) {
       badge = '<span class="ao-card-played-badge" aria-hidden="true">✓ Tour ' + (playedPhases.indexOf(i) + 1) + '</span>';
-      ariaLabel = phase.title + ' — joué au tour ' + (playedPhases.indexOf(i) + 1);
+      ariaLabel = phase.title + ' - joué au tour ' + (playedPhases.indexOf(i) + 1);
     } else if (locked) {
       badge = '<span class="ao-card-locked-badge" aria-hidden="true">🔒</span>';
-      ariaLabel = phase.title + ' — verrouillé';
+      ariaLabel = phase.title + ' - verrouillé';
     }
     card.setAttribute('aria-label', ariaLabel);
 
@@ -1278,11 +1297,11 @@ function askAction() {
     showTyping();
     setTimeout(function() {
       hideTyping();
-      addColleagueMessage(`On entre dans la première phase.<br>Le texte vient d'être inscrit à l'ordre du jour. Et un rapporteur vient d'être désigné.<br>C'est lui qui va organiser les auditions, structurer le débat…<br>et orienter une bonne partie de la suite.`);
+      addColleagueMessage(`Le texte vient d'être inscrit à l'ordre du jour.<br>Un rapporteur vient d'être désigné : c'est lui qui va organiser les auditions et structurer le débat.`);
       showTyping();
       setTimeout(function() {
         hideTyping();
-        addColleagueMessage(`Si on arrive à exister maintenant, on peut peser.<br>Sinon, on subira. On a plusieurs options pour démarrer.<br>Mais on ne pourra pas toutes les activer.<br><b>Qu'est-ce que tu proposes de lancer en premier\u00a0?</b>`);
+        addColleagueMessage(`Si on arrive à peser dès maintenant, on part avec une longueur d'avance.<br>Quelle est ta première action ?`);
         showPickerBtn();
         scrollToBottom();
       }, 3500);
@@ -1342,10 +1361,10 @@ function askAction() {
 
 /* ── Affiche "Merci Naomi" pré-rempli + Send actif ── */
 const MERCI_SUGGESTIONS = [
-  { label: 'Merci', text: 'Merci Naomi\u00a0! A+' },
-  { label: 'Vu, on continue', text: 'Naomi, merci, vu, on continue... A+' },
-  { label: 'On se laisse pas démonter', text: 'Allez, on se laisse pas démonter, merci pour les infos\u00a0!' },
-  { label: 'On va gagner', text: 'Tu m\'étonnes ! On va gagner, on peut y arriver ! A+' },
+  { label: 'Merci', text: 'Merci, on continue !' },
+  { label: 'Bien reçu', text: 'Bien reçu, on y va.' },
+  { label: 'Je réfléchis', text: 'Ok, je réfléchis.' },
+  { label: 'Compris', text: 'Compris. A+' },
 ];
 
 function showMerciInput(cb, customSuggestions) {
@@ -1402,21 +1421,14 @@ function showSequentialMessages(messages, onComplete) {
 
 function showExplanations() {
   showSequentialMessages([
-    `Tu arrives au moment où on entre dans une bataille assez tendue.`,
-    `Une proposition de loi, qui a été adoptée au Sénat, arrive à l'Assemblée nationale.<br>Officiellement, elle vise à "simplifier" les règles pour les agriculteurs.<br>Dans les faits, elle permettrait de réintroduire plusieurs pesticides qui avaient été interdits.`,
-    `Et sans surprise, l'AIPP, le lobby des pesticides est déjà très mobilisé pour la faire passer.`,
-    `De notre côté, on va devoir construire une campagne rapidement.<br>On ne doit pas se laisser faire\u00a0!<br>Tu vas piloter ça avec moi.`,
-    `Avant de démarrer, il faut que tu saches que le timing est serré.`,
-    `La proposition de loi va suivre son parcours classique\u00a0: commission, débats, séance… puis vote.<br>On a donc une fenêtre très limitée pour agir.`,
-    `Concrètement, tu disposes de <b>10 tours</b> avant le vote final.<br>Chaque tour correspond à une étape d'avancée du texte.`,
-    `À chaque tour, tu vas devoir choisir une action à lancer.<br>Sensibilisation des médias, mobilisation militante, sollicitation de scientifiques…<br>C'est toi qui décide de la stratégie.`,
-    `Mais tu ne pourras pas tout faire. Nous sommes une petite association avec des ressources limitées.<br>Et chaque action aura un impact soit\u00a0:<br>→ sur nos ressources économiques<br>→ sur notre crédibilité<br>→ sur le soutien du public`,
-    `Et surtout fais attention à ça, car chaque action compte.<br>Si on épuise complètement nos ressources, nous perdons la campagne et l'AIPP aura le champ libre, sans mauvais jeu de mot.`,
-    `Et évidemment, le lobby ne va pas rester passif.<br>À chaque fois qu'on fera quelque chose, il réagit. Et ça peut nous fragiliser.`,
-    `On y va\u00a0?`,
+    `Une proposition de loi vient d'être déposée au Sénat.<br>Officiellement, elle vise à "simplifier" les règles pour les agriculteurs.<br>Dans les faits : réintroduire des pesticides interdits.<br>L'AIPP (l'Association industrielle de protection des plantes), le lobby des pesticides, est déjà mobilisée pour la faire passer.`,
+    `Tu disposes de 8 tours avant le vote final.<br>À chaque tour, tu choisis une action : mobiliser des scientifiques, alerter les médias, convaincre des parlementaires…<br>C'est toi qui décides.`,
+    `Chaque action a un coût et un effet sur trois indicateurs :<br>→ Soutien du public<br>→ Influence politique<br>→ Ressources<br>Si l'un des trois tombe à zéro, la campagne s'arrête.`,
+    `Dernière chose : le lobby ne restera pas passif.<br>À chaque action qu'on lance, l'AIPP réagira.`,
+    `On y va ?`,
   ], function() {
     showMerciInput(function() { askAction(); }, [
-      { label: 'On y va\u00a0!', text: 'On y va\u00a0!' },
+      { label: 'C\'est parti !', text: 'C\'est parti !' },
     ]);
   });
 }
@@ -1492,9 +1504,9 @@ function triggerEvent() {
 ════════════════════════════════════════════ */
 function showEarlyEnd(zeroKey) {
   const naomiMsgs = {
-    public:    'Oops\u00a0!<br>On a perdu tout le soutien du public.',
-    political: 'Oops\u00a0!<br>On n\'a plus aucun soutien politique.',
-    resources: 'Oops on a consommé toutes nos ressources\u00a0!'
+    public:    'On a perdu tout le soutien du public.',
+    political: 'On n\'a plus aucun soutien politique.',
+    resources: 'On a consommé toutes nos ressources !'
   };
 
   pendingEarlyEnd = zeroKey;
@@ -1531,7 +1543,7 @@ function _doShowEarlyEnd(zeroKey) {
   document.getElementById('end-scores').innerHTML        = buildScoresSummary();
   document.getElementById('end-actions').innerHTML       = buildActionsList();
 
-  setTimeout(() => showScreen('screen-end'), 60);
+  setTimeout(() => flashToScreen('screen-end'), 60);
 }
 
 function sendSorry() {
@@ -1572,14 +1584,12 @@ function showFinalResult() {
 function _doShowFinalResult() {
   const s = scores.score || 0;
   let result;
-  if      (s >= 90) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'complete_win'; });
-  else if (s >= 50) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'partial_win'; });
-  else if (s >= 20) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'statu_quo'; });
+  if      (s >= 40) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'complete_win'; });
+  else if (s >= 25) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'partial_win'; });
+  else if (s >= 15) result = GAME_DATA.finalResults.find(function(r) { return r.id === 'statu_quo'; });
   else              result = GAME_DATA.finalResults.find(function(r) { return r.id === 'lobby_win'; });
 
   document.getElementById('result-icon').textContent        = result.icon;
-  document.getElementById('result-badge-span').textContent  = result.title;
-  document.getElementById('result-badge-span').className    = result.badgeClass;
   document.getElementById('result-title').textContent       = result.title;
   document.getElementById('result-description').textContent = result.description;
   document.getElementById('result-conclusion').textContent  = result.conclusion;
@@ -1587,10 +1597,7 @@ function _doShowFinalResult() {
   document.getElementById('result-scores').innerHTML        = buildScoresSummary();
   document.getElementById('result-actions').innerHTML       = buildActionsList();
 
-  setTimeout(() => {
-    showScreen('screen-result');
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, 60);
+  setTimeout(() => flashToScreen('screen-result'), 60);
 }
 
 function sendJArrive() {

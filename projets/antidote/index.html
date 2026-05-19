@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ANTIDOTE - Bataille contre le lobby des pesticides</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="game-data.js"></script>
+  <link rel="stylesheet" href="style.css?v2" />
+  <script src="game-data.js?v2"></script>
 </head>
 <body>
 
@@ -21,20 +21,24 @@
     <p class="tagline">Bataille contre le lobby des pesticides</p>
 
     <div class="welcome-card avatar-card">
-      <span class="wc-avatar" aria-hidden="true">👩🏽‍💼</span>
       <div class="wc-content">
         <h3>Votre mission</h3>
         <p>
-          Tu viens de rejoindre l'équipe de plaidoyer de l'association <strong>ANTIDOTE</strong>.<br>
-          Une proposition de loi vient d'être déposée à l'Assemblée Nationale.<br>
-          Son objectif : réautoriser plusieurs pesticides dangereux aujourd'hui interdits.<br>
-          Officieusement, l'AIPP le lobby des pesticides est déjà à l'œuvre.
+          Vous venez de rejoindre l'équipe de plaidoyer de l'association de protection de l'environnement, <strong>ANTIDOTE</strong>.
         </p>
-        <p style="margin-top:10px;">
-          <strong>Naomi</strong>, ta collègue lobbyiste environnemental, va te guider.<br>
-          Tu disposes de <strong>10 actions</strong> à lancer avant le vote final au parlement.<br>
-          Ton score final déterminera l'issue du vote.
+        <p>
+          Une proposition de loi vient d'être déposée au Sénat.
+          Son objectif : <strong>réautoriser plusieurs pesticides dangereux</strong> aujourd'hui interdits.
+          Officieusement, l'<strong>AIPP</strong> (Association Industrielle de Protection des Plantes), le lobby des pesticides, est déjà à l'œuvre.
         </p>
+        <div style="margin-top:10px; display:flex; align-items:flex-start; gap:12px;">
+          <span class="wc-avatar" aria-hidden="true">👩🏽‍💼</span>
+          <p style="margin:0">
+            <strong>Naomi</strong>, directrice de l'association, va vous guider.<br>
+            Vous disposez de <strong>8 actions</strong> à lancer avant le vote final.<br>
+            Votre score final déterminera l'issue du vote.
+          </p>
+        </div>
       </div>
     </div>
 
@@ -62,7 +66,7 @@
     <div class="welcome-card">
       <h3>Règles</h3>
       <p>
-        À chaque tour, choisissez un champ d'action parmi dix, puis sélectionnez votre stratégie.<br>
+        À chaque tour, choisissez un champ d'action parmi huit, puis sélectionnez votre stratégie.<br>
         Le <b>lobby des pesticides</b> ripostera systématiquement.<br>
         Si l'un de vos trois indicateurs atteint <strong>zéro</strong>, la partie s'arrête immédiatement.
       </p>
@@ -113,7 +117,7 @@
         <span class="sp-icon" aria-hidden="true">📅</span>
         <div class="sp-content">
           <div class="chp-tour-num sp-label" id="chp-tour-num">Tour 1&nbsp;/&nbsp;10</div>
-          <div class="chp-tour-name" id="chp-tour-name">—</div>
+          <div class="chp-tour-name" id="chp-tour-name">-</div>
           <div class="chp-bar-bg"><div class="chp-bar" id="chp-bar"></div></div>
         </div>
       </button>
@@ -219,11 +223,11 @@
     <p class="end-subtitle" id="end-subtitle"></p>
     <div class="end-card"><p id="end-description"></p></div>
     <div class="end-card">
-      <h3><span aria-hidden="true">📊</span> Résumé de la Partie</h3>
+      <h3>Résumé de la partie</h3>
       <div class="scores-summary" id="end-scores"></div>
     </div>
     <div class="end-card">
-      <h3><span aria-hidden="true">👩🏽‍💼</span> Vos actions</h3>
+      <h3>Vos actions</h3>
       <div id="end-actions"></div>
     </div>
     <div class="end-card">
@@ -242,16 +246,15 @@
 <div id="screen-result" class="screen">
   <div class="end-box">
     <span class="end-icon" id="result-icon" aria-hidden="true">🏆</span>
-    <div class="result-type-badge"><span id="result-badge-span">Résultat</span></div>
     <h2 id="result-title"></h2>
     <p class="end-subtitle">Résultat du vote final</p>
     <div class="end-card"><p id="result-description"></p></div>
     <div class="end-card">
-      <h3><span aria-hidden="true">📊</span> Résumé de la Partie</h3>
+      <h3>Résumé de la partie</h3>
       <div class="scores-summary" id="result-scores"></div>
     </div>
     <div class="end-card">
-      <h3><span aria-hidden="true">👩🏽‍💼</span> Vos actions</h3>
+      <h3>Vos actions</h3>
       <div id="result-actions"></div>
     </div>
     <div class="end-card">
@@ -319,6 +322,8 @@
   </div>
 </div>
 
-<script src="game.js"></script>
+<div id="flash-overlay" aria-hidden="true"></div>
+
+<script src="game.js?v2"></script>
 </body>
 </html>
