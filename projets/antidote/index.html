@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ANTIDOTE - Bataille contre le lobby des pesticides</title>
-  <link rel="stylesheet" href="style.css?v2" />
-  <script src="game-data.js?v2"></script>
+  <link rel="stylesheet" href="style.css?v3" />
+  <script src="game-data.js?v3"></script>
 </head>
 <body>
 
@@ -16,7 +16,7 @@
 ═══════════════════════════════════════════════ -->
 <div id="screen-welcome" class="screen active">
   <div class="welcome-box">
-    <span class="big-icon" aria-hidden="true">☣️</span>
+    <span class="big-icon" aria-hidden="true">🌿</span>
     <h1>ANTIDOTE</h1>
     <p class="tagline">Bataille contre le lobby des pesticides</p>
 
@@ -31,12 +31,18 @@
           Son objectif : <strong>réautoriser plusieurs pesticides dangereux</strong> aujourd'hui interdits.
           Officieusement, l'<strong>AIPP</strong> (Association Industrielle de Protection des Plantes), le lobby des pesticides, est déjà à l'œuvre.
         </p>
-        <div style="margin-top:10px; display:flex; align-items:flex-start; gap:12px;">
+        <p>
+          Votre objectif est d'<strong>empêcher l'adoption de cette proposition de loi</strong> en augmentant le <strong>soutien du public</strong>
+          et votre <strong>influence politique</strong>, tout en préservant les ressources de l'association.
+        </p>
+        <p>
+          Vous disposez de <strong>8 actions</strong> à lancer avant le vote final.<br>
+          Votre score final déterminera l'issue du vote.
+        </p>
+        <div style="display:flex; align-items:flex-start; gap:12px;">
           <span class="wc-avatar" aria-hidden="true">👩🏽‍💼</span>
-          <p style="margin:0">
-            <strong>Naomi</strong>, directrice de l'association, va vous guider.<br>
-            Vous disposez de <strong>8 actions</strong> à lancer avant le vote final.<br>
-            Votre score final déterminera l'issue du vote.
+          <p style="margin:10px 0 0">
+            <strong>Naomi</strong>, directrice de l'association, va vous guider.
           </p>
         </div>
       </div>
@@ -47,18 +53,18 @@
       <div class="indicators-preview">
         <div class="indicator-chip">
           <span class="chip-icon" aria-hidden="true">👥</span>
-          <div class="chip-name">Soutien du Public</div>
+          <div class="chip-name">Soutien du public</div>
           <div class="chip-val">40</div>
         </div>
         <div class="indicator-chip">
           <span class="chip-icon" aria-hidden="true">🏛️</span>
-          <div class="chip-name">Influence Politique</div>
+          <div class="chip-name">Influence politique</div>
           <div class="chip-val">60</div>
         </div>
         <div class="indicator-chip">
           <span class="chip-icon" aria-hidden="true">💶</span>
           <div class="chip-name">Ressources</div>
-          <div class="chip-val">130</div>
+          <div class="chip-val">100</div>
         </div>
       </div>
     </div>
@@ -66,7 +72,8 @@
     <div class="welcome-card">
       <h3>Règles</h3>
       <p>
-        À chaque tour, choisissez un champ d'action parmi huit, puis sélectionnez votre stratégie.<br>
+        À chaque tour, choisissez un champ d'action parmi les 8, puis sélectionnez votre stratégie.<br>
+        Vous devrez arbitrer entre gagner du <strong>soutien public</strong>, renforcer votre <strong>influence politique</strong> et préserver les <strong>ressources financières</strong> de l'association.<br>
         Le <b>lobby des pesticides</b> ripostera systématiquement.<br>
         Si l'un de vos trois indicateurs atteint <strong>zéro</strong>, la partie s'arrête immédiatement.
       </p>
@@ -137,11 +144,11 @@
           <div class="sp-bar-bg"><div class="sp-bar" id="bar-political"></div></div>
         </div>
       </div>
-      <div class="score-pill" id="pill-resources" aria-label="Ressources : 130">
+      <div class="score-pill" id="pill-resources" aria-label="Ressources : 100">
         <span class="sp-icon" aria-hidden="true">💶</span>
         <div class="sp-content">
           <div class="sp-label" aria-hidden="true">Ressources</div>
-          <div class="sp-val" id="score-resources" aria-live="polite" aria-atomic="true">130</div>
+          <div class="sp-val" id="score-resources" aria-live="polite" aria-atomic="true">100</div>
           <div class="sp-bar-bg"><div class="sp-bar" id="bar-resources"></div></div>
         </div>
       </div>
@@ -200,13 +207,13 @@
 ═══════════════════════════════════════════════ -->
 <div class="push-notification" id="push-notification" role="alertdialog" aria-modal="true" aria-labelledby="pn-title-text" aria-describedby="pn-text">
   <div class="pn-header">
-    <span class="pn-app-icon" aria-hidden="true">🗞️</span>
-    <span class="pn-app-name" aria-hidden="true">Breaking News</span>
+    <span class="pn-app-icon" aria-hidden="true">🚨</span>
+    <span class="pn-app-name" aria-hidden="true">Alerte info</span>
     <button class="pn-close" onclick="closePushNotif()" aria-label="Fermer la notification">✕</button>
   </div>
   <div class="pn-body">
     <div class="pn-content">
-      <div class="pn-title" id="pn-title-text">Événement inattendu</div>
+      <div class="pn-title" id="pn-title-text"></div>
       <div class="pn-text" id="pn-text"></div>
       <div class="pn-deltas" id="pn-deltas"></div>
     </div>
@@ -218,24 +225,27 @@
 ═══════════════════════════════════════════════ -->
 <div id="screen-end" class="screen">
   <div class="end-box">
-    <span class="end-icon" id="end-icon" aria-hidden="true">❌</span>
+    <span class="end-icon" id="end-icon" aria-hidden="true"></span>
     <h2 id="end-title"></h2>
     <p class="end-subtitle" id="end-subtitle"></p>
     <div class="end-card"><p id="end-description"></p></div>
     <div class="end-card">
-      <h3>Résumé de la partie</h3>
+      <h3>Score final</h3>
       <div class="scores-summary" id="end-scores"></div>
-    </div>
-    <div class="end-card">
-      <h3>Vos actions</h3>
-      <div id="end-actions"></div>
     </div>
     <div class="end-card">
       <p id="end-conclusion"></p>
       <p class="cta-text" id="end-cta"></p>
     </div>
+    <div class="end-card">
+      <h3>Historique de vos actions</h3>
+      <div id="end-graph"></div>
+      <div id="end-actions"></div>
+    </div>
+    <div id="end-hint"></div>
     <div style="text-align:center; margin-top:20px;">
-      <button class="btn btn-primary" onclick="restartGame()">Rejouer</button>
+      <button class="btn btn-primary" style="margin-right: 2rem;">Nous soutenir</button>
+      <button class="btn" onclick="restartGame()">Rejouer</button>
     </div>
   </div>
 </div>
@@ -245,24 +255,26 @@
 ═══════════════════════════════════════════════ -->
 <div id="screen-result" class="screen">
   <div class="end-box">
-    <span class="end-icon" id="result-icon" aria-hidden="true">🏆</span>
+    <span class="end-icon" id="result-icon" aria-hidden="true"></span>
     <h2 id="result-title"></h2>
-    <p class="end-subtitle">Résultat du vote final</p>
     <div class="end-card"><p id="result-description"></p></div>
     <div class="end-card">
-      <h3>Résumé de la partie</h3>
+      <h3>Score final</h3>
       <div class="scores-summary" id="result-scores"></div>
-    </div>
-    <div class="end-card">
-      <h3>Vos actions</h3>
-      <div id="result-actions"></div>
     </div>
     <div class="end-card">
       <p id="result-conclusion"></p>
       <p class="cta-text" id="result-cta"></p>
     </div>
+    <div class="end-card">
+      <h3>Historique de vos actions</h3>
+      <div id="result-graph"></div>
+      <div id="result-actions"></div>
+    </div>
+    <div id="result-hint"></div>
     <div style="text-align:center; margin-top:20px;">
-      <button class="btn btn-primary" onclick="restartGame()">Rejouer</button>
+      <button class="btn btn-primary" style="margin-right: 2rem;">Nous soutenir</button>
+      <button class="btn" onclick="restartGame()">Rejouer</button>
     </div>
   </div>
 </div>
@@ -324,6 +336,6 @@
 
 <div id="flash-overlay" aria-hidden="true"></div>
 
-<script src="game.js?v2"></script>
+<script src="game.js?v3"></script>
 </body>
 </html>

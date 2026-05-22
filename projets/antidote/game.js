@@ -6,6 +6,9 @@
 let scores         = {};
 let playedPhases   = [];
 let playedActions  = [];
+let gameHistory    = [];
+let _usedMerciLabels  = [];
+let _activeMerciLabel = null;
 let phaseOrder     = [];
 let eventOrder     = [];
 let eventCount     = 0;
@@ -150,6 +153,9 @@ function startGame() {
   scores             = { ...GAME_DATA.initialScores };
   playedPhases       = [];
   playedActions      = [];
+  gameHistory        = [];
+  _usedMerciLabels   = [];
+  _activeMerciLabel  = null;
   phaseOrder         = shuffle(GAME_DATA.phases.map((_, i) => i));
   eventOrder         = shuffle(GAME_DATA.events.map((_, i) => i));
   eventCount         = 0;
@@ -813,13 +819,13 @@ function selectPhaseFromOverlay(phaseIndex) {
   pendingAction = { phaseIndex: phaseIndex };
   pendingOption = null;
 
-  // Mode panel (tous sauf tours 1, 4, 7 ; le tour 10 va toujours au panel)
-  if (playedPhases.length % 3 !== 0 || playedPhases.length === 9) {
+  // Mode panel
+  //if (playedPhases.length % 3 !== 0 || playedPhases.length === 9) {
     openStrategyPanel(phaseIndex);
     return;
-  }
+  //}
 
-  // Mode chat (tours 1, 4, 7) : demander à Naomi
+  // Mode chat : demander à Naomi
   closeActionsPanel();
   currentStep = 'option';
   typewriterInput('Que me recommandes-tu comme stratégies pour\u00a0: ' + GAME_DATA.phases[phaseIndex].title + '\u00a0?', null);
@@ -934,6 +940,7 @@ function sendMerci() {
   const inputEl = document.getElementById('chat-input-text');
   const text = (inputEl.textContent || '').trim() || 'Merci Naomi\u00a0!';
   document.getElementById('quick-replies').style.display = 'none';
+  if (_activeMerciLabel) { _usedMerciLabels.push(_activeMerciLabel); _activeMerciLabel = null; }
   currentStep = 'waiting';
   showDormantInput();
   playSound('760370__froey__message-sent.mp3');
@@ -1074,6 +1081,14 @@ function sendActionChoice() {
 
   _resourcesWentNegative = false;
   playedActions.push({ phase: phase.title, action: action.label });
+  gameHistory.push({
+    type: 'action',
+    turnNumber: playedPhases.length + 1,
+    phase: phase.title,
+    action: action.label,
+    effects: effects,
+    counterEffects: counterEffects,
+  });
   playedPhases.push(phaseIndex);
 
   pendingCounterData = {
@@ -1361,10 +1376,16 @@ function askAction() {
 
 /* ── Affiche "Merci Naomi" pré-rempli + Send actif ── */
 const MERCI_SUGGESTIONS = [
-  { label: 'Merci', text: 'Merci, on continue !' },
-  { label: 'Bien reçu', text: 'Bien reçu, on y va.' },
-  { label: 'Je réfléchis', text: 'Ok, je réfléchis.' },
+  { label: 'Merci', text: 'Merci, on continue...' },
+  { label: 'Bien reçu', text: 'Bien reçu, merci.' },
+  { label: 'On a encore du travail...', text: 'On a encore du travail...' },
   { label: 'Compris', text: 'Compris. A+' },
+  { label: 'C\'est noté', text: 'C\'est noté' },
+  { label: '👍', text: '👍' },
+  { label: '😡', text: '😡' },
+  { label: '😠', text: '😠' },
+  { label: '🤔', text: '🤔' },
+  { label: '😑', text: '😑' },
 ];
 
 function showMerciInput(cb, customSuggestions) {
@@ -1376,7 +1397,15 @@ function showMerciInput(cb, customSuggestions) {
   const sendBtn = document.getElementById('chat-send-btn');
   sendBtn.style.display = 'flex';
   inputEl.style.display = 'block';
-  const suggestions = customSuggestions || shuffle(MERCI_SUGGESTIONS).slice(0, 2);
+  const trackUsage = !customSuggestions;
+  let suggestions;
+  if (customSuggestions) {
+    suggestions = customSuggestions;
+  } else {
+    const pool = shuffle(MERCI_SUGGESTIONS.filter(function(s) { return !_usedMerciLabels.includes(s.label); }));
+    suggestions = (pool.length >= 2 ? pool : shuffle(MERCI_SUGGESTIONS)).slice(0, 2);
+  }
+  _activeMerciLabel = trackUsage ? suggestions[0].label : null;
   animateInputText(suggestions[0].text);
   enableSendBtn();
   _pendingSend = cb;
@@ -1393,6 +1422,7 @@ function showMerciInput(cb, customSuggestions) {
       animateInputText(s.text);
       qr.querySelectorAll('.qr-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
+      if (trackUsage) _activeMerciLabel = s.label;
       if (s.cb) { _pendingSend = s.cb; }
     });
     qr.appendChild(btn);
@@ -1422,7 +1452,7 @@ function showSequentialMessages(messages, onComplete) {
 function showExplanations() {
   showSequentialMessages([
     `Une proposition de loi vient d'être déposée au Sénat.<br>Officiellement, elle vise à "simplifier" les règles pour les agriculteurs.<br>Dans les faits : réintroduire des pesticides interdits.<br>L'AIPP (l'Association industrielle de protection des plantes), le lobby des pesticides, est déjà mobilisée pour la faire passer.`,
-    `Tu disposes de 8 tours avant le vote final.<br>À chaque tour, tu choisis une action : mobiliser des scientifiques, alerter les médias, convaincre des parlementaires…<br>C'est toi qui décides.`,
+    `Tu disposes de 8 tours avant le vote final pour augmenter le soutien public ou l'influence politique.<br>À chaque tour, tu choisis une action : mobiliser des scientifiques, alerter les médias, convaincre des parlementaires…<br>C'est toi qui décide.`,
     `Chaque action a un coût et un effet sur trois indicateurs :<br>→ Soutien du public<br>→ Influence politique<br>→ Ressources<br>Si l'un des trois tombe à zéro, la campagne s'arrête.`,
     `Dernière chose : le lobby ne restera pas passif.<br>À chaque action qu'on lance, l'AIPP réagira.`,
     `On y va ?`,
@@ -1468,6 +1498,13 @@ function triggerEvent() {
     applyEffects(event.effects);
     updateScoreboard(changedKeys(event.effects));
     showScoreDelta(event.effects);
+    gameHistory.push({
+      type: 'event',
+      icon: event.icon,
+      title: event.title,
+      description: event.description,
+      effects: event.effects,
+    });
 
     const zeroKey = checkZero();
 
@@ -1541,7 +1578,9 @@ function _doShowEarlyEnd(zeroKey) {
   document.getElementById('end-conclusion').textContent  = data.conclusion;
   document.getElementById('end-cta').textContent         = data.cta;
   document.getElementById('end-scores').innerHTML        = buildScoresSummary();
+  document.getElementById('end-graph').innerHTML         = buildScoreGraph();
   document.getElementById('end-actions').innerHTML       = buildActionsList();
+  document.getElementById('end-hint').innerHTML          = buildHintAccordion();
 
   setTimeout(() => flashToScreen('screen-end'), 60);
 }
@@ -1595,7 +1634,9 @@ function _doShowFinalResult() {
   document.getElementById('result-conclusion').textContent  = result.conclusion;
   document.getElementById('result-cta').textContent         = result.cta;
   document.getElementById('result-scores').innerHTML        = buildScoresSummary();
+  document.getElementById('result-graph').innerHTML         = buildScoreGraph();
   document.getElementById('result-actions').innerHTML       = buildActionsList();
+  document.getElementById('result-hint').innerHTML          = result.id !== 'complete_win' ? buildHintAccordion() : '';
 
   setTimeout(() => flashToScreen('screen-result'), 60);
 }
@@ -1616,18 +1657,190 @@ function sendJArrive() {
 /* ════════════════════════════════════════════
    RÉCAP
 ════════════════════════════════════════════ */
+
+/* ── Reconstruit la progression des scores depuis gameHistory ── */
+function computeScoreTimeline() {
+  var pub = GAME_DATA.initialScores.public;
+  var pol = GAME_DATA.initialScores.political;
+  var res = GAME_DATA.initialScores.resources;
+  var timeline = [{ label: 'Départ', public: pub, political: pol, resources: res }];
+  var evtCount = 0;
+
+  gameHistory.forEach(function(entry) {
+    if (entry.type === 'action') {
+      pub = Math.max(0, pub + (entry.effects.public     || 0));
+      pol = Math.max(0, pol + (entry.effects.political  || 0));
+      res = Math.max(0, res + (entry.effects.resources  || 0));
+      pub = Math.max(0, pub + (entry.counterEffects.public     || 0));
+      pol = Math.max(0, pol + (entry.counterEffects.political  || 0));
+      res = Math.max(0, res + (entry.counterEffects.resources  || 0));
+      timeline.push({ label: 'T.' + entry.turnNumber, public: pub, political: pol, resources: res, tooltip: entry.action });
+    } else if (entry.type === 'event') {
+      evtCount++;
+      pub = Math.max(0, pub + (entry.effects.public     || 0));
+      pol = Math.max(0, pol + (entry.effects.political  || 0));
+      res = Math.max(0, res + (entry.effects.resources  || 0));
+      timeline.push({ label: 'E' + evtCount, public: pub, political: pol, resources: res, isEvent: true, tooltip: entry.title });
+    }
+  });
+
+  return timeline;
+}
+
+/* ── Graphique SVG de progression ── */
+function buildScoreGraph() {
+  if (!gameHistory.length) return '';
+  var timeline = computeScoreTimeline();
+  if (timeline.length < 2) return '';
+
+  var W = 560, H = 180;
+  var ML = 34, MR = 10, MT = 12, MB = 34;
+  var CW = W - ML - MR;
+  var CH = H - MT - MB;
+  var n  = timeline.length;
+
+  // Échelle Y
+  var yMax = 20;
+  timeline.forEach(function(p) {
+    yMax = Math.max(yMax, p.public, p.political, p.resources);
+  });
+  yMax = Math.max(Math.ceil((yMax + 10) / 25) * 25, 50);
+  var yStep = yMax > 150 ? 50 : 25;
+
+  function xp(i) { return ML + (n < 2 ? CW / 2 : (i / (n - 1)) * CW); }
+  function yp(v) { return MT + CH * (1 - Math.min(v, yMax) / yMax); }
+
+  var o = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">';
+
+  // Grille Y
+  for (var yv = 0; yv <= yMax; yv += yStep) {
+    var yy = yp(yv).toFixed(1);
+    o += '<line x1="' + ML + '" y1="' + yy + '" x2="' + (W - MR) + '" y2="' + yy + '" stroke="#e4e1dc" stroke-width="0.8"/>';
+    o += '<text x="' + (ML - 3) + '" y="' + (parseFloat(yy) + 3.5).toFixed(1) + '" text-anchor="end" font-size="9" font-family="Arial,sans-serif" fill="#666">' + yv + '</text>';
+  }
+
+  // Marqueurs verticaux événements
+  timeline.forEach(function(p, i) {
+    if (!p.isEvent) return;
+    var xv = xp(i).toFixed(1);
+    o += '<line x1="' + xv + '" y1="' + MT + '" x2="' + xv + '" y2="' + (MT + CH) + '" stroke="#d4a72c" stroke-width="1.2" stroke-dasharray="3 2" opacity="0.55"/>';
+  });
+
+  // 3 lignes (resources en dessous, public au-dessus)
+  var COLS = { public: '#2d8a4e', political: '#1a5fb4', resources: '#e0882a' };
+  ['resources', 'political', 'public'].forEach(function(key) {
+    var pts = timeline.map(function(p, i) {
+      return xp(i).toFixed(1) + ',' + yp(p[key]).toFixed(1);
+    }).join(' ');
+    o += '<polyline points="' + pts + '" fill="none" stroke="' + COLS[key] + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    timeline.forEach(function(p, i) {
+      var r = p.isEvent ? '2' : '2.8';
+      o += '<circle cx="' + xp(i).toFixed(1) + '" cy="' + yp(p[key]).toFixed(1) + '" r="' + r + '" fill="' + COLS[key] + '"/>';
+    });
+  });
+
+  // Labels axe X (avec tooltip au survol)
+  timeline.forEach(function(p, i) {
+    var fill = p.isEvent ? '#8B6914' : '#555';
+    var xv = xp(i).toFixed(1);
+    var ty = MT + CH + 14;
+    if (p.tooltip) {
+      var esc = p.tooltip.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      o += '<g style="cursor:help">'
+        + '<title>' + esc + '</title>'
+        + '<rect x="' + (xp(i) - 13).toFixed(1) + '" y="' + (MT + CH + 2) + '" width="26" height="14" fill="transparent"/>'
+        + '<text x="' + xv + '" y="' + ty + '" text-anchor="middle" font-size="9" font-family="Arial,sans-serif" fill="' + fill + '">' + p.label + '</text>'
+        + '</g>';
+    } else {
+      o += '<text x="' + xv + '" y="' + ty + '" text-anchor="middle" font-size="9" font-family="Arial,sans-serif" fill="' + fill + '">' + p.label + '</text>';
+    }
+  });
+
+  o += '</svg>';
+
+  // Légende HTML sous le SVG
+  o += '<div class="graph-legend">'
+    + '<span class="graph-legend-item"><span class="gl-line" style="background:#2d8a4e"></span>👥 Soutien public</span>'
+    + '<span class="graph-legend-item"><span class="gl-line" style="background:#1a5fb4"></span>🏛️ Influence politique</span>'
+    + '<span class="graph-legend-item"><span class="gl-line" style="background:#e0882a"></span>💶 Ressources</span>'
+    + '<span class="graph-legend-item"><span class="gl-line gl-line-evt"></span>Événements</span>'
+    + '</div>';
+
+  return '<div class="score-graph-wrap">' + o + '</div>';
+}
+
 function buildActionsList() {
-  if (!playedActions.length) return '<p style="opacity:.7;font-size:.85rem;">Aucune action jouée.</p>';
-  return '<ol class="actions-recap-list">' +
-    playedActions.map(function(a) {
-      return '<li><span class="ar-phase">' + a.phase + '</span> - ' + a.action + '</li>';
-    }).join('') +
-    '</ol>';
+  if (!gameHistory.length) return '';
+
+  var inner = '<div class="actions-recap">';
+  gameHistory.forEach(function(entry) {
+    if (entry.type === 'action') {
+      inner += '<div class="recap-turn">';
+      inner += '<div class="recap-turn-header">';
+      inner += '<span class="recap-turn-num">Tour ' + entry.turnNumber + '</span>';
+      inner += '<span class="recap-turn-phase">' + entry.phase + '</span>';
+      inner += '</div>';
+      inner += '<div class="recap-turn-action">' + entry.action + '</div>';
+      inner += '<div class="recap-deltas">';
+      inner += '<div class="recap-delta-row">';
+      inner += '<span class="recap-delta-label">Votre action</span>';
+      inner += '<span class="recap-delta-chips">' + buildDeltaChips(entry.effects) + '</span>';
+      inner += '</div>';
+      inner += '<div class="recap-delta-row">';
+      inner += '<span class="recap-delta-label">Contre-offensive du lobby</span>';
+      inner += '<span class="recap-delta-chips">' + buildDeltaChips(entry.counterEffects) + '</span>';
+      inner += '</div>';
+      inner += '</div>';
+      inner += '</div>';
+    } else if (entry.type === 'event') {
+      inner += '<div class="recap-event">';
+      inner += '<div class="recap-event-header">';
+      inner += '<span class="recap-event-icon" aria-hidden="true">' + entry.icon + '</span>';
+      inner += '<span class="recap-event-title">' + entry.title + '</span>';
+      inner += '</div>';
+      inner += '<div class="recap-delta-chips">' + buildDeltaChips(entry.effects) + '</div>';
+      inner += '</div>';
+    }
+  });
+  inner += '</div>';
+
+  return '<button class="recap-accordion-btn" onclick="toggleRecapAccordion(this)" aria-expanded="false">'
+    + '<span>Voir le détail tour par tour</span>'
+    + '<span class="recap-accordion-arrow" aria-hidden="true">&#9660;</span>'
+    + '</button>'
+    + '<div class="recap-accordion-body" hidden>' + inner + '</div>';
+}
+
+function toggleRecapAccordion(btn) {
+  var body = btn.nextElementSibling;
+  var open = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+  body.hidden = open;
+  btn.querySelector('.recap-accordion-arrow').innerHTML = open ? '&#9660;' : '&#9650;';
+}
+
+function buildHintAccordion() {
+  var body = '<div class="hint-accordion-body">'
+    + '<p><strong>Les 3 premiers tours sont décisifs.</strong> Pour construire une stratégie solide, essayez les options suivantes :</p>'
+    + '<ol class="hint-list">'
+    + '<li><strong>Alliance avec des associations de santé :</strong> cela booste immédiatement le soutien public et crédibilise votre plaidoyer sur un terrain légitime.</li>'
+    + '<li><strong>Audition en commission parlementaire :</strong> une audience directe avec les élus renforce votre influence politique au moment où le lobby n\'a pas encore contre-attaqué.</li>'
+    + '<li><strong>Méta-analyse scientifique :</strong> un rapport indépendant consolide la crédibilité de vos arguments et rend les positions du lobby plus difficiles à défendre.</li>'
+    + '</ol>'
+    + '<p style="margin-bottom:0">Ces trois actions combinées établissent un avantage durable sur les deux indicateurs <strong>Soutien du public</strong> et <strong>Influence politique</strong> avant que le lobby des pesticides ne monte en puissance.</p>'
+    + '</div>';
+  return '<div class="hint-accordion-wrap">'
+    + '<button class="hint-accordion-btn" onclick="toggleRecapAccordion(this)" aria-expanded="false">'
+    + '<span>&#128161; Voir un indice avant de rejouer</span>'
+    + '<span class="recap-accordion-arrow" aria-hidden="true">&#9660;</span>'
+    + '</button>'
+    + '<div class="recap-accordion-body hint-accordion-body" hidden>' + body + '</div>'
+    + '</div>';
 }
 
 function buildScoresSummary() {
-  return '<div class="summary-item"><div class="si-icon" aria-hidden="true">👥</div><div class="si-label">Soutien du Public</div><div class="si-val">' + scores.public + '</div></div>' +
-    '<div class="summary-item"><div class="si-icon" aria-hidden="true">🏛️</div><div class="si-label">Influence Politique</div><div class="si-val">' + scores.political + '</div></div>' +
+  return '<div class="summary-item"><div class="si-icon" aria-hidden="true">👥</div><div class="si-label">Soutien du public</div><div class="si-val">' + scores.public + '</div></div>' +
+    '<div class="summary-item"><div class="si-icon" aria-hidden="true">🏛️</div><div class="si-label">Influence politique</div><div class="si-val">' + scores.political + '</div></div>' +
     '<div class="summary-item"><div class="si-icon" aria-hidden="true">💶</div><div class="si-label">Ressources</div><div class="si-val">' + scores.resources + '</div></div>';
 }
 
@@ -1660,23 +1873,90 @@ document.addEventListener('keydown', function(e) {
    DEBUG : accès direct aux écrans de résultat
    ?lobby_win | ?partial_win | ?statu_quo | ?complete_win
    ?resourcesZero | ?publicZero | ?politicalZero
+   ?result  → simule une partie complète aléatoire
 ════════════════════════════════════════════ */
 (function() {
-  const params = new URLSearchParams(window.location.search);
-  const finalIds = ['lobby_win', 'partial_win', 'statu_quo', 'complete_win'];
-  const endKeys  = { resourcesZero: 'resources', publicZero: 'public', politicalZero: 'political' };
+  var params = new URLSearchParams(window.location.search);
+  var finalIds = ['lobby_win', 'partial_win', 'statu_quo', 'complete_win'];
+  var endKeys  = { resourcesZero: 'resources', publicZero: 'public', politicalZero: 'political' };
 
-  const finalId = finalIds.find(function(id) { return params.has(id); });
-  const endParam = Object.keys(endKeys).find(function(k) { return params.has(k); });
+  var finalId  = finalIds.find(function(id) { return params.has(id); });
+  var endParam = Object.keys(endKeys).find(function(k) { return params.has(k); });
+
+  /* ── Simulation aléatoire d'une partie complète ── */
+  if (params.has('result')) {
+    scores        = { ...GAME_DATA.initialScores };
+    playedPhases  = [];
+    playedActions = [];
+    gameHistory   = [];
+
+    var simEventOrder = shuffle(GAME_DATA.events.map(function(_, i) { return i; }));
+    var simEventCount = 0;
+
+    for (var turn = 0; turn < GAME_DATA.phases.length; turn++) {
+      if (scores.public <= 0 || scores.political <= 0 || scores.resources <= 0) break;
+
+      // Phases disponibles (hors déjà jouées et verrouillées)
+      var available = GAME_DATA.phases
+        .map(function(_, i) { return i; })
+        .filter(function(i) {
+          var lu = GAME_DATA.phases[i].lockedUntil;
+          return !playedPhases.includes(i) && !(lu && playedPhases.length < lu);
+        });
+      if (!available.length) break;
+
+      var phaseIndex = available[Math.floor(Math.random() * available.length)];
+      var phase      = GAME_DATA.phases[phaseIndex];
+      var band       = getTourBand(); // lu avant push dans playedPhases
+      var actionIdx  = Math.floor(Math.random() * phase.actions.length);
+      var action     = phase.actions[actionIdx];
+
+      var effects        = action.effectsByTour        ? action.effectsByTour[band]        : (action.effects        || {});
+      var counterEffects = action.counterEffectsByTour ? action.counterEffectsByTour[band] : (action.counterEffects || {});
+
+      gameHistory.push({
+        type: 'action',
+        turnNumber: playedPhases.length + 1,
+        phase: phase.title,
+        action: action.label,
+        effects: effects,
+        counterEffects: counterEffects,
+      });
+
+      applyEffects(effects);
+      applyEffects(counterEffects);
+      playedPhases.push(phaseIndex);
+      playedActions.push({ phase: phase.title, action: action.label });
+
+      // Événement aléatoire tous les 2 tours (sauf après le dernier tour)
+      if (playedPhases.length % 2 === 0 && playedPhases.length < GAME_DATA.phases.length) {
+        var evtIdx = simEventOrder[simEventCount % simEventOrder.length];
+        var evt    = GAME_DATA.events[evtIdx];
+        simEventCount++;
+        applyEffects(evt.effects);
+        gameHistory.push({
+          type: 'event',
+          icon: evt.icon,
+          title: evt.title,
+          description: evt.description,
+          effects: evt.effects,
+        });
+      }
+    }
+
+    _doShowFinalResult();
+    return;
+  }
 
   if (!finalId && !endParam) return;
 
   scores        = { ...GAME_DATA.initialScores, score: 0 };
   playedPhases  = [];
   playedActions = [];
+  gameHistory   = [];
 
   if (finalId) {
-    const scoreMap = { complete_win: 95, partial_win: 70, statu_quo: 35, lobby_win: 5 };
+    var scoreMap = { complete_win: 95, partial_win: 70, statu_quo: 35, lobby_win: 5 };
     scores.score = scoreMap[finalId];
     _doShowFinalResult();
   } else {

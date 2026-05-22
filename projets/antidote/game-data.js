@@ -1,16 +1,16 @@
 const GAME_DATA = {
-  initialScores: { public: 40, political: 60, resources: 130, score: 0 },
+  initialScores: { public: 40, political: 60, resources: 100, score: 0 },
 
   endConditions: {
     publicZero: {
-      title: "Fin de Partie - Soutien du Public à 0",
+      title: "Fin de Partie - Soutien du public à 0",
       subtitle: "La mobilisation citoyenne s'est effondrée",
       description: "Sans soutien populaire, ANTIDOTE n'a plus de poids dans le débat. Les médias ont tourné le dos à la cause, les élus ne voient plus de pression citoyenne suffisante pour résister aux industriels. L'AIPP a réussi à décrédibiliser la mobilisation et à isoler l'association. La proposition de loi avance sans opposition effective.",
       conclusion: "Ce résultat montre à quel point le soutien du public est le carburant des campagnes de plaidoyer. Rejouez en privilégiant les actions qui renforcent la mobilisation citoyenne et en contrant les offensives médiatiques du lobby.",
       cta: "La bataille contre les pesticides est réelle. Informez-vous sur les actions des associations environnementales et comment vous pouvez les soutenir."
     },
     politicalZero: {
-      title: "Fin de Partie - Influence Politique à 0",
+      title: "Fin de Partie - Influence politique à 0",
       subtitle: "ANTIDOTE n'a plus aucun relais dans les institutions",
       description: "La pression du lobby a fini par isoler ANTIDOTE de toute la sphère politique. Les parlementaires qui soutenaient la cause ont reculé sous la pression des industriels. Sans alliés au sein des institutions, il est impossible de peser sur le vote. La proposition de loi est sur le point d'être adoptée sans opposition.",
       conclusion: "Cet échec illustre l'importance du plaidoyer institutionnel. Les associations doivent cultiver des relais politiques solides pour faire contrepoids aux lobbies industriels qui ont un accès privilégié aux décideurs.",
@@ -72,7 +72,7 @@ const GAME_DATA = {
     {
       id: "health_data",
       icon: "🔬",
-      title: "Publication de nouvelles données sanitaires",
+      title: "Nouvelles données choc sur les pesticides",
       description: "Une agence publique publie de nouvelles données sur l'exposition aux pesticides dans les zones agricoles. Le débat prend une dimension sanitaire inattendue.",
       outcome: "Les données appuient les arguments d'ANTIDOTE.<br>Les médias s'emparent du sujet, plusieurs parlementaires se mobilisent dans la presse contre la proposition de loi.",
       effects: { public: 10, political: 10, resources: 0, score: 10 }
@@ -80,7 +80,7 @@ const GAME_DATA = {
     {
       id: "journalism",
       icon: "📰",
-      title: "Enquête journalistique",
+      title: "Pesticides : notre enquête sur les liens entre lobby et politique",
       description: "Publication d'une enquête révélant les liens étroits entre plusieurs responsables de l'industrie des pesticides et des décideurs politiques. En effet, l'ancien collaborateur parlementaire du rapporteur du texte vient de rejoindre l'équipe affaires publiques de l'AIPP.",
       outcome: "L'enquête fragilise publiquement la position du lobby.<br>Les parlementaires les plus proches des industriels sont sur la défensive.",
       effects: { public: 15, political: 10, resources: 0, score: 15 }
@@ -88,7 +88,7 @@ const GAME_DATA = {
     {
       id: "farm_mobilization",
       icon: "🚜",
-      title: "Mobilisation agricole nationale",
+      title: "Pesticides : forte mobilisation agricole",
       description: "Le syndicat agricole majoritaire appelle à soutenir la réautorisation des pesticides et organise une journée nationale de mobilisation.",
       outcome: "La mobilisation des agriculteurs met les parlementaires ruraux sous forte pression.<br>Le rapport de force se durcit en faveur du lobby.",
       effects: { public: -15, political: -5, resources: 0, score: -10 }
@@ -96,7 +96,7 @@ const GAME_DATA = {
     {
       id: "gov_arbitration",
       icon: "🏛️",
-      title: "Arbitrage du gouvernement",
+      title: "La ministre soutient la réautorisation",
       description: "La ministre de l'Agriculture prend position publiquement dans le débat sur la réautorisation des pesticides, invoquant les difficultés économiques du monde agricole.",
       outcome: "La prise de position de la ministre fragilise la coalition parlementaire opposée à la loi.<br>Nous devons redoubler d'efforts pour maintenir nos alliés.",
       effects: { public: -5, political: -15, resources: 0, score: -15 }
@@ -162,9 +162,9 @@ const GAME_DATA = {
             "C'est une réussite ! La salle est pleine, les échanges sont riches.<br>Et surtout, ça donne une image unitaire de notre mobilisation."
           ],
           effectsByTour: [
-            { resources: -10, political: 10, public: 15, score: 10 },
-            { resources: -10, political: 10, public: 10, score: 10 },
-            { resources: -10, political: 5,  public: 10, score: 10 },
+            { resources: -20, political: 10, public: 15, score: 10 },
+            { resources: -20, political: 10, public: 10, score: 10 },
+            { resources: -20, political: 5,  public: 10, score: 10 },
           ],
           naomiCounterMessages: [
             "L'AIPP vient de qualifier notre forum de \"grand-messe idéologique\" dans un communiqué.<br>Repris par plusieurs médias proches du lobby.<br>Ils essaient de réduire ça à du militantisme.<br>On va devoir tenir le cap."
