@@ -255,12 +255,18 @@ nav.sommaire li a {
 .focus-services {
   margin: 3rem 0;
   padding: 2rem;
-  border: 3px solid #000;
+  background-color: #000;
+  color: white;
+}
+
+.focus-services p {
+  margin: 0;
 }
 
 .focus-services .button {
   display: inline-block;
   margin-top: 1rem;
+  margin-bottom: 0;
 }
 
 .publication {
