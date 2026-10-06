@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The community video game — Build a sustainable community</title>
+  <meta name="description" content="The community, a cosy single-player narrative game blending community management, exploration and cooperative puzzles. Sign up to follow its development.">
+  <meta property="og:title" content="The community">
+  <meta property="og:description" content="Build a sustainable community in a place full of mysteries. A cosy narrative game in development.">
+  <meta property="og:image" content="img/TheCommunity_Town2.png">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0b4535">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Figtree:ital,wght@0,400;0,500;0,700;1,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #0b4535;
+      --forest-deep: #072e24;
+      --leaf: #3f7a52;
+      --paper: #f5ead6;
+      --paper-light: #fbf5ea;
+      --brick: #962020;
+      --terracotta: #c0785a;
+      --ink: #1f2a26;
+      --ink-soft: #4a5550;
+      --radius: 14px;
+      --max: 1160px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Figtree", system-ui, sans-serif;
+      font-size: 1.0625rem;
+      line-height: 1.6;
+      color: var(--ink);
+      background: var(--paper-light);
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; }
+
+    .script { font-family: "Kaushan Script", cursive; font-weight: 400; line-height: 1.05; }
+    .wrap { width: min(100% - 32px, var(--max)); margin-inline: auto; }
+    .eyebrow {
+      display: inline-block;
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--brick);
+    }
+    .tag {
+      display: inline-block;
+      background: var(--terracotta);
+      color: #fff;
+      font-size: .85rem;
+      font-weight: 700;
+      padding: .15em .5em;
+    }
+
+    /* ---------- Newsletter form ---------- */
+    .signup { display: flex; max-width: 480px; }
+    .signup input[type="email"] {
+      flex: 1 1 240px;
+      min-width: 0;
+      font: inherit;
+      padding: .85em 1.1em;
+      border-radius: 999px 0 0 999px;
+      border: 2px solid transparent;
+      background: var(--paper-light);
+      color: var(--ink);
+    }
+    .signup input[type="email"]:focus { outline: none; border-color: var(--terracotta); }
+    .signup button {
+      flex: 0 0 auto;
+      font: inherit;
+      font-weight: 700;
+      padding: .85em 1.5em;
+      border: 0;
+      border-radius: 0 999px 999px 0;
+      background: var(--brick);
+      color: #fff;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .signup button:hover { background: #7d1818; }
+    .signup button:disabled { opacity: .6; cursor: wait; }
+    .signup .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+    .signup-note { font-size: .85rem; margin: .7rem 0 0; opacity: .8; max-width: 480px; }
+    .signup-msg { font-weight: 700; margin: .7rem 0 0; min-height: 1.6em; }
+    .signup-msg.ok { color: #b9e4c4; }
+    .signup-msg.err { color: #ffb4a8; }
+    .light .signup-msg.ok { color: var(--leaf); }
+    .light .signup-msg.err { color: var(--brick); }
+    .light .signup input[type="email"] { background: #fff; border-color: #e3d4bb; }
+    .light .signup input[type="email"]:focus { border-color: var(--terracotta); }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: grid;
+      align-items: center;
+      background: var(--forest);
+      color: #fff;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0 20% 0 0;
+      z-index: -1;
+      background: url("img/TheCommunity_Town2.png") left center / cover no-repeat;
+      animation: drift 40s ease-in-out infinite alternate;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(90deg, rgba(11,69,53,0) 45%, rgba(11,69,53,.7) 66%, var(--forest) 80%);
+    }
+    @keyframes drift { from { transform: scale(1.04); } to { transform: scale(1.1); } }
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(48px, 9vh, 120px);
+      width: min(100% - 32px, 42%, 560px);
+      margin: 0 clamp(16px, 6vw, 110px) 0 auto;
+      padding: 48px 0;
+    }
+    .hero h1 {
+      margin: 0;
+      align-self: flex-start;
+      font-size: clamp(4.5rem, 8vw, 8rem);
+      text-shadow: 0 4px 24px rgba(7,46,36,.45);
+    }
+    .hero h1 small { display: block; font-size: .42em; margin: 0 0 -.7em .7em; }
+    .hero-quote {
+      width: min(100%, 380px);
+      margin: 0;
+      text-align: center;
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+      line-height: 1.5;
+    }
+    .hero-quote cite { display: block; font-style: normal; font-weight: 400; font-size: .9rem; opacity: .75; margin-top: 1.2rem; }
+
+    /* ---------- Sections ---------- */
+    section { padding: clamp(64px, 10vw, 120px) 0; }
+    .section-title { font-size: clamp(2.6rem, 6vw, 4rem); color: var(--forest); margin: 0 0 1.5rem; }
+
+    .pitch { background: var(--paper-light); }
+    .pitch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+    .pitch h3 { color: var(--brick); font-size: 1.35rem; line-height: 1.3; margin: 0 0 1rem; }
+    .pitch p { color: var(--ink-soft); margin: 0 0 1rem; }
+    .pitch .strong { color: var(--ink); font-weight: 700; }
+    .pitch figure { margin: 0; position: relative; }
+    .pitch figure img { filter: drop-shadow(0 18px 30px rgba(60,40,10,.18)); }
+    figcaption { font-size: .85rem; color: var(--ink-soft); margin-top: .6rem; }
+    figcaption .tag { margin-right: .4em; }
+
+    .facts {
+      background: var(--paper);
+      border-radius: var(--radius);
+      padding: clamp(24px, 4vw, 40px);
+      margin-top: clamp(40px, 6vw, 72px);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px 32px;
+    }
+    .facts dt { font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--brick); }
+    .facts dd { margin: .25rem 0 0; }
+
+    .pillars { background: var(--forest); color: #fff; }
+    .pillars .section-title { color: #fff; }
+    .pillar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 2.5rem; }
+    .pillar {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .pillar .num { font-family: "Kaushan Script", cursive; font-size: 2.6rem; color: var(--terracotta); line-height: 1; }
+    .pillar h3 { font-size: 1.2rem; margin: .6rem 0 .5rem; }
+    .pillar p { margin: 0; opacity: .82; }
+    .themes { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2.5rem; padding: 0; list-style: none; }
+    .themes li { border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: .35em 1em; font-size: .92rem; }
+
+    .mystery {
+      background: radial-gradient(ellipse at 70% 40%, #3b2a1a 0%, #1a130d 60%, #0f0b08 100%);
+      color: #f1e4cf;
+    }
+    .mystery-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+    .mystery .section-title { color: #f1e4cf; }
+    .mystery .eyebrow { color: var(--terracotta); }
+    .mystery p { opacity: .85; }
+    .mystery blockquote {
+      margin: 1.6rem 0 0; padding-left: 1rem; border-left: 3px solid var(--terracotta);
+      font-style: italic; font-weight: 500; font-size: 1.15rem;
+    }
+    .mystery img { filter: drop-shadow(0 0 60px rgba(214,150,80,.25)); }
+
+    .characters { background: var(--paper); }
+    .char-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+    .char-grid p { color: var(--ink-soft); }
+
+    .cta { background: var(--forest); color: #fff; text-align: center; position: relative; overflow: hidden; }
+    .cta .wrap { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; }
+    .cta .section-title { color: #fff; }
+    .cta p { max-width: 560px; opacity: .88; margin: 0 0 1.8rem; }
+    .cta .signup { justify-content: center; width: 100%; }
+    .cta .signup-note { text-align: center; }
+
+    .creators { background: var(--paper-light); }
+    .creators-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(32px, 6vw, 80px); align-items: center; }
+    .creators figure { margin: 0; }
+    .creators img { border-radius: var(--radius); box-shadow: 0 18px 40px rgba(11,69,53,.18); }
+    .creators p { color: var(--ink-soft); }
+
+    footer { background: var(--forest-deep); color: rgba(255,255,255,.75); font-size: .92rem; padding: 40px 0; }
+    footer .wrap { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px 40px; align-items: center; }
+    footer .credits { text-align: center; max-width: 380px; }
+    footer .support { justify-self: end; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; font-size: .85rem; text-align: right; }
+    footer .support img { width: 140px; }
+    footer .logo { font-family: "Kaushan Script", cursive; font-size: 1.6rem; color: #fff; }
+    footer a { color: #fff; }
+
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 860px) {
+      .hero { align-items: end; }
+      .hero::after { background: linear-gradient(180deg, rgba(11,69,53,0) 30%, rgba(11,69,53,.8) 52%, var(--forest) 62%); }
+      .hero-bg { inset: 0 0 auto 0; height: 62%; background-position: 40% center; }
+      .hero-content { width: min(100% - 32px, 560px); margin-inline: auto; gap: 40px; padding-bottom: 56px; }
+      .pitch-grid, .mystery-grid, .char-grid, .creators-grid { grid-template-columns: 1fr; }
+      .pillar-grid { grid-template-columns: 1fr; }
+      footer .wrap { grid-template-columns: 1fr; justify-items: center; }
+      footer .support { justify-self: center; align-items: center; text-align: center; }
+      .char-grid figure { order: -1; max-width: 420px; margin-inline: auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .hero-bg { animation: none; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-bg" role="img" aria-label="Concept art of the estate: a stone tower, a straw-clay house and a vegetable garden in the middle of the forest"></div>
+    <div class="wrap hero-content">
+      <h1 class="script"><small>The</small>community</h1>
+      <blockquote class="hero-quote">“Utopia shrinks in the cooking, which is why you need a huge amount of it to start&nbsp;with.”<cite>Gébé, L'An 01</cite></blockquote>
+    </div>
+  </header>
+
+  <main>
+    <section class="pitch" id="the-game">
+      <div class="wrap">
+        <div class="pitch-grid">
+          <div class="reveal">
+            <h2 class="section-title script">Build a sustainable community</h2>
+            <h3>in a place full of mysteries</h3>
+            <p>Settle your community in a charming yet enigmatic place, where every character brings their own skills. Turn it into a self-sufficient eco-hamlet, manage resources while respecting the environment, solve puzzles and uncover buried stories that could well change the course of the adventure.</p>
+            <p>Challenges abound: limited resources, internal conflicts, the consequences of climate change…</p>
+            <p class="strong">Invent a sustainable future for your residents while unravelling the mysteries of the past.</p>
+          </div>
+          <figure class="reveal">
+            <img src="img/TheCommunity_House.png" width="800" height="519" loading="lazy" alt="Modern straw-clay house with solar panels on the roof">
+          </figure>
+        </div>
+
+        <dl class="facts reveal">
+          <div><dt>Genre</dt><dd>Single-player management and narrative</dd></div>
+          <div><dt>Platforms</dt><dd>PC</dd></div>
+          <div><dt>Languages</dt><dd>English / French</dd></div>
+          <div><dt>For whom?</dt><dd>Teens, adults, fans of cosy and narrative games</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="pillars">
+      <div class="wrap">
+        <div class="reveal">
+          <h2 class="section-title script">Build, cooperate, discover</h2>
+        </div>
+        <div class="pillar-grid">
+          <article class="pillar reveal">
+            <div class="num">1</div>
+            <h3>Building and gentle management</h3>
+            <p>Renovate buildings, decorate, grow the vegetable garden, collect water. Simple, accessible management.</p>
+          </article>
+          <article class="pillar reveal">
+            <div class="num">2</div>
+            <h3>Storytelling</h3>
+            <p>Talk with the residents, learn about their life journeys and make choices that shape the community's story.</p>
+          </article>
+          <article class="pillar reveal">
+            <div class="num">3</div>
+            <h3>Cooperative puzzles</h3>
+            <p>Switch between characters to combine their know-how: sometimes you'll need a blacksmith's help to open a sealed gate…</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="mystery">
+      <div class="wrap mystery-grid">
+        <figure class="reveal" style="margin:0">
+          <img src="img/TheCommunity_Cave.png" width="800" height="578" loading="lazy" alt="Stone cellar closed off by a metal gate, the word Libertas carved into the wall, an old bell in a corner">
+        </figure>
+        <div class="reveal">
+          <h2 class="section-title script">What is this place hiding?</h2>
+          <p>
+            Behind its apparent calm, the hamlet holds a history and secrets that unfold as you play. A sealed gate at the back of a cellar. A word carved into stone. An unfinished letter slipped into a crack in a wall…
+            Was it once a prison? A monastery?
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="characters">
+      <div class="wrap char-grid">
+        <div class="reveal">
+          <h2 class="section-title script">The characters</h2>
+          <p>
+            Each character has a personal story that you will
+            uncover over the course of the game, and specific skills
+            or know-how that move the story forward.
+          </p>
+          <p>
+            New characters join the
+            community: single people, couples,
+            families… And others will leave, weary of communal life and of conflicts
+            between residents.
+          </p>
+        </div>
+        <figure class="reveal" style="margin:0">
+          <img src="img/TheCommunity_Characters.png" width="800" height="778" loading="lazy" alt="Maya, in a purple dress, holds a paintbrush; Achille, bearded with round glasses, holds a hammer">
+        </figure>
+      </div>
+    </section>
+
+    <section class="creators">
+      <div class="wrap creators-grid">
+        <figure class="reveal">
+          <a href="https://www.trois-rivieres.net/" target="_blank"><img src="img/trois-rivieres-splash.png" width="1709" height="933" loading="lazy" alt="Trois-Rivières title screen: a young traveller with a backpack gazes over a valley crossed by rivers, in pixel art"></a>
+        </figure>
+        <div class="reveal">
+          <h2 class="section-title script">From the creators of Trois-Rivières</h2>
+          <p>Richard Hanna (original idea, code), Philippe Salib (art direction) and David Fonteix (narrative design and music) are the authors of <em>Trois-Rivières</em>, a video game published free online with the support of the French Ministry of Culture and ADEME, the French ecological transition agency.</p>
+          <p>For <em>The community</em>, they are joined by Christel Médénouvo Yamajako, writer and narrative consultant on inclusion and intercultural issues.</p>
+          <p><a href="https://www.trois-rivieres.net/" target="_blank">Play Trois-Rivières</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta" id="newsletter">
+      <div class="wrap reveal">
+        <h2 class="section-title script">Join the community</h2>
+        <p>Sign up to follow the making of the game, see the first concept art and take part in the beta tests.</p>
+        <form class="signup" novalidate>
+          <label for="email-cta" class="hp">Email address</label>
+          <input id="email-cta" type="email" name="email" placeholder="you@email.com" autocomplete="email" required>
+          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button type="submit">Sign up</button>
+        </form>
+        <p class="signup-msg" role="status" aria-live="polite"></p>
+        <p class="signup-note">Your address will only be used to send you news about The community.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span class="logo">The community</span>
+      <span class="credits">A game by Richard Hanna, Philippe Salib, Christel Médénouvo Yamajako and David Fonteix.</span>
+      <div class="support">
+        <span>With the support of<br>Centre national du cinéma et de l’image animée</span>
+        <img src="img/cnc.png" width="1800" height="376" loading="lazy" alt="Centre national du cinéma et de l’image animée">
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Newsletter service URL (Brevo, Mailchimp, Buttondown, PHP script…).
+    // The form sends a POST with an "email" field. Leave empty for local testing.
+    const NEWSLETTER_ENDPOINT = "";
+
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    document.querySelectorAll(".signup").forEach((form) => {
+      const msg = form.nextElementSibling;
+      const button = form.querySelector("button");
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const email = form.email.value.trim();
+        msg.className = "signup-msg";
+
+        if (form.website.value) return; // honeypot anti-spam
+        if (!EMAIL_RE.test(email)) {
+          msg.textContent = "Please enter a valid email address.";
+          msg.classList.add("err");
+          form.email.focus();
+          return;
+        }
+
+        button.disabled = true;
+        try {
+          if (NEWSLETTER_ENDPOINT) {
+            const response = await fetch(NEWSLETTER_ENDPOINT, {
+              method: "POST",
+              body: new FormData(form),
+            });
+            if (!response.ok) throw new Error(response.statusText);
+          } else {
+            console.warn("NEWSLETTER_ENDPOINT not configured: the address was not saved.");
+          }
+          msg.textContent = "Thank you! You're now following The community's adventure.";
+          msg.classList.add("ok");
+          form.reset();
+        } catch (error) {
+          msg.textContent = "Oops, sign-up failed. Please try again in a moment.";
+          msg.classList.add("err");
+        } finally {
+          button.disabled = false;
+        }
+      });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+  </script>
+</body>
+</html>
